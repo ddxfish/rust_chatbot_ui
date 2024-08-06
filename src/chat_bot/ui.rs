@@ -6,6 +6,7 @@ use super::{ChatBot, Message};
 pub fn view(chat_bot: &ChatBot) -> Element<Message> {
     let input = text_input("Type a message...", &chat_bot.input)
         .on_input(Message::InputChanged)
+        .on_submit(Message::InputSubmit) // Add this line to handle Enter key press
         .padding(10);
 
     let send_button = button("Send").on_press(Message::Send);

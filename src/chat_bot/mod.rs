@@ -50,7 +50,7 @@ impl Application for ChatBot {
                 debug!("Input changed: {}", self.input);
                 Command::none()
             }
-            Message::Send => {
+            Message::Send | Message::InputSubmit => { // Handle both Send and InputSubmit
                 let user_message = self.input.clone();
                 self.messages.push(format!("You: {}", user_message));
                 self.conversation_history.push(json!({
@@ -59,11 +59,11 @@ impl Application for ChatBot {
                 }));
                 self.input.clear();
                 info!("Sending message to API");
-
+    
                 let conversation_history = self.conversation_history.clone();
                 let api_key = self.api_key.clone();
                 let handle = self.runtime.handle().clone();
-
+    
                 Command::perform(
                     async move {
                         handle.block_on(send_message_to_api(conversation_history, api_key))
