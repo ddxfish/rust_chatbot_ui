@@ -1,0 +1,19 @@
+use crate::message::Message;
+
+pub struct Chatbot;
+
+impl Chatbot {
+    pub fn new() -> Self {
+        Self
+    }
+
+    pub fn generate_response(&self, messages: &Vec<Message>) -> String {
+        // This is a placeholder implementation. Replace this with your actual chatbot logic.
+        let context = messages.iter()
+            .map(|m| m.content())
+            .collect::<Vec<&str>>()
+            .join(" ");
+
+        format!("I received your message. Context length: {} characters.", context.len())
+    }
+}

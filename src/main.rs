@@ -1,12 +1,16 @@
-mod chat_bot;
-mod api;
+mod app;
+mod chat;
+mod ui;
+mod message;
+mod chatbot;
 
-use chat_bot::ChatBot;
-use iced::{Settings, Application};
-use log::info;
+use eframe::NativeOptions;
 
-fn main() -> iced::Result {
-    env_logger::init();
-    info!("Starting ChatBot application");
-    ChatBot::run(Settings::default())
+fn main() -> Result<(), eframe::Error> {
+    let options = NativeOptions::default();
+    eframe::run_native(
+        "Rust Chatbot",
+        options,
+        Box::new(|cc| Box::new(app::ChatbotApp::new(cc)))
+    )
 }
