@@ -34,47 +34,48 @@ impl ChatbotUi {
     }
 
     fn render_messages(&self, ui: &mut Ui, chat: &Chat) {
-        for message in chat.get_messages() {
-            let text = if message.is_user() {
-                format!("You: {}", message.content())
-            } else {
-                format!("Bot: {}", message.content())
-            };
-            
-            ui.label(text);
-            ui.add_space(2.0); // Reduced spacing
-        }
-    }
-
-    fn render_input(&mut self, ui: &mut Ui, chat: &mut Chat) {
-        let padding = 10.0; // Reduced padding to 5px
-    
-        ui.add_space(padding);
-    
-        ui.horizontal(|ui| {
-            ui.spacing_mut().item_spacing.x = padding;
-            
-            let input_field = TextEdit::multiline(&mut self.input)
-                .desired_rows(3)
-                .hint_text("Type your message here...")
-                .text_style(egui::TextStyle::Monospace)
-                .font(egui::FontId::proportional(14.0))
-                .frame(true);
-    
-            let response = ui.add_sized(
-                [ui.available_width() - 90.0, 40.0], // Adjust width as needed
-                input_field
-            );
-    
-            if ui.add_sized([80.0, 40.0], Button::new("Send").rounding(5.0)).clicked() 
-               || (response.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift)) {
-                if !self.input.trim().is_empty() {
-                    chat.process_input(std::mem::take(&mut self.input));
-                }
-                response.request_focus();
+        ScrollArea::vertical().auto_shrink([false; 2]).show(ui, |ui| {
+            for message in chat.get_messages() {
+                let text = if message.is_user() {
+                    format!("You: {}", message.content())
+                } else {
+                    format!("Bot: {}", message.content())
+                };
+                
+                let mut cloned_text = text.clone();
+                let text_edit = TextEdit::multiline(&mut cloned_text)
+                    .desired_width(f32::INFINITY)
+                    .text_style(egui::TextStyle::Body)
+                    .interactive(true)
+                    .lock_focus(true)
+                    .frame(false);
+                
+                ui.add(text_edit);
+                ui.add_space(0.0);
             }
         });
+    }
+    fn render_input(&mut self, ui: &mut Ui, chat: &mut Chat) {
+        let input_field = TextEdit::multiline(&mut self.input)
+            .desired_rows(3)
+            .hint_text("Type your message here...")
+            .text_style(egui::TextStyle::Monospace)
+            .font(egui::FontId::proportional(14.0));
     
-        ui.add_space(padding);
+        let response = ui.add_sized(
+            [ui.available_width(), ui.available_height()],
+            input_field
+        );
+    
+        let button_size = Vec2::new(25.0, 25.0);
+        let button_pos = ui.min_rect().right_bottom() - button_size - Vec2::new(5.0, 35.0);
+        
+        if ui.put(egui::Rect::from_min_size(button_pos, button_size), Button::new("➤")).clicked()
+           || (response.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift)) {
+            if !self.input.trim().is_empty() {
+                chat.process_input(std::mem::take(&mut self.input));
+            }
+            response.request_focus();
+        }
     }
 }
