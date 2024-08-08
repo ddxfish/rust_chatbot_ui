@@ -26,7 +26,7 @@ impl ChatbotUi {
                     });
                 
                 ui.with_layout(egui::Layout::bottom_up(egui::Align::Center), |ui| {
-                    ui.add_space(4.0); // Add some space at the bottom of the window
+                    //ui.add_space(4.0); // Add some space at the bottom of the window
                     self.render_input(ui, chat);
                 });
             });
@@ -48,10 +48,9 @@ impl ChatbotUi {
                     .text_style(egui::TextStyle::Body)
                     .interactive(true)
                     .lock_focus(true)
-                    .frame(false);
+                    .frame(true);
                 
                 ui.add(text_edit);
-                ui.add_space(0.0);
             }
         });
     }
@@ -62,10 +61,10 @@ impl ChatbotUi {
             .text_style(egui::TextStyle::Monospace)
             .font(egui::FontId::proportional(14.0));
     
-        let response = ui.add_sized(
-            [ui.available_width(), ui.available_height()],
-            input_field
-        );
+            let response = ui.add_sized(
+                [ui.available_width(), ui.available_height()],
+                input_field
+            );
     
         let button_size = Vec2::new(25.0, 25.0);
         let button_pos = ui.min_rect().right_bottom() - button_size - Vec2::new(5.0, 35.0);
