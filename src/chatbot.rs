@@ -14,6 +14,6 @@ impl Chatbot {
             .collect::<Vec<&str>>()
             .join(" ");
 
-        format!("I received your message. Context length: {} characters.", context.len())
+        format!("I received your messagesdasdafasd fdasfasdfasdf.  fdasfasdfasdf.  fdasfasdfasdf.  fdasfasdfasdf.  fdasfasdfasdf. Context length: {} characters.", context.len())
     }
 }

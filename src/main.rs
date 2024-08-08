@@ -11,6 +11,6 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "Rust Chatbot",
         options,
-        Box::new(|cc| Box::new(app::ChatbotApp::new(cc)))
+        Box::new(|cc| Ok(Box::new(app::ChatbotApp::new(cc))))
     )
 }
