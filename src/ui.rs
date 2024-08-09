@@ -3,7 +3,7 @@ use egui::{
     FontId, TextStyle, Color32, FontFamily, text::LayoutJob, Align
 };
 use crate::chat::Chat;
-
+use crate::settings::Settings;
 pub struct ChatbotUi {
     input: String,
 }
@@ -14,27 +14,36 @@ impl ChatbotUi {
             input: String::new(),
         }
     }
-    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat) {
+    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings) {
         egui::CentralPanel::default().show_inside(ui, |ui| {
-            ui.vertical(|ui| {
-                let available_height = ui.available_height();
-                let (message_height, input_height) = (available_height - 70.0, 70.0);
-                
-                egui::ScrollArea::vertical()
-                    .auto_shrink([false; 2])
-                    .stick_to_bottom(true)
-                    .max_height(message_height)
-                    .show(ui, |ui| {
-                        self.render_messages(ui, chat);
-                    });
-                
-                ui.with_layout(egui::Layout::bottom_up(egui::Align::Center), |ui| {
-                    //ui.add_space(4.0); // Add some space at the bottom of the window
-                    self.render_input(ui, chat);
+            let available_height = ui.available_height();
+            
+            let input_height = 50.0;
+            let settings_height = 20.0;
+            let message_height = available_height - input_height - settings_height - 15.0; // 15.0 for padding
+            
+            ScrollArea::vertical()
+                .auto_shrink([false; 2])
+                .stick_to_bottom(true)
+                .max_height(message_height)
+                .show(ui, |ui| {
+                    self.render_messages(ui, chat);
                 });
+            
+            ui.add_space(5.0);
+            
+            self.render_input(ui, chat);
+            
+            ui.with_layout(egui::Layout::bottom_up(Align::RIGHT), |ui| {
+                if ui.link("Settings").clicked() {
+                    settings.toggle_settings();
+                }
             });
         });
+
+        settings.render(ui.ctx());
     }
+
 
     fn render_messages(&self, ui: &mut Ui, chat: &Chat) {
         let mut scroll_to_bottom = false;
@@ -85,12 +94,12 @@ impl ChatbotUi {
             .font(egui::FontId::proportional(14.0));
     
         let response = ui.add_sized(
-            [ui.available_width(), ui.available_height()],
+            [ui.available_width(), 50.0],
             input_field
         );
     
         let button_size = Vec2::new(25.0, 25.0);
-        let button_pos = ui.min_rect().right_bottom() - button_size - Vec2::new(5.0, 35.0);
+        let button_pos = ui.min_rect().right_bottom() - button_size - Vec2::new(5.0, 15.0);
         
         if ui.put(egui::Rect::from_min_size(button_pos, button_size), Button::new("➤")).clicked()
            || (ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift)) {

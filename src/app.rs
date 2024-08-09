@@ -22,8 +22,7 @@ impl ChatbotApp {
 impl eframe::App for ChatbotApp {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
         eframe::egui::CentralPanel::default().show(ctx, |ui| {
-            self.settings.render(ui);
-            self.ui.render(ui, &mut self.chat);
+            self.ui.render(ui, &mut self.chat, &mut self.settings);
         });
     }
 }
