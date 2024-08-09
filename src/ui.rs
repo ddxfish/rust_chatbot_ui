@@ -1,6 +1,6 @@
 use egui::{
     Ui, ScrollArea, TextFormat, TextEdit, Button, Label, Sense, RichText, Vec2, 
-    FontId, TextStyle, Color32, FontFamily, text::LayoutJob, Align
+    FontId, TextStyle, Color32, FontFamily, text::LayoutJob, Align, Layout
 };
 use crate::chat::Chat;
 use crate::settings::Settings;
@@ -18,9 +18,9 @@ impl ChatbotUi {
         egui::CentralPanel::default().show_inside(ui, |ui| {
             let available_height = ui.available_height();
             
-            let input_height = 50.0;
-            let settings_height = 20.0;
-            let message_height = available_height - input_height - settings_height - 15.0; // 15.0 for padding
+            let bottom_row_height = 18.0; // Height for the bottom row
+            let input_height = 35.0; // absolute height off the bottom
+            let message_height = available_height - input_height - bottom_row_height - 5.0; // Reduced padding
             
             ScrollArea::vertical()
                 .auto_shrink([false; 2])
@@ -30,14 +30,20 @@ impl ChatbotUi {
                     self.render_messages(ui, chat);
                 });
             
-            ui.add_space(5.0);
+            ui.add_space(3.0);
             
             self.render_input(ui, chat);
             
-            ui.with_layout(egui::Layout::bottom_up(Align::RIGHT), |ui| {
-                if ui.link("Settings").clicked() {
-                    settings.toggle_settings();
-                }
+            ui.allocate_space(egui::vec2(ui.available_width(), 5.0)); // Space between input and bottom row
+            
+            // Bottom row for settings and other controls
+            ui.with_layout(Layout::left_to_right(Align::LEFT).with_main_justify(true), |ui| {
+                ui.horizontal(|ui| {
+                    if ui.link("Settings").clicked() {
+                        settings.toggle_settings();
+                    }
+                    // Add more controls here as needed
+                });
             });
         });
 
@@ -86,6 +92,7 @@ impl ChatbotUi {
         }
     }
 
+ 
  
     fn render_input(&mut self, ui: &mut Ui, chat: &mut Chat) {
         let input_field = TextEdit::multiline(&mut self.input)
