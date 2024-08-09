@@ -60,7 +60,7 @@ impl ChatbotUi {
                 //job.halign = Align::Left;
     
                 ui.label(job);
-                ui.add_space(2.0); // Add space between messages
+                ui.add_space(0.0); // Add space between messages
             }
         });
     }

@@ -9,7 +9,7 @@ use eframe::NativeOptions;
 fn main() -> Result<(), eframe::Error> {
     let options = NativeOptions::default();
     eframe::run_native(
-        "Rust Chatbot",
+        "Rusty Chatbot UI",
         options,
         Box::new(|cc| Ok(Box::new(app::ChatbotApp::new(cc))))
     )

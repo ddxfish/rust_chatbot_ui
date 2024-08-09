@@ -1,5 +1,5 @@
 [package]
-name = "rust_chatbot_egui"
+name = "rusty_chatbot_ui"
 version = "0.1.0"
 edition = "2021"
 
