@@ -45,42 +45,24 @@ impl ChatbotUi {
                     format!("Bot: {}", message.content())
                 };
                 
-                let (rect, _) = self.auto_sized_text_edit(ui, &text);
-                ui.allocate_rect(rect, egui::Sense::hover());
+                let mut job = LayoutJob::default();
+                job.append(
+                    &text,
+                    0.0,
+                    TextFormat {
+                        font_id: FontId::proportional(14.0),
+                        color: ui.style().visuals.text_color(),
+                        ..Default::default()
+                    },
+                );
+    
+                ui.label(job);
+                ui.add_space(8.0); // Add space between messages
             }
         });
     }
 
-    fn auto_sized_text_edit(&self, ui: &mut Ui, text: &str) -> (egui::Rect, egui::Response) {
-        let font_id = TextStyle::Body.resolve(ui.style());
-        let row_height = ui.text_style_height(&TextStyle::Body);
-        let width = ui.available_width();
-        
-        let job = LayoutJob::single_section(
-            text.to_string(),
-            TextFormat {
-                font_id: font_id.clone(),
-                color: ui.visuals().text_color(),
-                ..Default::default()
-            }
-        );
-        
-        let galley = ui.painter().layout_job(job);
-        let height = galley.rect.height().max(row_height);
-        
-        let mut text_owned = text.to_string();
-        let mut text_edit = TextEdit::multiline(&mut text_owned)
-            .desired_width(width)
-            .font(font_id)
-            .interactive(true)
-            .lock_focus(true)
-            .frame(false);
-        
-        let (rect, response) = ui.allocate_exact_size(Vec2::new(width, height), egui::Sense::click());
-        text_edit.show(ui);
-        
-        (rect, response)
-    }
+ 
     fn render_input(&mut self, ui: &mut Ui, chat: &mut Chat) {
         let input_field = TextEdit::multiline(&mut self.input)
             .desired_rows(3)
