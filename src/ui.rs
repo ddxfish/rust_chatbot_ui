@@ -1,6 +1,6 @@
 use egui::{
     Ui, ScrollArea, TextFormat, TextEdit, Button, Label, Sense, RichText, Vec2, 
-    FontId, TextStyle, Color32, FontFamily, text::LayoutJob
+    FontId, TextStyle, Color32, FontFamily, text::LayoutJob, Align
 };
 use crate::chat::Chat;
 
@@ -52,12 +52,15 @@ impl ChatbotUi {
                     TextFormat {
                         font_id: FontId::proportional(14.0),
                         color: ui.style().visuals.text_color(),
+                        line_height: Some(20.0), // Increase line spacing by 20%
                         ..Default::default()
                     },
                 );
     
+                //job.halign = Align::Left;
+    
                 ui.label(job);
-                ui.add_space(8.0); // Add space between messages
+                ui.add_space(2.0); // Add space between messages
             }
         });
     }
@@ -67,19 +70,18 @@ impl ChatbotUi {
         let input_field = TextEdit::multiline(&mut self.input)
             .desired_rows(3)
             .hint_text("Type your message here...")
-            //.text_style(egui::TextStyle::Monospace)
             .font(egui::FontId::proportional(14.0));
     
-            let response = ui.add_sized(
-                [ui.available_width(), ui.available_height()],
-                input_field
-            );
+        let response = ui.add_sized(
+            [ui.available_width(), ui.available_height()],
+            input_field
+        );
     
         let button_size = Vec2::new(25.0, 25.0);
         let button_pos = ui.min_rect().right_bottom() - button_size - Vec2::new(5.0, 35.0);
         
         if ui.put(egui::Rect::from_min_size(button_pos, button_size), Button::new("➤")).clicked()
-           || (response.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift)) {
+           || (ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift)) {
             if !self.input.trim().is_empty() {
                 chat.process_input(std::mem::take(&mut self.input));
             }
