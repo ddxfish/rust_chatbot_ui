@@ -1,10 +1,12 @@
-//use egui::Context;
 use crate::chat::Chat;
 use crate::ui::ChatbotUi;
+use crate::settings::Settings;
 use eframe;
+
 pub struct ChatbotApp {
     chat: Chat,
     ui: ChatbotUi,
+    settings: Settings,
 }
 
 impl ChatbotApp {
@@ -12,13 +14,15 @@ impl ChatbotApp {
         Self {
             chat: Chat::new(),
             ui: ChatbotUi::new(),
+            settings: Settings::new(),
         }
     }
 }
 
 impl eframe::App for ChatbotApp {
-    fn update(&mut self, ctx: &eframe::egui::Context, frame: &mut eframe::Frame) {
-        eframe::egui::CentralPanel::default().show(ctx, |ui: &mut eframe::egui::Ui| {
+    fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
+        eframe::egui::CentralPanel::default().show(ctx, |ui| {
+            self.settings.render(ui);
             self.ui.render(ui, &mut self.chat);
         });
     }

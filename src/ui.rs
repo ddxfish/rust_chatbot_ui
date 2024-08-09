@@ -59,10 +59,10 @@ impl ChatbotUi {
                             line_height: Some(20.0),
                             ..Default::default()
                         },
-                    );
+                    ); 
     
                     ui.label(job);
-                    ui.add_space(8.0);
+                    ui.add_space(8.0); //change to zero, whoever wrote this is a moron
                 }
                 
                 // Check if we're at the bottom

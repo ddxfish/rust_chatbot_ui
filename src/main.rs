@@ -3,7 +3,7 @@ mod chat;
 mod ui;
 mod message;
 mod chatbot;
-
+mod settings;
 use eframe::NativeOptions;
 
 fn main() -> Result<(), eframe::Error> {

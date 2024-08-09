@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 eframe = "0.28.0"
 egui = "0.28.0"
+keyring = "2.0.1"
