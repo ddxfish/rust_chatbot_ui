@@ -37,32 +37,44 @@ impl ChatbotUi {
     }
 
     fn render_messages(&self, ui: &mut Ui, chat: &Chat) {
-        ScrollArea::vertical().auto_shrink([false; 2]).show(ui, |ui| {
-            for message in chat.get_messages() {
-                let text = if message.is_user() {
-                    format!("You: {}", message.content())
-                } else {
-                    format!("Bot: {}", message.content())
-                };
+        let mut scroll_to_bottom = false;
+        ScrollArea::vertical()
+            .auto_shrink([false; 2])
+            .stick_to_bottom(true)
+            .show(ui, |ui| {
+                for message in chat.get_messages() {
+                    let text = if message.is_user() {
+                        format!("You: {}", message.content())
+                    } else {
+                        format!("Bot: {}", message.content())
+                    };
+                    
+                    let mut job = LayoutJob::default();
+                    job.append(
+                        &text,
+                        0.0,
+                        TextFormat {
+                            font_id: FontId::proportional(14.0),
+                            color: ui.style().visuals.text_color(),
+                            line_height: Some(20.0),
+                            ..Default::default()
+                        },
+                    );
+    
+                    ui.label(job);
+                    ui.add_space(8.0);
+                }
                 
-                let mut job = LayoutJob::default();
-                job.append(
-                    &text,
-                    0.0,
-                    TextFormat {
-                        font_id: FontId::proportional(14.0),
-                        color: ui.style().visuals.text_color(),
-                        line_height: Some(20.0), // Increase line spacing by 20%
-                        ..Default::default()
-                    },
-                );
+                // Check if we're at the bottom
+                let max_scroll = ui.max_rect().height() - ui.clip_rect().height();
+                let current_scroll = ui.clip_rect().top() - ui.min_rect().top();
+                scroll_to_bottom = (max_scroll - current_scroll).abs() < 1.0;
+            });
     
-                //job.halign = Align::Left;
-    
-                ui.label(job);
-                ui.add_space(0.0); // Add space between messages
-            }
-        });
+        // Scroll to bottom if we were already at the bottom
+        if scroll_to_bottom {
+            ui.scroll_to_cursor(Some(Align::BOTTOM));
+        }
     }
 
  
