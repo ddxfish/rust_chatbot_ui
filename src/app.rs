@@ -1,6 +1,7 @@
 use crate::chat::Chat;
 use crate::ui::ChatbotUi;
 use crate::settings::Settings;
+use crate::providers::get_providers;
 use eframe;
 use eframe::egui::{self, ScrollArea, Color32, Layout, Align, TextureHandle, Image, Vec2, Button, RichText};
 
@@ -46,10 +47,13 @@ impl ChatbotApp {
         cc.egui_ctx.set_visuals(egui::Visuals::dark());
         cc.egui_ctx.set_pixels_per_point(1.0);
         
+        let settings = Settings::new();
+        let chat = Chat::new();
+        
         Self {
-            chat: Chat::new(),
+            chat,
             ui: ChatbotUi::new(),
-            settings: Settings::new(),
+            settings,
             icons: Icons::new(&cc.egui_ctx),
             delete_confirmation: None,
             selected_chat: None,
@@ -135,12 +139,10 @@ impl eframe::App for ChatbotApp {
                 });
         }
 
-        // Handle deletion request
         if let Some(file) = delete_requested {
             self.delete_confirmation = Some(file);
         }
 
-        // Handle deletion confirmation
         if let Some(file) = delete_confirmed {
             if !file.is_empty() {
                 if let Err(e) = self.chat.delete_chat(&file) {
