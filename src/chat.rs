@@ -1,7 +1,9 @@
 use crate::message::Message;
 use crate::chatbot::Chatbot;
 use crate::chat_history::ChatHistory;
-
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
 pub struct Chat {
     messages: Vec<Message>,
     chatbot: Chatbot,
@@ -62,5 +64,13 @@ impl Chat {
     }
     pub fn delete_chat(&mut self, file_name: &str) -> Result<(), std::io::Error> {
         self.chat_history.delete_chat(file_name)
+    }
+    pub fn export_chat(&self, path: &Path) -> Result<(), std::io::Error> {
+        let mut file = File::create(path)?;
+        for message in &self.messages {
+            let prefix = if message.is_user() { "User: " } else { "Bot: " };
+            writeln!(file, "{}{}", prefix, message.content())?;
+        }
+        Ok(())
     }
 }
