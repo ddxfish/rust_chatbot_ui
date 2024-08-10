@@ -30,8 +30,8 @@ impl ChatHistory {
         }
     }
 
-    pub fn get_history_files(&self) -> &Vec<String> {
-        &self.history_files
+    pub fn get_history_files(&mut self) -> &mut Vec<String> {
+        &mut self.history_files
     }
 
     pub fn create_new_chat(&mut self) -> Result<(), std::io::Error> {
