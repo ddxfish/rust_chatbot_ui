@@ -1,6 +1,6 @@
 use egui::{
     Ui, ScrollArea, TextFormat, TextEdit, Button, Label, Sense, RichText, Vec2, 
-    FontId, TextStyle, Color32, FontFamily, text::LayoutJob, Align, Layout, ComboBox, Image
+    FontId, TextStyle, Color32, Visuals, FontFamily, text::LayoutJob, Align, Layout, ComboBox, Image
 };
 use crate::chat::Chat;
 use crate::settings::Settings;
@@ -69,7 +69,7 @@ impl ChatbotUi {
     
                     // Light mode button
                     if ui.button("Light").clicked() {
-                        ui.ctx().set_visuals(egui::Visuals::light());
+                        ui.ctx().set_visuals(Self::custom_light_theme());
                     }
 
                     // Dark mode button
@@ -164,5 +164,15 @@ impl ChatbotUi {
             }
             response.request_focus();
         }
+    }
+    fn custom_light_theme() -> Visuals {
+        let mut visuals = Visuals::light();
+        visuals.panel_fill = Color32::from_gray(210); // Slightly darker background
+        visuals.window_fill = Color32::from_gray(200);
+        visuals.extreme_bg_color = Color32::from_gray(180);
+        visuals.widgets.noninteractive.bg_fill = Color32::from_gray(210);
+        visuals.widgets.inactive.bg_fill = Color32::from_gray(180);
+        visuals.override_text_color = Some(Color32::from_rgb(60, 60, 60));
+        visuals
     }
 }
