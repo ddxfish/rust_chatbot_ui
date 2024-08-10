@@ -1,7 +1,6 @@
 use crate::chat::Chat;
 use crate::ui::ChatbotUi;
 use crate::settings::Settings;
-use crate::chat_history::ChatHistory;
 use eframe;
 use eframe::egui::{self, ScrollArea, Color32, Layout, Align};
 
@@ -9,8 +8,8 @@ pub struct ChatbotApp {
     chat: Chat,
     ui: ChatbotUi,
     settings: Settings,
-    chat_history: ChatHistory,
     left_panel_width: f32,
+    selected_chat: Option<String>,
 }
 
 impl ChatbotApp {
@@ -22,14 +21,20 @@ impl ChatbotApp {
             chat: Chat::new(),
             ui: ChatbotUi::new(),
             settings: Settings::new(),
-            chat_history: ChatHistory::new("chat_history"),
             left_panel_width: 200.0,
+            selected_chat: None,
         }
     }
 }
 
 impl eframe::App for ChatbotApp {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
+        if let Some(file) = self.selected_chat.take() {
+            if let Err(e) = self.chat.load_chat(&file) {
+                eprintln!("Failed to load chat: {}", e);
+            }
+        }
+
         eframe::egui::SidePanel::left("chat_history_panel")
             .resizable(true)
             .default_width(200.0)
@@ -37,7 +42,7 @@ impl eframe::App for ChatbotApp {
             .show(ctx, |ui| {
                 ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
                     if ui.button("New Chat").clicked() {
-                        if let Err(e) = self.chat_history.create_new_chat() {
+                        if let Err(e) = self.chat.create_new_chat() {
                             eprintln!("Failed to create new chat: {}", e);
                         }
                     }
@@ -45,13 +50,20 @@ impl eframe::App for ChatbotApp {
                 
                 ScrollArea::vertical().show(ui, |ui| {
                     ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
-                        let mut files = self.chat_history.get_history_files().clone();
-                        files.sort_by(|a, b| b.cmp(a));
+                        let files = self.chat.get_history_files();
+                        let current_file = self.chat.get_current_file().cloned();
                         
                         for file in files {
-                            ui.add(egui::Label::new(egui::RichText::new(&file)
-                                .color(Color32::WHITE))
-                                .wrap());
+                            let is_current = current_file.as_ref().map_or(false, |current| current == file);
+                            let text = if is_current {
+                                egui::RichText::new(file).color(Color32::YELLOW)
+                            } else {
+                                egui::RichText::new(file).color(Color32::WHITE)
+                            };
+                            
+                            if ui.add(egui::Label::new(text).wrap()).clicked() {
+                                self.selected_chat = Some(file.clone());
+                            }
                             ui.add_space(5.0);
                         }
                     });
