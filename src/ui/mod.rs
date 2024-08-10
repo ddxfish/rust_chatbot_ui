@@ -5,4 +5,4 @@ mod bottom_panel;
 mod theme;
 
 pub use chatbot_ui::ChatbotUi;
-pub use theme::custom_light_theme;
+//pub use theme::custom_light_theme;
