@@ -3,6 +3,7 @@ use crate::ui::ChatbotUi;
 use crate::settings::Settings;
 use eframe;
 use eframe::egui::{self, ScrollArea, Color32, Layout, Align, TextureHandle, Image, Vec2, Button, RichText};
+
 pub struct Icons {
     pub send: TextureHandle,
     pub close: TextureHandle,
@@ -38,6 +39,7 @@ pub struct ChatbotApp {
     left_panel_width: f32,
     selected_chat: Option<String>,
     icons: Icons,
+    delete_confirmation: Option<String>,
 }
 
 impl ChatbotApp {
@@ -52,6 +54,7 @@ impl ChatbotApp {
             left_panel_width: 200.0,
             selected_chat: None,
             icons: Icons::new(&cc.egui_ctx),
+            delete_confirmation: None,
         }
     }
 }
@@ -63,6 +66,9 @@ impl eframe::App for ChatbotApp {
                 eprintln!("Failed to load chat: {}", e);
             }
         }
+
+        let mut delete_requested: Option<String> = None;
+        let mut delete_confirmed: Option<String> = None;
 
         eframe::egui::SidePanel::left("chat_history_panel")
             .resizable(true)
@@ -89,9 +95,9 @@ impl eframe::App for ChatbotApp {
                             ui.horizontal(|ui| {
                                 let is_current = current_file.as_ref().map_or(false, |current| current == file);
                                 let text = if is_current {
-                                    egui::RichText::new(file).color(Color32::YELLOW).size(18.0)
+                                    egui::RichText::new(file.clone()).color(Color32::YELLOW).size(18.0)
                                 } else {
-                                    egui::RichText::new(file).color(Color32::WHITE).size(18.0)
+                                    egui::RichText::new(file.clone()).color(Color32::WHITE).size(18.0)
                                 };
                                 
                                 if ui.add(egui::Label::new(text).wrap()).clicked() {
@@ -100,7 +106,7 @@ impl eframe::App for ChatbotApp {
                                 
                                 ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                                     if ui.add(Button::image(Image::new(&self.icons.trash).fit_to_exact_size(Vec2::new(10.0, 10.0)))).clicked() {
-                                        // Implement delete functionality here
+                                        delete_requested = Some(file.clone());
                                     }
                                 });
                             });
@@ -113,5 +119,37 @@ impl eframe::App for ChatbotApp {
         eframe::egui::CentralPanel::default().show(ctx, |ui| {
             self.ui.render(ui, &mut self.chat, &mut self.settings, &self.icons);
         });
+
+        if let Some(file_to_delete) = &self.delete_confirmation {
+            egui::Window::new("Confirm Delete")
+                .collapsible(false)
+                .resizable(false)
+                .show(ctx, |ui| {
+                    ui.label(format!("Are you sure you want to delete '{}'?", file_to_delete));
+                    ui.horizontal(|ui| {
+                        if ui.button("Yes").clicked() {
+                            delete_confirmed = Some(file_to_delete.clone());
+                        }
+                        if ui.button("No").clicked() {
+                            delete_confirmed = Some(String::new()); // Use empty string to signal cancellation
+                        }
+                    });
+                });
+        }
+
+        // Handle deletion request
+        if let Some(file) = delete_requested {
+            self.delete_confirmation = Some(file);
+        }
+
+        // Handle deletion confirmation
+        if let Some(file) = delete_confirmed {
+            if !file.is_empty() {
+                if let Err(e) = self.chat.delete_chat(&file) {
+                    eprintln!("Failed to delete chat: {}", e);
+                }
+            }
+            self.delete_confirmation = None;
+        }
     }
 }
