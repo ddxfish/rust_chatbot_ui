@@ -8,7 +8,11 @@ mod chat_history;
 use eframe::NativeOptions;
 
 fn main() -> Result<(), eframe::Error> {
-    let options = NativeOptions::default();
+    let options = NativeOptions {
+        viewport: eframe::egui::ViewportBuilder::default()
+            .with_inner_size([850.0, 600.0]),
+        ..Default::default()
+    };
     eframe::run_native(
         "Rusty Chatbot UI",
         options,
