@@ -63,10 +63,9 @@ pub struct ChatbotUi {
 
 impl ChatbotUi {
     pub fn new() -> Self {
-        let default_provider = get_providers()[0].name().to_string();
         Self {
             input: String::new(),
-            selected_provider: default_provider,
+            selected_provider: String::new(),
             model_selector: ModelSelector::new(),
         }
     }
@@ -95,9 +94,6 @@ impl ChatbotUi {
                 }
                 
                 bottom_panel::render(ui, chat, settings, &mut self.selected_provider, &mut self.model_selector.selected_model);
-                
-                // The provider and model selection have been moved to bottom_panel::render,
-                // so we can remove them from here if they're still present.
             });
         });
     

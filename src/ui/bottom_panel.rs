@@ -17,7 +17,7 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, selected_pr
         ComboBox::from_label("Provider")
             .selected_text(selected_provider.as_str())
             .show_ui(ui, |ui| {
-                for provider in get_providers() {
+                for provider in get_providers(settings.get_fireworks_api_key().to_string()) {
                     if ui.selectable_label(selected_provider == provider.name(), provider.name()).clicked() {
                         *selected_provider = provider.name().to_string();
                         selected_model.clear();
@@ -27,7 +27,7 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, selected_pr
 
         ui.add_space(10.0);
 
-        if let Some(current_provider) = get_providers().into_iter().find(|p| p.name() == *selected_provider) {
+        if let Some(current_provider) = get_providers(settings.get_fireworks_api_key().to_string()).into_iter().find(|p| p.name() == *selected_provider) {
             ComboBox::from_label("Model")
                 .selected_text(selected_model.as_str())
                 .show_ui(ui, |ui| {
