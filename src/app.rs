@@ -2,7 +2,7 @@ use crate::chat::Chat;
 use crate::ui::ChatbotUi;
 use crate::settings::Settings;
 use eframe;
-use eframe::egui::{self, ScrollArea, Color32, Layout, Align, TextureHandle, Image, Vec2, Button};
+use eframe::egui::{self, ScrollArea, Color32, Layout, Align, TextureHandle, Image, Vec2, Button, RichText};
 pub struct Icons {
     pub send: TextureHandle,
     pub close: TextureHandle,
@@ -71,8 +71,8 @@ impl eframe::App for ChatbotApp {
             .show(ctx, |ui| {
                 ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
                     ui.horizontal(|ui| {
-                        ui.add(Image::new(&self.icons.new_chat).fit_to_exact_size(Vec2::new(20.0, 20.0)));
-                        if ui.button("New Chat").clicked() {
+                        ui.add(Image::new(&self.icons.new_chat).fit_to_exact_size(Vec2::new(40.0, 40.0)));
+                        if ui.button(RichText::new("New Chat").size(20.0)).clicked() {
                             if let Err(e) = self.chat.create_new_chat() {
                                 eprintln!("Failed to create new chat: {}", e);
                             }
@@ -89,9 +89,9 @@ impl eframe::App for ChatbotApp {
                             ui.horizontal(|ui| {
                                 let is_current = current_file.as_ref().map_or(false, |current| current == file);
                                 let text = if is_current {
-                                    egui::RichText::new(file).color(Color32::YELLOW)
+                                    egui::RichText::new(file).color(Color32::YELLOW).size(18.0)
                                 } else {
-                                    egui::RichText::new(file).color(Color32::WHITE)
+                                    egui::RichText::new(file).color(Color32::WHITE).size(18.0)
                                 };
                                 
                                 if ui.add(egui::Label::new(text).wrap()).clicked() {
@@ -99,7 +99,7 @@ impl eframe::App for ChatbotApp {
                                 }
                                 
                                 ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                                    if ui.add(Button::image(Image::new(&self.icons.trash).fit_to_exact_size(Vec2::new(20.0, 20.0)))).clicked() {
+                                    if ui.add(Button::image(Image::new(&self.icons.trash).fit_to_exact_size(Vec2::new(10.0, 10.0)))).clicked() {
                                         // Implement delete functionality here
                                     }
                                 });
