@@ -5,6 +5,8 @@ use egui::{
 use crate::chat::Chat;
 use crate::settings::Settings;
 use crate::app::Icons;
+use std::path::PathBuf;
+use rfd::FileDialog;
 
 pub struct ChatbotUi {
     input: String,
@@ -26,7 +28,7 @@ impl ChatbotUi {
             
             let bottom_row_height = 30.0;
             let input_height = 45.0;
-            let bottom_padding = 0.0; // Adjust this as needed
+            let bottom_padding = 0.0;
             let message_height = available_height - input_height - bottom_row_height - bottom_padding;
             
             ScrollArea::vertical()
@@ -39,7 +41,6 @@ impl ChatbotUi {
             
             self.render_input(ui, chat, icons);
             
-            // Bottom row for dropdowns and settings
             ui.with_layout(Layout::bottom_up(Align::LEFT), |ui| {
                 if bottom_padding > 0.0 {
                     ui.allocate_space(egui::vec2(ui.available_width(), bottom_padding));
@@ -66,6 +67,28 @@ impl ChatbotUi {
                             ui.selectable_value(&mut self.selected_model, "Model 3".to_string(), "Model 3");
                         });
     
+                    // Light mode button
+                    if ui.button("Light").clicked() {
+                        ui.ctx().set_visuals(egui::Visuals::light());
+                    }
+
+                    // Dark mode button
+                    if ui.button("Dark").clicked() {
+                        ui.ctx().set_visuals(egui::Visuals::dark());
+                    }
+
+                    // Export chat button
+                    if ui.button("Export Chat").clicked() {
+                        if let Some(path) = FileDialog::new()
+                            .add_filter("Text", &["txt"])
+                            .set_directory("/")
+                            .save_file() {
+                            if let Err(e) = chat.export_chat(&path) {
+                                eprintln!("Failed to export chat: {}", e);
+                            }
+                        }
+                    }
+
                     // Push settings link to the right
                     ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                         if ui.link("Settings").clicked() {
