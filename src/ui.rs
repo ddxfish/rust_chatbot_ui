@@ -1,9 +1,11 @@
 use egui::{
     Ui, ScrollArea, TextFormat, TextEdit, Button, Label, Sense, RichText, Vec2, 
-    FontId, TextStyle, Color32, FontFamily, text::LayoutJob, Align, Layout, ComboBox
+    FontId, TextStyle, Color32, FontFamily, text::LayoutJob, Align, Layout, ComboBox, Image
 };
 use crate::chat::Chat;
 use crate::settings::Settings;
+use crate::app::Icons;
+
 pub struct ChatbotUi {
     input: String,
     selected_provider: String,
@@ -18,7 +20,7 @@ impl ChatbotUi {
             selected_model: "Model 1".to_string(),
         }
     }
-    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings) {
+    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons) {
         egui::CentralPanel::default().show_inside(ui, |ui| {
             let available_height = ui.available_height();
             
@@ -35,7 +37,7 @@ impl ChatbotUi {
                     self.render_messages(ui, chat);
                 });
             
-            self.render_input(ui, chat);
+            self.render_input(ui, chat, icons);
             
             // Bottom row for dropdowns and settings
             ui.with_layout(Layout::bottom_up(Align::LEFT), |ui| {
@@ -74,9 +76,8 @@ impl ChatbotUi {
             });
         });
     
-        settings.render(ui.ctx());
+        settings.render(ui.ctx(), icons);
     }
-
 
     fn render_messages(&self, ui: &mut Ui, chat: &Chat) {
         let mut scroll_to_bottom = false;
@@ -104,7 +105,7 @@ impl ChatbotUi {
                     ); 
     
                     ui.label(job);
-                    ui.add_space(0.0); //change to zero, whoever wrote this is a moron
+                    ui.add_space(0.0);
                 }
                 
                 // Check if we're at the bottom
@@ -119,9 +120,7 @@ impl ChatbotUi {
         }
     }
 
- 
- 
-    fn render_input(&mut self, ui: &mut Ui, chat: &mut Chat) {
+    fn render_input(&mut self, ui: &mut Ui, chat: &mut Chat, icons: &Icons) {
         let input_field = TextEdit::multiline(&mut self.input)
             .desired_rows(3)
             .hint_text("Type your message here...")
@@ -135,7 +134,7 @@ impl ChatbotUi {
         let button_size = Vec2::new(25.0, 25.0);
         let button_pos = ui.min_rect().right_bottom() - button_size - Vec2::new(5.0, 42.0);
         
-        if ui.put(egui::Rect::from_min_size(button_pos, button_size), Button::new("➤")).clicked()
+        if ui.put(egui::Rect::from_min_size(button_pos, button_size), Button::image(Image::new(&icons.send).fit_to_exact_size(button_size))).clicked()
            || (ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift)) {
             if !self.input.trim().is_empty() {
                 chat.process_input(std::mem::take(&mut self.input));
@@ -144,5 +143,3 @@ impl ChatbotUi {
         }
     }
 }
-    
-
