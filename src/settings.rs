@@ -1,11 +1,15 @@
 use keyring::Entry;
 use eframe::egui;
+use egui::{Button, Image, Vec2};
+//use crate::app::Icons;
+use eframe::egui::TextureHandle;
 
+use crate::app::Icons;
 pub struct Settings {
     api_key: String,
     keyring: Entry,
     show_settings: bool,
-    feedback: Option<(String, f32)>, // Changed to f32 for easier time handling
+    feedback: Option<(String, f32)>,
 }
 
 impl Settings {
@@ -20,7 +24,7 @@ impl Settings {
         }
     }
 
-    pub fn render(&mut self, ctx: &egui::Context) {
+    pub fn render(&mut self, ctx: &egui::Context, icons: &Icons) {
         if self.show_settings {
             egui::Window::new("Settings")
                 .resizable(false)
@@ -29,7 +33,7 @@ impl Settings {
                     ui.horizontal(|ui| {
                         ui.heading("API Key");
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                            if ui.button("✕").clicked() {
+                            if ui.add(Button::image(Image::new(&icons.close).fit_to_exact_size(Vec2::new(20.0, 20.0)))).clicked() {
                                 self.show_settings = false;
                             }
                         });
