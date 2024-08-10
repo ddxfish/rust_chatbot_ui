@@ -60,4 +60,7 @@ impl Chat {
     pub fn get_current_file(&self) -> Option<&String> {
         self.chat_history.get_current_file()
     }
+    pub fn delete_chat(&mut self, file_name: &str) -> Result<(), std::io::Error> {
+        self.chat_history.delete_chat(file_name)
+    }
 }

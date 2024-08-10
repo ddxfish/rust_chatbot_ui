@@ -73,7 +73,15 @@ impl ChatHistory {
         self.current_file = Some(file_name.to_string());
         Ok(content)
     }
-
+    pub fn delete_chat(&mut self, file_name: &str) -> Result<(), std::io::Error> {
+        let file_path = Path::new(&self.directory).join(file_name);
+        fs::remove_file(&file_path)?;
+        self.load_history();
+        if self.current_file.as_ref().map_or(false, |f| f == file_name) {
+            self.current_file = None;
+        }
+        Ok(())
+    }
     pub fn get_current_file(&self) -> Option<&String> {
         self.current_file.as_ref()
     }
