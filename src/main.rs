@@ -5,6 +5,7 @@ mod message;
 mod chatbot;
 mod settings;
 mod chat_history;
+mod providers;
 use eframe::NativeOptions;
 use egui::IconData;
 
