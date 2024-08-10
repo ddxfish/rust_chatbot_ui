@@ -1,9 +1,10 @@
 use crate::chat::Chat;
 use crate::ui::ChatbotUi;
 use crate::settings::Settings;
-use crate::providers::get_providers;
+use crate::providers::{self, Provider};
 use eframe;
 use eframe::egui::{self, ScrollArea, Color32, Layout, Align, TextureHandle, Image, Vec2, Button, RichText};
+use std::sync::Arc;
 
 pub struct Icons {
     pub send: TextureHandle,
@@ -40,6 +41,8 @@ pub struct ChatbotApp {
     icons: Icons,
     delete_confirmation: Option<String>,
     selected_chat: Option<String>,
+    providers: Vec<Arc<dyn Provider + Send + Sync>>,
+    selected_provider: usize,
 }
 
 impl ChatbotApp {
@@ -48,7 +51,12 @@ impl ChatbotApp {
         cc.egui_ctx.set_pixels_per_point(1.0);
         
         let settings = Settings::new();
-        let chat = Chat::new();
+        let providers: Vec<Arc<dyn Provider + Send + Sync>> = providers::get_providers(settings.get_fireworks_api_key().to_string())
+            .into_iter()
+            .map(|p| Arc::from(p) as Arc<dyn Provider + Send + Sync>)
+            .collect();
+        
+        let chat = Chat::new(Arc::clone(&providers[0]));
         
         Self {
             chat,
@@ -57,6 +65,8 @@ impl ChatbotApp {
             icons: Icons::new(&cc.egui_ctx),
             delete_confirmation: None,
             selected_chat: None,
+            providers,
+            selected_provider: 0,
         }
     }
 }

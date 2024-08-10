@@ -1,21 +1,27 @@
 use crate::message::Message;
 use crate::chatbot::Chatbot;
 use crate::chat_history::ChatHistory;
+use crate::providers::Provider;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
+use tokio::runtime::Runtime;
+use std::sync::Arc;
+
 pub struct Chat {
     messages: Vec<Message>,
     chatbot: Chatbot,
     chat_history: ChatHistory,
+    runtime: Runtime,
 }
 
 impl Chat {
-    pub fn new() -> Self {
+    pub fn new(provider: Arc<dyn Provider + Send + Sync>) -> Self {
         Self {
             messages: Vec::new(),
-            chatbot: Chatbot::new(),
+            chatbot: Chatbot::new(provider),
             chat_history: ChatHistory::new("chat_history"),
+            runtime: Runtime::new().unwrap(),
         }
     }
 
@@ -33,10 +39,9 @@ impl Chat {
 
     pub fn process_input(&mut self, input: String) {
         self.add_message(input.clone(), true);
-        let response = self.chatbot.generate_response(&self.messages);
+        let response = self.runtime.block_on(self.chatbot.generate_response(&self.messages));
         self.add_message(response, false);
     }
-
     pub fn create_new_chat(&mut self) -> Result<(), std::io::Error> {
         self.messages.clear();
         self.chat_history.create_new_chat()
