@@ -2,7 +2,7 @@ use keyring::Entry;
 use eframe::egui;
 use egui::{Button, Image, Vec2};
 //use crate::app::Icons;
-use eframe::egui::TextureHandle;
+//use eframe::egui::TextureHandle;
 
 use crate::app::Icons;
 pub struct Settings {
@@ -63,9 +63,9 @@ impl Settings {
         self.show_settings = !self.show_settings;
     }
 
-    pub fn get_api_key(&self) -> String {
-        self.api_key.clone()
-    }
+    // pub fn get_api_key(&self) -> String {
+    //     self.api_key.clone()
+    // }
 
     fn set_feedback(&mut self, message: String, duration: f32) {
         self.feedback = Some((message, duration));

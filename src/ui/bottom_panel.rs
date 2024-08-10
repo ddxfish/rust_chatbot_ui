@@ -1,4 +1,4 @@
-use egui::{Ui, ComboBox, Layout, Align, WidgetText};
+use egui::{Ui, ComboBox, Layout, Align};
 use crate::chat::Chat;
 use crate::settings::Settings;
 use rfd::FileDialog;
