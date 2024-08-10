@@ -28,6 +28,7 @@ impl Provider for Fireworks {
         vec![
             "llama-v3p1-405b-instruct",
             "llama-v3p1-70b-instruct",
+            "llama-v3p1-8b-instruct",
         ]
     }
 
