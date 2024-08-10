@@ -3,22 +3,27 @@ use crate::ui::ChatbotUi;
 use crate::settings::Settings;
 use crate::chat_history::ChatHistory;
 use eframe;
-use eframe::egui::{self, ScrollArea, Color32};
+use eframe::egui::{self, ScrollArea, Color32, Layout, Align};
 
 pub struct ChatbotApp {
     chat: Chat,
     ui: ChatbotUi,
     settings: Settings,
     chat_history: ChatHistory,
+    left_panel_width: f32,
 }
 
 impl ChatbotApp {
-    pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        cc.egui_ctx.set_visuals(egui::Visuals::dark());
+        cc.egui_ctx.set_pixels_per_point(1.0);
+        
         Self {
             chat: Chat::new(),
             ui: ChatbotUi::new(),
             settings: Settings::new(),
             chat_history: ChatHistory::new("chat_history"),
+            left_panel_width: 200.0,
         }
     }
 }
@@ -26,23 +31,30 @@ impl ChatbotApp {
 impl eframe::App for ChatbotApp {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
         eframe::egui::SidePanel::left("chat_history_panel")
-            .default_width(250.0) // Increased width by about 50%
+            .resizable(true)
+            .default_width(200.0)
+            .width_range(100.0..=400.0)
             .show(ctx, |ui| {
-                if ui.button("New Chat").clicked() {
-                    if let Err(e) = self.chat_history.create_new_chat() {
-                        eprintln!("Failed to create new chat: {}", e);
+                ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
+                    if ui.button("New Chat").clicked() {
+                        if let Err(e) = self.chat_history.create_new_chat() {
+                            eprintln!("Failed to create new chat: {}", e);
+                        }
                     }
-                }
+                });
                 
                 ScrollArea::vertical().show(ui, |ui| {
-                    let mut files = self.chat_history.get_history_files().clone();
-                    files.sort_by(|a, b| b.cmp(a)); // Sort in descending order (most recent first)
-                    
-                    for file in files {
-                        ui.add(egui::Label::new(egui::RichText::new(&file)
-                            .color(Color32::WHITE)
-                            .line_height(Some(30.0)))); // Increased line height
-                    }
+                    ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
+                        let mut files = self.chat_history.get_history_files().clone();
+                        files.sort_by(|a, b| b.cmp(a));
+                        
+                        for file in files {
+                            ui.add(egui::Label::new(egui::RichText::new(&file)
+                                .color(Color32::WHITE))
+                                .wrap());
+                            ui.add_space(5.0);
+                        }
+                    });
                 });
             });
 
