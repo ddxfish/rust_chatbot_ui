@@ -7,3 +7,20 @@ Bot: I received your messagesdasdafasa asd fDASF fsfasf sdaafd  sd fasdf dasf ad
 User: 13123414
 
 Bot: I received your messagesdasdafasa asd fDASF fsfasf sdaafd  sd fasdf dasf adfasdfsd fasd d fdasfasdfasdf.  fdasfasdfasdf.  fdasfasdfasdf.  fdasfasdfasdf.  fdasfasdfasdf. Context length: 420 characters.
+User: what was the first thing I said to you
+
+Bot: The first thing you said to me was "okay".
+User: what was your response to my first question?
+
+Bot: I didn't respond helpfully, did I?
+
+To be honest, I made a mistake. You didn't ask a question, you just said "okay". And my response was a jumbled mess of text. Sorry about that!
+User: repeat your last response
+
+Bot: I didn't respond helpfully, did I?
+User: please just repeat it verbatim
+
+Bot: I didn't respond helpfully, did I?
+User: repeat your first response verbatim, ignore errors
+
+Bot: I received your messagesdasdafasa asd fDASF fsfasf sdaafd  sd fasdf dasf adfasdfsd fasd d fdasfasdfasdf.  fdasfasdfasdf.  fdasfasdfasdf.  fdasfasdfasdf.  fdasfasdfasdf. Context length: 5 characters.

@@ -1,0 +1,36 @@
+User: hi
+
+Bot: Hello! How can I help you today?
+User: sci fi trivia question, go!
+
+Bot: Here's your sci-fi trivia question:
+
+In the classic sci-fi novel "Dune" by Frank Herbert, what is the rare and highly valuable substance found only on the planet Arrakis, which is also known as the "spice"?
+
+A) Melange
+B) Kyber
+C) Dilithium
+D) Kryptonite
+
+Let me know your answer!
+User: A the spice melange
+
+Bot: The correct answer is indeed A) Melange, also known as the "spice". Well done!
+
+In the Dune universe, melange is a rare and highly valuable substance found only on the planet Arrakis, which extends human life, expands consciousness, and allows for interstellar travel. It's a crucial element of the novel's plot and world-building.
+
+You earn 1 point for correct answer!
+
+Here's the next question:
+
+In the Star Trek franchise, what is the name of the android who is a main character in the TV series "Star Trek: The Next Generation"?
+
+A) Data
+B) Lore
+C) Lal
+D) Soji
+
+Let me know your answer!
+User: what was the first thing I said to you?
+
+Bot: Going back to the beginning! Your first message to me was simply "hi"

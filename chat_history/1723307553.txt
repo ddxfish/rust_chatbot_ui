@@ -1,0 +1,112 @@
+User: write the game snake in python
+Bot: **Snake Game in Python**
+==========================
+
+**Game Description**
+-------------------
+
+Snake is a classic game where the player controls a snake that moves around the screen, eating food pellets and growing in length. The game ends when the snake collides with the wall or itself.
+
+**Code**
+------
+
+```python
+import pygame
+import sys
+import random
+
+# Game constants
+WIDTH, HEIGHT = 800, 600
+BLOCK_SIZE = 20
+SPEED = 10
+
+# Colors
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+
+class SnakeGame:
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.clock = pygame.time.Clock()
+        self.snake = [(200, 200), (220, 200), (240, 200)]
+        self.food = self.generate_food()
+        self.direction = 'right'
+
+    def generate_food(self):
+        while True:
+            x = random.randint(0, WIDTH - BLOCK_SIZE) // BLOCK_SIZE * BLOCK_SIZE
+            y = random.randint(0, HEIGHT - BLOCK_SIZE) // BLOCK_SIZE * BLOCK_SIZE
+            if (x, y) not in self.snake:
+                return x, y
+
+    def draw(self):
+        self.screen.fill(WHITE)
+        for x, y in self.snake:
+            pygame.draw.rect(self.screen, GREEN, (x, y, BLOCK_SIZE, BLOCK_SIZE))
+        pygame.draw.rect(self.screen, RED, (self.food[0], self.food[1], BLOCK_SIZE, BLOCK_SIZE))
+        pygame.display.update()
+
+    def update(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP and self.direction != 'down':
+                    self.direction = 'up'
+                elif event.key == pygame.K_DOWN and self.direction != 'up':
+                    self.direction = 'down'
+                elif event.key == pygame.K_LEFT and self.direction != 'right':
+                    self.direction = 'left'
+                elif event.key == pygame.K_RIGHT and self.direction != 'left':
+                    self.direction = 'right'
+
+        head = self.snake[-1]
+        if self.direction == 'up':
+            new_head = (head[0], head[1] - BLOCK_SIZE)
+        elif self.direction == 'down':
+            new_head = (head[0], head[1] + BLOCK_SIZE)
+        elif self.direction == 'left':
+            new_head = (head[0] - BLOCK_SIZE, head[1])
+        elif self.direction == 'right':
+            new_head = (head[0] + BLOCK_SIZE, head[1])
+
+        self.snake.append(new_head)
+        if self.snake[-1] == self.food:
+            self.food = self.generate_food()
+        else:
+            self.snake.pop(0)
+
+        if (self.snake[-1][0] < 0 or self.snake[-1][0] >= WIDTH or
+            self.snake[-1][1] < 0 or self.snake[-1][1] >= HEIGHT or
+            self.snake[-1] in self.snake[:-1]):
+            pygame.quit()
+            sys.exit()
+
+    def run(self):
+        while True:
+            self.update()
+            self.draw()
+            self.clock.tick(SPEED)
+
+if __name__ == '__main__':
+    game = SnakeGame()
+    game.run()
+```
+
+**How to Run**
+--------------
+
+1. Install Pygame using `pip install pygame`
+2. Run the game using `python snake_game.py`
+
+**Gameplay**
+------------
+
+* Use the arrow keys to control the snake
+* Eat the red food pellets to grow the snake
+* Avoid colliding with the wall or the snake's body
+
+Note: This is a basic implementation of the Snake game. You can improve it by adding features like scorekeeping, level design, and smoother animations.
