@@ -4,6 +4,7 @@ mod ui;
 mod message;
 mod chatbot;
 mod settings;
+mod chat_history;
 use eframe::NativeOptions;
 
 fn main() -> Result<(), eframe::Error> {
