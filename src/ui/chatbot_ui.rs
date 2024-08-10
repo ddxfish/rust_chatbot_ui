@@ -1,21 +1,73 @@
-use egui::{Ui, ScrollArea, Align, Layout};
+use egui::{Ui, ScrollArea, Align, Layout, ComboBox, Window};
 use crate::chat::Chat;
 use crate::settings::Settings;
 use crate::app::Icons;
+use crate::providers::{Provider, get_providers};
 use super::{message_view, input_area, bottom_panel};
+
+pub struct ModelSelector {
+    selected_model: String,
+    custom_model_input: String,
+    show_custom_model_popup: bool,
+}
+
+impl ModelSelector {
+    fn new() -> Self {
+        Self {
+            selected_model: String::new(),
+            custom_model_input: String::new(),
+            show_custom_model_popup: false,
+        }
+    }
+
+    fn render(&mut self, ui: &mut Ui, models: &[&str]) {
+        ComboBox::from_label("Model")
+            .selected_text(&self.selected_model)
+            .show_ui(ui, |ui| {
+                for &model in models {
+                    ui.selectable_value(&mut self.selected_model, model.to_string(), model);
+                }
+                if ui.selectable_label(false, "Other").clicked() {
+                    self.show_custom_model_popup = true;
+                }
+            });
+
+        if self.show_custom_model_popup {
+            Window::new("Custom Model")
+                .collapsible(false)
+                .resizable(false)
+                .show(ui.ctx(), |ui| {
+                    ui.horizontal(|ui| {
+                        ui.label("Enter custom model name:");
+                        ui.text_edit_singleline(&mut self.custom_model_input);
+                    });
+                    ui.horizontal(|ui| {
+                        if ui.button("Cancel").clicked() {
+                            self.show_custom_model_popup = false;
+                        }
+                        if ui.button("OK").clicked() {
+                            self.selected_model = self.custom_model_input.clone();
+                            self.show_custom_model_popup = false;
+                        }
+                    });
+                });
+        }
+    }
+}
 
 pub struct ChatbotUi {
     input: String,
     selected_provider: String,
-    selected_model: String,
+    model_selector: ModelSelector,
 }
 
 impl ChatbotUi {
     pub fn new() -> Self {
+        let default_provider = get_providers()[0].name().to_string();
         Self {
             input: String::new(),
-            selected_provider: "Provider 1".to_string(),
-            selected_model: "Model 1".to_string(),
+            selected_provider: default_provider,
+            model_selector: ModelSelector::new(),
         }
     }
 
@@ -42,7 +94,10 @@ impl ChatbotUi {
                     ui.allocate_space(egui::vec2(ui.available_width(), bottom_padding));
                 }
                 
-                bottom_panel::render(ui, chat, settings, &mut self.selected_provider, &mut self.selected_model);
+                bottom_panel::render(ui, chat, settings, &mut self.selected_provider, &mut self.model_selector.selected_model);
+                
+                // The provider and model selection have been moved to bottom_panel::render,
+                // so we can remove them from here if they're still present.
             });
         });
     

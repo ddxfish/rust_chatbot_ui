@@ -36,10 +36,9 @@ pub struct ChatbotApp {
     chat: Chat,
     ui: ChatbotUi,
     settings: Settings,
-    left_panel_width: f32,
-    selected_chat: Option<String>,
     icons: Icons,
     delete_confirmation: Option<String>,
+    selected_chat: Option<String>,
 }
 
 impl ChatbotApp {
@@ -51,10 +50,9 @@ impl ChatbotApp {
             chat: Chat::new(),
             ui: ChatbotUi::new(),
             settings: Settings::new(),
-            left_panel_width: 200.0,
-            selected_chat: None,
             icons: Icons::new(&cc.egui_ctx),
             delete_confirmation: None,
+            selected_chat: None,
         }
     }
 }
