@@ -1,6 +1,5 @@
 use keyring::Entry;
 use eframe::egui;
-use std::time::Duration;
 
 pub struct Settings {
     api_key: String,
