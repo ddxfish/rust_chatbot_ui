@@ -58,7 +58,10 @@ impl ChatbotApp {
         
         let chat = Chat::new(Arc::clone(&providers[0]));
         
-        Self {
+        // Get the most recent chat file
+        let most_recent = chat.get_history_files().first().cloned();
+        
+        let mut app = Self {
             chat,
             ui: ChatbotUi::new(),
             settings,
@@ -67,7 +70,25 @@ impl ChatbotApp {
             selected_chat: None,
             providers,
             selected_provider: 0,
+        };
+
+        // Load the most recent chat or create a new one
+        if let Some(file) = most_recent {
+            if let Err(e) = app.chat.load_chat(&file) {
+                eprintln!("Failed to load most recent chat: {}", e);
+                // If loading fails, create a new chat
+                if let Err(e) = app.chat.create_new_chat() {
+                    eprintln!("Failed to create new chat: {}", e);
+                }
+            }
+        } else {
+            // If no history exists, create a new chat
+            if let Err(e) = app.chat.create_new_chat() {
+                eprintln!("Failed to create new chat: {}", e);
+            }
         }
+
+        app
     }
 }
 
