@@ -72,9 +72,7 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, selected_pr
             }
         });
     });
-    //static mut SHOW_CUSTOM_MODEL_POPUP: bool = false;
-    //static mut CUSTOM_MODEL_INPUT: String = String::new();
-
+    
     unsafe {
         if SHOW_CUSTOM_MODEL_POPUP {
             Window::new("Custom Model")
