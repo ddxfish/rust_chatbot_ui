@@ -178,6 +178,14 @@ impl eframe::App for ChatbotApp {
             if !file.is_empty() {
                 if let Err(e) = self.chat.delete_chat(&file) {
                     eprintln!("Failed to delete chat: {}", e);
+                } else {
+                    // Check if this was the last chat
+                    if self.chat.get_history_files().is_empty() {
+                        // Create a new empty chat
+                        if let Err(e) = self.chat.create_new_chat() {
+                            eprintln!("Failed to create new chat after deleting last one: {}", e);
+                        }
+                    }
                 }
             }
             self.delete_confirmation = None;
