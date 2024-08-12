@@ -3,7 +3,6 @@ use crate::chat::Chat;
 use crate::settings::Settings;
 use crate::providers::{Provider, get_providers};
 use rfd::FileDialog;
-use super::theme;
 use std::path::Path;
 
 pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, selected_provider: &mut String, selected_model: &mut String) {
@@ -45,14 +44,6 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, selected_pr
                 });
         } else {
             ui.label("Select a provider first");
-        }
-
-        if ui.button("Light").clicked() {
-            ui.ctx().set_visuals(theme::custom_light_theme());
-        }
-
-        if ui.button("Dark").clicked() {
-            ui.ctx().set_visuals(egui::Visuals::dark());
         }
 
         ui.with_layout(Layout::right_to_left(Align::Center), |ui| {

@@ -2,6 +2,7 @@ use keyring::Entry;
 use eframe::egui;
 use egui::{Button, Image, Vec2};
 use crate::app::Icons;
+use crate::ui::theme;
 
 pub struct Settings {
     fireworks_api_key: String,
@@ -29,20 +30,34 @@ impl Settings {
                 .collapsible(false)
                 .show(ctx, |ui| {
                     ui.horizontal(|ui| {
-                        ui.heading("Fireworks API Key");
+                        ui.heading("Settings");
                         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                             if ui.add(Button::image(Image::new(&icons.close).fit_to_exact_size(Vec2::new(20.0, 20.0)))).clicked() {
                                 self.show_settings = false;
                             }
                         });
                     });
+                    
+                    ui.heading("Fireworks API Key");
                     ui.text_edit_singleline(&mut self.fireworks_api_key);
-                    if ui.button("Save").clicked() {
+                    if ui.button("Save API Key").clicked() {
                         match self.keyring.set_password(&self.fireworks_api_key) {
                             Ok(_) => self.set_feedback("Fireworks API key saved successfully.".to_string(), 3.0),
                             Err(_) => self.set_feedback("Failed to save Fireworks API key.".to_string(), 3.0),
                         }
                     }
+                    
+                    ui.add_space(10.0);
+                    ui.heading("Theme");
+                    ui.horizontal(|ui| {
+                        if ui.button("Light").clicked() {
+                            ui.ctx().set_visuals(theme::custom_light_theme());
+                        }
+                        if ui.button("Dark").clicked() {
+                            ui.ctx().set_visuals(egui::Visuals::dark());
+                        }
+                    });
+                    
                     if let Some((message, _)) = &self.feedback {
                         ui.label(message);
                     }
