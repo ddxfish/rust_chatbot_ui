@@ -1,7 +1,0 @@
-User: okay?
-
-<<<MESSAGE_SEPARATOR>>>
-
-Bot: It looks like you're starting a conversation. I'm happy to chat with you. How's your day going so far?
-<<<MESSAGE_SEPARATOR>>>
-

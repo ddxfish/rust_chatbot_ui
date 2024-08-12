@@ -43,6 +43,7 @@ pub struct ChatbotApp {
     selected_chat: Option<String>,
     providers: Vec<Arc<dyn Provider + Send + Sync>>,
     selected_provider: usize,
+    need_to_load_most_recent: bool,
 }
 
 impl ChatbotApp {
@@ -58,10 +59,7 @@ impl ChatbotApp {
         
         let chat = Chat::new(Arc::clone(&providers[0]));
         
-        // Get the most recent chat file
-        let most_recent = chat.get_history_files().first().cloned();
-        
-        let mut app = Self {
+        Self {
             chat,
             ui: ChatbotUi::new(),
             settings,
@@ -70,30 +68,27 @@ impl ChatbotApp {
             selected_chat: None,
             providers,
             selected_provider: 0,
-        };
-
-        // Load the most recent chat or create a new one
-        if let Some(file) = most_recent {
-            if let Err(e) = app.chat.load_chat(&file) {
-                eprintln!("Failed to load most recent chat: {}", e);
-                // If loading fails, create a new chat
-                if let Err(e) = app.chat.create_new_chat() {
-                    eprintln!("Failed to create new chat: {}", e);
-                }
-            }
-        } else {
-            // If no history exists, create a new chat
-            if let Err(e) = app.chat.create_new_chat() {
-                eprintln!("Failed to create new chat: {}", e);
-            }
+            need_to_load_most_recent: false,
         }
-
-        app
     }
 }
 
 impl eframe::App for ChatbotApp {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
+        if self.need_to_load_most_recent {
+            if let Some(most_recent) = self.chat.get_history_files().first().cloned() {
+                if let Err(e) = self.chat.load_chat(&most_recent) {
+                    eprintln!("Failed to load most recent chat: {}", e);
+                }
+            } else {
+                // If no chats left, create a new one
+                if let Err(e) = self.chat.create_new_chat() {
+                    eprintln!("Failed to create new chat: {}", e);
+                }
+            }
+            self.need_to_load_most_recent = false;
+        }
+
         if let Some(file) = self.selected_chat.take() {
             if let Err(e) = self.chat.load_chat(&file) {
                 eprintln!("Failed to load chat: {}", e);
@@ -176,15 +171,13 @@ impl eframe::App for ChatbotApp {
 
         if let Some(file) = delete_confirmed {
             if !file.is_empty() {
+                let current_file = self.chat.get_current_file().cloned();
                 if let Err(e) = self.chat.delete_chat(&file) {
                     eprintln!("Failed to delete chat: {}", e);
                 } else {
-                    // Check if this was the last chat
-                    if self.chat.get_history_files().is_empty() {
-                        // Create a new empty chat
-                        if let Err(e) = self.chat.create_new_chat() {
-                            eprintln!("Failed to create new chat after deleting last one: {}", e);
-                        }
+                    // If the deleted chat was the current one, set flag to load the most recent chat
+                    if Some(&file) == current_file.as_ref() {
+                        self.need_to_load_most_recent = true;
                     }
                 }
             }
