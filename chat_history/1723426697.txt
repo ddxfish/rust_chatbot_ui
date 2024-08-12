@@ -92,3 +92,72 @@ Of course, there are many other great episodes of Stargate SG-1, but these five 
 What do you think of these episodes? Do you have a favorite episode of Stargate SG-1?
 <<<MESSAGE_SEPARATOR>>>
 
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello again! How's your day going so far? We were in the middle of a fun conversation about Stargate SG-1. Would you like to continue exploring the universe, or is there something else on your mind?
+<<<MESSAGE_SEPARATOR>>>
+
+User: yeah sg1 trivia, go
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Here's a question to get us started:
+
+**Question 1:** What is the name of the planet where the Stargate SG-1 team first encounters the Asgard?
+
+A) Cimmeria
+B) Thor's Chariot
+C) Othala
+D) Asgard
+
+Let me know your answer!
+
+(And don't worry, I'll keep track of your scores. We can make it a fun competition!)
+<<<MESSAGE_SEPARATOR>>>
+
+User: B?
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: That is CORRECT!
+
+**Thor's Chariot** is the planet where the SG-1 team first encounters the Asgard, specifically Thor, in the episode "Thor's Chariot" (Season 2, Episode 6).
+
+You earn 1 point!
+
+Here's the next question:
+
+**Question 2:** Which SG-1 team member is a brilliant astrophysicist and is often referred to as the "brain" of the team?
+
+A) Jack O'Neill
+B) Samantha Carter
+C) Daniel Jackson
+D) Teal'c
+
+Let me know your answer!
+<<<MESSAGE_SEPARATOR>>>
+
+User: b
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: That is CORRECT!
+
+**Samantha Carter** is the brilliant astrophysicist and engineer of the SG-1 team. She's often referred to as the "brain" of the team, and her expertise in physics and engineering is invaluable to the team's missions.
+
+You earn 1 point!
+
+Here's the next question:
+
+**Question 3:** What is the name of the Goa'uld System Lord who is the main antagonist of the show's early seasons?
+
+A) Apophis
+B) Ra
+C) Anubis
+D) Ba'al
+
+Let me know your answer!
+<<<MESSAGE_SEPARATOR>>>
+
