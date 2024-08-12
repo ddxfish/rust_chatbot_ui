@@ -8,6 +8,8 @@ use std::path::Path;
 use tokio::runtime::Runtime;
 use std::sync::Arc;
 
+const MESSAGE_SEPARATOR: &str = "\n<<<MESSAGE_SEPARATOR>>>\n";
+
 pub struct Chat {
     messages: Vec<Message>,
     chatbot: Chatbot,
@@ -42,6 +44,7 @@ impl Chat {
         let response = self.runtime.block_on(self.chatbot.generate_response(&self.messages));
         self.add_message(response, false);
     }
+
     pub fn create_new_chat(&mut self) -> Result<(), std::io::Error> {
         self.messages.clear();
         self.chat_history.create_new_chat()
@@ -50,11 +53,14 @@ impl Chat {
     pub fn load_chat(&mut self, file_name: &str) -> Result<(), std::io::Error> {
         let content = self.chat_history.load_chat(file_name)?;
         self.messages.clear();
-        for line in content.lines() {
-            if let Some(content) = line.strip_prefix("User: ") {
-                self.messages.push(Message::new(content.to_string(), true));
-            } else if let Some(content) = line.strip_prefix("Bot: ") {
-                self.messages.push(Message::new(content.to_string(), false));
+        for message in content.split(MESSAGE_SEPARATOR) {
+            let trimmed = message.trim();
+            if !trimmed.is_empty() {
+                if let Some(content) = trimmed.strip_prefix("User: ") {
+                    self.messages.push(Message::new(content.to_string(), true));
+                } else if let Some(content) = trimmed.strip_prefix("Bot: ") {
+                    self.messages.push(Message::new(content.to_string(), false));
+                }
             }
         }
         Ok(())
@@ -67,14 +73,16 @@ impl Chat {
     pub fn get_current_file(&self) -> Option<&String> {
         self.chat_history.get_current_file()
     }
+
     pub fn delete_chat(&mut self, file_name: &str) -> Result<(), std::io::Error> {
         self.chat_history.delete_chat(file_name)
     }
+
     pub fn export_chat(&self, path: &Path) -> Result<(), std::io::Error> {
         let mut file = File::create(path)?;
         for message in &self.messages {
             let prefix = if message.is_user() { "User: " } else { "Bot: " };
-            writeln!(file, "{}{}", prefix, message.content())?;
+            writeln!(file, "{}{}{}", prefix, message.content(), MESSAGE_SEPARATOR)?;
         }
         Ok(())
     }
