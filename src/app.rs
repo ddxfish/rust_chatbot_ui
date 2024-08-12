@@ -68,7 +68,7 @@ impl ChatbotApp {
             selected_chat: None,
             providers,
             selected_provider: 0,
-            need_to_load_most_recent: false,
+            need_to_load_most_recent: true,
         }
     }
 }
