@@ -1,4 +1,4 @@
-use egui::{Ui, ComboBox, Layout, Align, Window, TextEdit};
+use egui::{Ui, ComboBox, Layout, Align, Window, TextEdit, Id};
 use crate::chat::Chat;
 use crate::settings::Settings;
 use crate::providers::{Provider, get_providers};
@@ -14,7 +14,7 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, selected_pr
         ui.set_min_height(30.0);
         ui.add_space(2.0);
         
-        ComboBox::from_label("Provider")
+        ComboBox::from_id_source("provider_combo")
             .selected_text(selected_provider.as_str())
             .show_ui(ui, |ui| {
                 for provider in get_providers(settings.get_fireworks_api_key().to_string()) {
@@ -28,7 +28,7 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, selected_pr
         ui.add_space(10.0);
 
         if let Some(current_provider) = get_providers(settings.get_fireworks_api_key().to_string()).into_iter().find(|p| p.name() == *selected_provider) {
-            ComboBox::from_label("Model")
+            ComboBox::from_id_source("model_combo")
                 .selected_text(selected_model.as_str())
                 .show_ui(ui, |ui| {
                     for model in current_provider.models() {
@@ -55,20 +55,19 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, selected_pr
             ui.ctx().set_visuals(egui::Visuals::dark());
         }
 
-        if ui.button("Export Chat").clicked() {
-            if let Some(path) = FileDialog::new()
-                .add_filter("Text", &["txt"])
-                .set_directory("/")
-                .save_file() {
-                if let Err(e) = chat.export_chat(Path::new(&path)) {
-                    eprintln!("Failed to export chat: {}", e);
-                }
-            }
-        }
-
         ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
             if ui.link("Settings").clicked() {
                 settings.toggle_settings();
+            }
+            if ui.button("Export").clicked() {
+                if let Some(path) = FileDialog::new()
+                    .add_filter("Text", &["txt"])
+                    .set_directory("/")
+                    .save_file() {
+                    if let Err(e) = chat.export_chat(Path::new(&path)) {
+                        eprintln!("Failed to export chat: {}", e);
+                    }
+                }
             }
         });
     });

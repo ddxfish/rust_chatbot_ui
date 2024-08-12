@@ -3,6 +3,8 @@ use std::io::{Write, Read};
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+const MESSAGE_SEPARATOR: &str = "\n<<<MESSAGE_SEPARATOR>>>\n";
+
 pub struct ChatHistory {
     history_files: Vec<String>,
     directory: String,
@@ -61,7 +63,7 @@ impl ChatHistory {
             let file_path = Path::new(&self.directory).join(current_file);
             let mut file = fs::OpenOptions::new().append(true).open(file_path)?;
             let prefix = if is_user { "User: " } else { "Bot: " };
-            writeln!(file, "{}{}", prefix, content)?;
+            writeln!(file, "{}{}{}", prefix, content, MESSAGE_SEPARATOR)?;
         }
         Ok(())
     }
@@ -73,6 +75,7 @@ impl ChatHistory {
         self.current_file = Some(file_name.to_string());
         Ok(content)
     }
+
     pub fn delete_chat(&mut self, file_name: &str) -> Result<(), std::io::Error> {
         let file_path = Path::new(&self.directory).join(file_name);
         fs::remove_file(&file_path)?;
@@ -82,6 +85,7 @@ impl ChatHistory {
         }
         Ok(())
     }
+
     pub fn get_current_file(&self) -> Option<&String> {
         self.current_file.as_ref()
     }
