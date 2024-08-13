@@ -117,11 +117,11 @@ impl eframe::App for ChatbotApp {
                 ScrollArea::vertical().show(ui, |ui| {
                     ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
                         let files = self.chat.get_history_files();
-                        let current_file = self.chat.get_current_file().cloned();
+                        let current_file = self.chat.get_current_file();
                         
                         for file in files {
                             ui.horizontal(|ui| {
-                                let is_current = current_file.as_ref().map_or(false, |current| current == file);
+                                let is_current = current_file.as_ref().map_or(false, |current| current == &file);
                                 let text = if is_current {
                                     egui::RichText::new(file.clone()).color(Color32::YELLOW).size(18.0)
                                 } else {
@@ -171,7 +171,7 @@ impl eframe::App for ChatbotApp {
 
         if let Some(file) = delete_confirmed {
             if !file.is_empty() {
-                let current_file = self.chat.get_current_file().cloned();
+                let current_file = self.chat.get_current_file();
                 if let Err(e) = self.chat.delete_chat(&file) {
                     eprintln!("Failed to delete chat: {}", e);
                 } else {

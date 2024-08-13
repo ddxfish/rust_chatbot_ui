@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct Message {
     content: String,
     is_user: bool,

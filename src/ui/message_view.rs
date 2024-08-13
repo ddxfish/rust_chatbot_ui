@@ -27,7 +27,11 @@ pub fn render_messages(ui: &mut Ui, chat: &Chat) {
                 ); 
 
                 ui.label(job);
-                ui.add_space(0.0);
+                ui.add_space(5.0);
+            }
+            
+            if chat.is_processing() {
+                ui.add(egui::Spinner::new());
             }
             
             let max_scroll = ui.max_rect().height() - ui.clip_rect().height();
