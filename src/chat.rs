@@ -17,18 +17,21 @@ pub struct Chat {
     chat_history: Arc<Mutex<ChatHistory>>,
     runtime: Runtime,
     is_processing: Arc<Mutex<bool>>,
-    stream: Arc<Mutex<Option<mpsc::Receiver<String>>>>,
+    ui_sender: mpsc::UnboundedSender<String>,
+    ui_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
 }
 
 impl Chat {
     pub fn new(provider: Arc<dyn Provider + Send + Sync>) -> Self {
+        let (ui_sender, ui_receiver) = mpsc::unbounded_channel();
         Self {
             messages: Arc::new(Mutex::new(Vec::new())),
             chatbot: Arc::new(Chatbot::new(provider)),
             chat_history: Arc::new(Mutex::new(ChatHistory::new("chat_history"))),
             runtime: Runtime::new().unwrap(),
             is_processing: Arc::new(Mutex::new(false)),
-            stream: Arc::new(Mutex::new(None)),
+            ui_sender,
+            ui_receiver: Arc::new(Mutex::new(ui_receiver)),
         }
     }
 
@@ -54,19 +57,25 @@ impl Chat {
         *self.is_processing.lock().unwrap() = true;
         let chatbot = Arc::clone(&self.chatbot);
         let messages = Arc::clone(&self.messages);
-        let stream = Arc::clone(&self.stream);
         let is_processing = Arc::clone(&self.is_processing);
+        let ui_sender = self.ui_sender.clone();
 
         self.runtime.spawn(async move {
             println!("Starting to generate response");
             let messages = messages.lock().unwrap().clone();
             match chatbot.stream_response(&messages).await {
-                Ok(rx) => {
+                Ok(mut rx) => {
                     println!("Response stream received");
-                    *stream.lock().unwrap() = Some(rx);
+                    while let Some(chunk) = rx.recv().await {
+                        println!("Received chunk: {}", chunk);
+                        if ui_sender.send(chunk).is_err() {
+                            eprintln!("Failed to send chunk to UI");
+                            break;
+                        }
+                    }
                 },
                 Err(e) => {
-                    eprintln!("Error generating response: {:?}", e);
+                    eprintln!("Error generating response: {}", e);
                 }
             }
             *is_processing.lock().unwrap() = false;
@@ -74,30 +83,9 @@ impl Chat {
         });
     }
 
-    pub fn check_stream(&self) -> Option<String> {
-        if let Some(rx) = &mut *self.stream.lock().unwrap() {
-            match rx.try_recv() {
-                Ok(chunk) => {
-                    println!("Received chunk: {}", chunk);
-                    Some(chunk)
-                },
-                Err(e) => {
-                    match e {
-                        tokio::sync::mpsc::error::TryRecvError::Empty => None,
-                        tokio::sync::mpsc::error::TryRecvError::Disconnected => {
-                            println!("Stream disconnected");
-                            *self.stream.lock().unwrap() = None;
-                            *self.is_processing.lock().unwrap() = false;
-                            None
-                        }
-                    }
-                }
-            }
-        } else {
-            None
-        }
+    pub fn check_ui_updates(&self) -> Option<String> {
+        self.ui_receiver.lock().unwrap().try_recv().ok()
     }
-
     pub fn create_new_chat(&self) -> Result<(), std::io::Error> {
         self.messages.lock().unwrap().clear();
         self.chat_history.lock().unwrap().create_new_chat()

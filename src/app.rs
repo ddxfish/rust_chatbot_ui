@@ -146,6 +146,7 @@ impl eframe::App for ChatbotApp {
 
         eframe::egui::CentralPanel::default().show(ctx, |ui| {
             self.ui.render(ui, &mut self.chat, &mut self.settings, &self.icons);
+            ctx.request_repaint();
         });
 
         if let Some(file_to_delete) = &self.delete_confirmation {

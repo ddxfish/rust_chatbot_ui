@@ -1,9 +1,8 @@
 use crate::message::Message;
-use crate::providers::Provider;
+use crate::providers::{Provider, ProviderError};
 use serde_json::json;
 use std::sync::Arc;
 use tokio::sync::mpsc;
-use std::error::Error;
 
 pub struct Chatbot {
     provider: Arc<dyn Provider + Send + Sync>,
@@ -14,7 +13,7 @@ impl Chatbot {
         Self { provider }
     }
 
-    pub async fn stream_response(&self, messages: &Vec<Message>) -> Result<mpsc::Receiver<String>, Box<dyn Error>> {
+    pub async fn stream_response(&self, messages: &Vec<Message>) -> Result<mpsc::Receiver<String>, ProviderError> {
         let formatted_messages = messages.iter().map(|m| {
             json!({
                 "role": if m.is_user() { "user" } else { "assistant" },
