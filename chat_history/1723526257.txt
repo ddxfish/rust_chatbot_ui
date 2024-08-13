@@ -1,0 +1,23 @@
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+User: testing
+
+<<<MESSAGE_SEPARATOR>>>
+
+User: hello
+
+<<<MESSAGE_SEPARATOR>>>
+
+User: test
+
+<<<MESSAGE_SEPARATOR>>>
+
+User: hello!
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello! It looks like you're doing some testing. Is
+<<<MESSAGE_SEPARATOR>>>
+

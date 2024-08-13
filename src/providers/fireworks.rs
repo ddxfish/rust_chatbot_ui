@@ -3,6 +3,8 @@ use std::fmt;
 use reqwest::Client;
 use serde_json::{json, Value};
 use std::error::Error;
+use tokio::sync::mpsc;
+use futures_util::StreamExt;
 
 pub struct Fireworks {
     client: Client,
@@ -53,6 +55,70 @@ impl Provider for Fireworks {
 
         let response_json: Value = response.json().await?;
         Ok(response_json["choices"][0]["message"]["content"].as_str().unwrap_or("").to_string())
+    }
+
+    async fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, Box<dyn Error>> {
+        let (tx, rx) = mpsc::channel(100);
+        let client = self.client.clone();
+        let api_key = self.api_key.clone();
+
+        tokio::spawn(async move {
+            let response = match client
+                .post("https://api.fireworks.ai/inference/v1/chat/completions")
+                .header("Accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("Authorization", format!("Bearer {}", api_key))
+                .json(&json!({
+                    "model": "accounts/fireworks/models/llama-v3p1-70b-instruct",
+                    "max_tokens": 16384,
+                    "top_p": 1,
+                    "top_k": 40,
+                    "presence_penalty": 0,
+                    "frequency_penalty": 0,
+                    "temperature": 0.6,
+                    "messages": messages,
+                    "stream": true
+                }))
+                .send()
+                .await {
+                    Ok(res) => res,
+                    Err(e) => {
+                        eprintln!("Error sending request: {:?}", e);
+                        return;
+                    }
+                };
+
+            let mut stream = response.bytes_stream();
+            while let Some(item) = stream.next().await {
+                match item {
+                    Ok(chunk) => {
+                        if let Ok(text) = String::from_utf8(chunk.to_vec()) {
+                            for line in text.lines() {
+                                if line.starts_with("data: ") {
+                                    let data = &line[6..];
+                                    if data != "[DONE]" {
+                                        if let Ok(json) = serde_json::from_str::<Value>(data) {
+                                            if let Some(content) = json["choices"][0]["delta"]["content"].as_str() {
+                                                if tx.send(content.to_string()).await.is_err() {
+                                                    eprintln!("Error sending chunk through channel");
+                                                    return;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    Err(e) => {
+                        eprintln!("Error reading stream: {:?}", e);
+                        return;
+                    }
+                }
+            }
+        });
+
+        Ok(rx)
     }
 }
 

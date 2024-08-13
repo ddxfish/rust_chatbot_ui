@@ -7,6 +7,7 @@ use std::io::Write;
 use std::path::Path;
 use tokio::runtime::Runtime;
 use std::sync::{Arc, Mutex};
+use tokio::sync::mpsc;
 
 const MESSAGE_SEPARATOR: &str = "\n<<<MESSAGE_SEPARATOR>>>\n";
 
@@ -16,7 +17,7 @@ pub struct Chat {
     chat_history: Arc<Mutex<ChatHistory>>,
     runtime: Runtime,
     is_processing: Arc<Mutex<bool>>,
-    response: Arc<Mutex<Option<String>>>,
+    stream: Arc<Mutex<Option<mpsc::Receiver<String>>>>,
 }
 
 impl Chat {
@@ -27,7 +28,7 @@ impl Chat {
             chat_history: Arc::new(Mutex::new(ChatHistory::new("chat_history"))),
             runtime: Runtime::new().unwrap(),
             is_processing: Arc::new(Mutex::new(false)),
-            response: Arc::new(Mutex::new(None)),
+            stream: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -48,29 +49,53 @@ impl Chat {
     }
 
     pub fn process_input(&self, input: String) {
+        println!("Processing input: {}", input);
         self.add_message(input.clone(), true);
         *self.is_processing.lock().unwrap() = true;
         let chatbot = Arc::clone(&self.chatbot);
         let messages = Arc::clone(&self.messages);
-        let response = Arc::clone(&self.response);
+        let stream = Arc::clone(&self.stream);
         let is_processing = Arc::clone(&self.is_processing);
 
         self.runtime.spawn(async move {
+            println!("Starting to generate response");
             let messages = messages.lock().unwrap().clone();
-            let bot_response = chatbot.generate_response(&messages).await;
-            *response.lock().unwrap() = Some(bot_response);
+            match chatbot.stream_response(&messages).await {
+                Ok(rx) => {
+                    println!("Response stream received");
+                    *stream.lock().unwrap() = Some(rx);
+                },
+                Err(e) => {
+                    eprintln!("Error generating response: {:?}", e);
+                }
+            }
             *is_processing.lock().unwrap() = false;
+            println!("Finished processing");
         });
     }
 
-    pub fn check_response(&self) -> Option<String> {
-        if !*self.is_processing.lock().unwrap() {
-            if let Some(response) = self.response.lock().unwrap().take() {
-                self.add_message(response.clone(), false);
-                return Some(response);
+    pub fn check_stream(&self) -> Option<String> {
+        if let Some(rx) = &mut *self.stream.lock().unwrap() {
+            match rx.try_recv() {
+                Ok(chunk) => {
+                    println!("Received chunk: {}", chunk);
+                    Some(chunk)
+                },
+                Err(e) => {
+                    match e {
+                        tokio::sync::mpsc::error::TryRecvError::Empty => None,
+                        tokio::sync::mpsc::error::TryRecvError::Disconnected => {
+                            println!("Stream disconnected");
+                            *self.stream.lock().unwrap() = None;
+                            *self.is_processing.lock().unwrap() = false;
+                            None
+                        }
+                    }
+                }
             }
+        } else {
+            None
         }
-        None
     }
 
     pub fn create_new_chat(&self) -> Result<(), std::io::Error> {
