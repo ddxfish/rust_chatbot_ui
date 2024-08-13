@@ -1,8 +1,7 @@
-use super::Provider;
+use super::{Provider, ProviderError};
 use std::fmt;
 use reqwest::Client;
 use serde_json::{json, Value};
-use std::error::Error;
 use tokio::sync::mpsc;
 use futures_util::StreamExt;
 
@@ -34,7 +33,7 @@ impl Provider for Fireworks {
         ]
     }
 
-    async fn generate_response(&self, messages: Vec<Value>) -> Result<String, Box<dyn Error>> {
+    async fn generate_response(&self, messages: Vec<Value>) -> Result<String, ProviderError> {
         let response = self.client
             .post("https://api.fireworks.ai/inference/v1/chat/completions")
             .header("Accept", "application/json")
@@ -51,13 +50,19 @@ impl Provider for Fireworks {
                 "messages": messages
             }))
             .send()
-            .await?;
+            .await
+            .map_err(|e| ProviderError::RequestError(e.to_string()))?;
 
-        let response_json: Value = response.json().await?;
-        Ok(response_json["choices"][0]["message"]["content"].as_str().unwrap_or("").to_string())
+        let response_json: Value = response.json().await
+            .map_err(|e| ProviderError::ResponseError(e.to_string()))?;
+        
+        Ok(response_json["choices"][0]["message"]["content"]
+            .as_str()
+            .ok_or_else(|| ProviderError::ResponseError("Invalid response format".to_string()))?
+            .to_string())
     }
 
-    async fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, Box<dyn Error>> {
+    async fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
         let (tx, rx) = mpsc::channel(100);
         let client = self.client.clone();
         let api_key = self.api_key.clone();

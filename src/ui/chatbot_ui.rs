@@ -39,7 +39,6 @@ impl ChatbotUi {
                 .show(ui, |ui| {
                     message_view::render_messages(ui, chat);
                     
-                    // Render the current response if any
                     if !self.current_response.is_empty() {
                         ui.label("Bot: ");
                         ui.label(&self.current_response);
@@ -61,15 +60,18 @@ impl ChatbotUi {
 
         if chat.is_processing() {
             self.is_loading = true;
-            ui.ctx().request_repaint();
-        } else if let Some(chunk) = chat.check_stream() {
+        }
+
+        while let Some(chunk) = chat.check_ui_updates() {
             self.current_response.push_str(&chunk);
             ui.ctx().request_repaint();
-        } else if !self.current_response.is_empty() {
-            // When the stream is finished, add the complete response to the chat
+        }
+
+        if !chat.is_processing() && !self.current_response.is_empty() {
             chat.add_message(std::mem::take(&mut self.current_response), false);
             self.is_loading = false;
-            ui.ctx().request_repaint();
         }
+
+        ui.ctx().request_repaint();
     }
 }

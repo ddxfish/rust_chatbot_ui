@@ -1,0 +1,33 @@
+User: hey
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: How's it going? Is there something I can help you with or would you like to chat?
+<<<MESSAGE_SEPARATOR>>>
+
+User: give me a list of any items. 20 items
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Here is a list of 20 random items:
+
+1. Guitar
+2. Pineapple
+3. Bookshelf
+4. Roller skates
+5. Harmonica
+6. Basketball
+7. Coffee mug
+8. Bicycle
+9. Pillow
+10. Perfume
+11. Microphone
+12. Sunglasses pan
+15. Clock
+16. Television
+17. Skateboard
+18. Camera
+19. Football
+20. Typewriter
+<<<MESSAGE_SEPARATOR>>>
+
