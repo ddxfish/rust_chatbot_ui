@@ -16,4 +16,8 @@ impl Message {
     pub fn is_user(&self) -> bool {
         self.is_user
     }
+
+    pub fn append_content(&mut self, chunk: &str) {
+        self.content.push_str(chunk);
+    }
 }

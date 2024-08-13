@@ -3,12 +3,14 @@ use crate::chat::Chat;
 use crate::settings::Settings;
 use crate::app::Icons;
 use super::{message_view, input_area, bottom_panel};
+use crate::message::Message;
 
 pub struct ChatbotUi {
     input: String,
     selected_provider: String,
     selected_model: String,
     is_loading: bool,
+    current_response: String,
 }
 
 impl ChatbotUi {
@@ -18,6 +20,7 @@ impl ChatbotUi {
             selected_provider: String::new(),
             selected_model: String::new(),
             is_loading: false,
+            current_response: String::new(),
         }
     }
 
@@ -35,6 +38,12 @@ impl ChatbotUi {
                 .max_height(message_height)
                 .show(ui, |ui| {
                     message_view::render_messages(ui, chat);
+                    
+                    // Render the current response if any
+                    if !self.current_response.is_empty() {
+                        ui.label("Bot: ");
+                        ui.label(&self.current_response);
+                    }
                 });
             
             input_area::render_input(ui, chat, icons, &mut self.input, &mut self.is_loading);
@@ -51,8 +60,15 @@ impl ChatbotUi {
         settings.render(ui.ctx(), icons);
 
         if chat.is_processing() {
+            self.is_loading = true;
             ui.ctx().request_repaint();
-        } else if chat.check_response().is_some() {
+        } else if let Some(chunk) = chat.check_stream() {
+            self.current_response.push_str(&chunk);
+            ui.ctx().request_repaint();
+        } else if !self.current_response.is_empty() {
+            // When the stream is finished, add the complete response to the chat
+            chat.add_message(std::mem::take(&mut self.current_response), false);
+            self.is_loading = false;
             ui.ctx().request_repaint();
         }
     }
