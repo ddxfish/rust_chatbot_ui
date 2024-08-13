@@ -1,64 +1,14 @@
-use egui::{Ui, ScrollArea, Align, Layout, ComboBox, Window};
+use egui::{Ui, ScrollArea, Align, Layout};
 use crate::chat::Chat;
 use crate::settings::Settings;
 use crate::app::Icons;
-use crate::providers::{Provider, get_providers};
 use super::{message_view, input_area, bottom_panel};
-
-pub struct ModelSelector {
-    selected_model: String,
-    custom_model_input: String,
-    show_custom_model_popup: bool,
-}
-
-impl ModelSelector {
-    fn new() -> Self {
-        Self {
-            selected_model: String::new(),
-            custom_model_input: String::new(),
-            show_custom_model_popup: false,
-        }
-    }
-
-    fn render(&mut self, ui: &mut Ui, models: &[&str]) {
-        ComboBox::from_label("Model")
-            .selected_text(&self.selected_model)
-            .show_ui(ui, |ui| {
-                for &model in models {
-                    ui.selectable_value(&mut self.selected_model, model.to_string(), model);
-                }
-                if ui.selectable_label(false, "Other").clicked() {
-                    self.show_custom_model_popup = true;
-                }
-            });
-
-        if self.show_custom_model_popup {
-            Window::new("Custom Model")
-                .collapsible(false)
-                .resizable(false)
-                .show(ui.ctx(), |ui| {
-                    ui.horizontal(|ui| {
-                        ui.label("Enter custom model name:");
-                        ui.text_edit_singleline(&mut self.custom_model_input);
-                    });
-                    ui.horizontal(|ui| {
-                        if ui.button("Cancel").clicked() {
-                            self.show_custom_model_popup = false;
-                        }
-                        if ui.button("OK").clicked() {
-                            self.selected_model = self.custom_model_input.clone();
-                            self.show_custom_model_popup = false;
-                        }
-                    });
-                });
-        }
-    }
-}
 
 pub struct ChatbotUi {
     input: String,
     selected_provider: String,
-    model_selector: ModelSelector,
+    selected_model: String,
+    is_loading: bool,
 }
 
 impl ChatbotUi {
@@ -66,7 +16,8 @@ impl ChatbotUi {
         Self {
             input: String::new(),
             selected_provider: String::new(),
-            model_selector: ModelSelector::new(),
+            selected_model: String::new(),
+            is_loading: false,
         }
     }
 
@@ -86,17 +37,23 @@ impl ChatbotUi {
                     message_view::render_messages(ui, chat);
                 });
             
-            input_area::render_input(ui, chat, icons, &mut self.input);
+            input_area::render_input(ui, chat, icons, &mut self.input, &mut self.is_loading);
             
             ui.with_layout(Layout::bottom_up(Align::LEFT), |ui| {
                 if bottom_padding > 0.0 {
                     ui.allocate_space(egui::vec2(ui.available_width(), bottom_padding));
                 }
                 
-                bottom_panel::render(ui, chat, settings, &mut self.selected_provider, &mut self.model_selector.selected_model);
+                bottom_panel::render(ui, chat, settings, &mut self.selected_provider, &mut self.selected_model);
             });
         });
     
         settings.render(ui.ctx(), icons);
+
+        if chat.is_processing() {
+            ui.ctx().request_repaint();
+        } else if chat.check_response().is_some() {
+            ui.ctx().request_repaint();
+        }
     }
 }

@@ -2,7 +2,7 @@ use egui::{Ui, TextEdit, Button, Vec2, Image};
 use crate::chat::Chat;
 use crate::app::Icons;
 
-pub fn render_input(ui: &mut Ui, chat: &mut Chat, icons: &Icons, input: &mut String) {
+pub fn render_input(ui: &mut Ui, chat: &mut Chat, icons: &Icons, input: &mut String, is_loading: &mut bool) {
     let input_field = TextEdit::multiline(input)
         .desired_rows(3)
         .hint_text("Type your message here...")
@@ -20,6 +20,7 @@ pub fn render_input(ui: &mut Ui, chat: &mut Chat, icons: &Icons, input: &mut Str
        || (ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift)) {
         if !input.trim().is_empty() {
             chat.process_input(std::mem::take(input));
+            *is_loading = true;
         }
         response.request_focus();
     }
