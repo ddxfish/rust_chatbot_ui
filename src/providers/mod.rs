@@ -27,7 +27,7 @@ impl Display for ProviderError {
 pub trait Provider: Display {
     fn name(&self) -> &'static str;
     fn models(&self) -> Vec<&'static str>;
-    async fn generate_response(&self, messages: Vec<Value>) -> Result<String, ProviderError>;
+    //async fn generate_response(&self, messages: Vec<Value>) -> Result<String, ProviderError>;
     async fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError>;
 }
 
