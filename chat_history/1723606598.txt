@@ -106,3 +106,23 @@ User: if your mission was a laugh, it was
 Bot: I'm glad I could bring a smile to your face. That's the best kind of llama fuel.
 <<<MESSAGE_SEPARATOR>>>
 
+User: go go go
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: LLAMA POWER, ACTIVATE!
+<<<MESSAGE_SEPARATOR>>>
+
+User: give me 3 paragraphs of text
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Here are three paragraphs of text:
+
+The sun was the sweet scent of blooming wildflowers, and the sound of birds chirping in the distance. It was a peaceful evening stretch on forever.
+
+As the stars began to twinkle in the night sky, a group of friends gathered around a roaring camp their faces illuminated by the flickering flames. The fire crackled and popped, sending sparks flying up into the darkness. It was a magical night, one that would be remembered for years to come.
+
+In the distance, a lone llama wandered through the hills, its soft fur ruffling in the gentle breeze. It was a curious creature, with a mischievous glint in its eye. As it wandered, it stumbled upon a hidden clearing, filled with a riot of ears perked up, and it let out a soft hum of delight. It was a moment of pure joy, one that would stay with the llama forever.
+<<<MESSAGE_SEPARATOR>>>
+
