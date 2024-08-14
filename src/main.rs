@@ -27,7 +27,7 @@ fn main() -> Result<(), eframe::Error> {
         ..Default::default()
     };
     eframe::run_native(
-        "Rusty Chatbot UI",
+        "Rust Chatbot UI",
         options,
         Box::new(|cc| Ok(Box::new(app::ChatbotApp::new(cc))))
     )
