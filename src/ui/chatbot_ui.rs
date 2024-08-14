@@ -37,12 +37,7 @@ impl ChatbotUi {
                 .stick_to_bottom(true)
                 .max_height(message_height)
                 .show(ui, |ui| {
-                    message_view::render_messages(ui, chat);
-                    
-                    if !self.current_response.is_empty() {
-                        ui.label("Bot: ");
-                        ui.label(&self.current_response);
-                    }
+                    message_view::render_messages(ui, chat, &self.current_response, self.is_loading);
                 });
             
             input_area::render_input(ui, chat, icons, &mut self.input, &mut self.is_loading);

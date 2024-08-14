@@ -1,36 +1,26 @@
 use egui::{Ui, ScrollArea, Align, FontId, TextFormat, text::LayoutJob};
 use crate::chat::Chat;
 
-pub fn render_messages(ui: &mut Ui, chat: &Chat) {
+pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool) {
     let mut scroll_to_bottom = false;
     ScrollArea::vertical()
         .auto_shrink([false; 2])
         .stick_to_bottom(true)
         .show(ui, |ui| {
-            for message in chat.get_messages() {
-                let text = if message.is_user() {
-                    format!("You: {}", message.content())
-                } else {
-                    format!("Bot: {}", message.content())
-                };
-                
-                let mut job = LayoutJob::default();
-                job.append(
-                    &text,
-                    0.0,
-                    TextFormat {
-                        font_id: FontId::proportional(14.0),
-                        color: ui.style().visuals.text_color(),
-                        line_height: Some(20.0),
-                        ..Default::default()
-                    },
-                ); 
+            let mut job = LayoutJob::default();
 
-                ui.label(job);
-                ui.add_space(5.0);
+            for message in chat.get_messages() {
+                add_message_to_job(&mut job, message.is_user(), message.content(), ui);
             }
-            
-            if chat.is_processing() {
+
+            // Add the current (streaming) response
+            if !current_response.is_empty() {
+                add_message_to_job(&mut job, false, current_response, ui);
+            }
+
+            ui.label(job);
+
+            if is_loading {
                 ui.add(egui::Spinner::new());
             }
             
@@ -42,4 +32,19 @@ pub fn render_messages(ui: &mut Ui, chat: &Chat) {
     if scroll_to_bottom {
         ui.scroll_to_cursor(Some(Align::BOTTOM));
     }
+}
+
+fn add_message_to_job(job: &mut LayoutJob, is_user: bool, content: &str, ui: &Ui) {
+    let prefix = if is_user { "You: " } else { "Bot: " };
+    let text = format!("{}{}\n\n", prefix, content);
+    
+    job.append(
+        &text,
+        0.0,
+        TextFormat {
+            font_id: FontId::proportional(14.0),
+            color: ui.style().visuals.text_color(),
+            ..Default::default()
+        },
+    );
 }
