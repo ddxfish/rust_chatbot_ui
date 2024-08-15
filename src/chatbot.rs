@@ -28,25 +28,53 @@ impl Chatbot {
     pub async fn generate_chat_name(&self, messages: &Vec<Message>) -> Result<String, ProviderError> {
         println!("Debug: Generating chat name for {} messages", messages.len());
         let prompt = format!(
-            "Based on the following conversation, generate a concise 2-3 word name for this chat:\n\n{}",
+            "Based on the following conversation, generate a concise 3-word name for this chat. Use initcaps:\n\n{}",
             messages.iter().map(|m| format!("{}: {}", if m.is_user() { "User" } else { "Assistant" }, m.content())).collect::<Vec<_>>().join("\n")
         );
-
+    
         let formatted_message = vec![json!({
             "role": "user",
             "content": prompt
         })];
-
+    
         let mut rx = self.provider.stream_response(formatted_message).await?;
         let mut name = String::new();
-
+    
         println!("Debug: Waiting for chat name response");
         while let Some(chunk) = rx.recv().await {
             println!("Debug: Received name chunk: {}", chunk);
             name.push_str(&chunk);
         }
-
-        println!("Debug: Generated chat name: {}", name.trim());
-        Ok(name.trim().to_string())
+    
+        let processed_name = name.trim();
+        let final_name = limit_to_three_words(&processed_name);
+    
+        println!("Debug: Generated chat name: {}", final_name);
+        
+        Ok(final_name)
     }
+    
+    
+}
+fn limit_to_three_words(s: &str) -> String {
+    let mut words = s.split_whitespace();
+    let word1 = words.next().unwrap_or("");
+    let word2 = words.next().unwrap_or("");
+    let word3 = words.next().unwrap_or("");
+    
+    if word3.is_empty() {
+        format!("{} {}", word1, word2).trim().to_string()
+    } else {
+        format!("{} {} {}", word1, word2, word3)
+    }
+}
+fn process_chat_name(name: String) -> String {
+    name.trim()
+        .to_lowercase()
+        .split_whitespace()
+        .filter(|word| !word.is_empty())
+        .take(3)
+        .map(String::from)
+        .collect::<Vec<String>>()
+        .join("-")
 }

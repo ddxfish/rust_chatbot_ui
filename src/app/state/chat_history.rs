@@ -58,10 +58,11 @@ impl ChatHistory {
                 for file in files {
                     ui.horizontal(|ui| {
                         let is_current = current_file.as_ref().map_or(false, |current| current == &file);
+                        let display_name = format_file_name(&file);
                         let text = if is_current {
-                            RichText::new(file.clone()).color(Color32::YELLOW).size(18.0)
+                            RichText::new(display_name).color(Color32::YELLOW).size(18.0)
                         } else {
-                            RichText::new(file.clone()).color(Color32::WHITE).size(18.0)
+                            RichText::new(display_name).color(Color32::WHITE).size(18.0)
                         };
                         
                         if ui.add(egui::Label::new(text).wrap()).clicked() {
@@ -81,4 +82,10 @@ impl ChatHistory {
 
         file_to_delete
     }
+}
+
+fn format_file_name(file_name: &str) -> String {
+    file_name
+        .trim_end_matches(".txt")
+        .replace('_', " ")
 }
