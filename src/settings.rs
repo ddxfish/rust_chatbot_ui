@@ -97,6 +97,7 @@ impl Settings {
     fn set_feedback(&mut self, message: String, duration: f32) {
         self.feedback = Some((message, duration));
     }
+
     pub fn get_api_keys(&self) -> String {
         format!("{},{}", self.fireworks_api_key, self.claude_api_key)
     }

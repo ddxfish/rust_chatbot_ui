@@ -32,4 +32,3 @@ fn main() -> Result<(), eframe::Error> {
         Box::new(|cc| Ok(Box::new(app::ChatbotApp::new(cc))))
     )
 }
-
