@@ -25,3 +25,17 @@ User: what was your first answer?
 Bot: My first answer was that I'm a model called Claude, created by Anthropic.
 <<<MESSAGE_SEPARATOR>>>
 
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello! How can I help you today?
+<<<MESSAGE_SEPARATOR>>>
+
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hi again! Is there something on your about, or are you just saying hello?
+<<<MESSAGE_SEPARATOR>>>
+
