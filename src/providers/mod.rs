@@ -1,5 +1,6 @@
 pub mod fireworks;
 pub mod claude;
+pub mod none;
 
 use std::fmt::Display;
 use serde_json::Value;
@@ -34,6 +35,7 @@ pub trait Provider: Display {
 pub fn get_providers(api_keys: String) -> Vec<Box<dyn Provider + Send + Sync>> {
     let keys: Vec<String> = api_keys.split(',').map(String::from).collect();
     vec![
+        Box::new(none::None::new()),
         Box::new(fireworks::Fireworks::new(keys.get(0).cloned().unwrap_or_default())),
         Box::new(claude::Claude::new(keys.get(1).cloned().unwrap_or_default())),
     ]

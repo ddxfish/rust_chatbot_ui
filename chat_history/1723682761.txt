@@ -39,3 +39,17 @@ User: hi
 Bot: Hi again! Is there something on your about, or are you just saying hello?
 <<<MESSAGE_SEPARATOR>>>
 
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello
+<<<MESSAGE_SEPARATOR>>>
+
+User: you there?
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello
+<<<MESSAGE_SEPARATOR>>>
+

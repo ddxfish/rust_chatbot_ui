@@ -1,4 +1,4 @@
-use egui::{Ui, ScrollArea, Align, FontId, TextFormat, text::LayoutJob};
+use egui::{Ui, ScrollArea, Align, FontId, TextFormat, text::LayoutJob, FontFamily, Color32};
 use crate::chat::Chat;
 
 pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool) {
@@ -42,8 +42,9 @@ fn add_message_to_job(job: &mut LayoutJob, is_user: bool, content: &str, ui: &Ui
         &text,
         0.0,
         TextFormat {
-            font_id: FontId::proportional(14.0),
-            color: ui.style().visuals.text_color(),
+            font_id: FontId::new(20.0, FontFamily::Proportional),
+            color: if is_user { Color32::LIGHT_BLUE } else { Color32::LIGHT_GREEN },
+            line_height: Some(25.5),
             ..Default::default()
         },
     );
