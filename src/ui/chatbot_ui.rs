@@ -4,11 +4,13 @@ use crate::settings::Settings;
 use crate::app::Icons;
 use super::{message_view, input_area, bottom_panel};
 use crate::message::Message;
+use crate::providers::Provider;
+use std::sync::Arc;
 
 pub struct ChatbotUi {
     input: String,
-    selected_provider: String,
-    selected_model: String,
+    pub selected_provider: String,
+    pub selected_model: String,
     is_loading: bool,
     current_response: String,
 }
@@ -24,7 +26,7 @@ impl ChatbotUi {
         }
     }
 
-    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons) {
+    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons, providers: &[Arc<dyn Provider + Send + Sync>]) {
         egui::CentralPanel::default().show_inside(ui, |ui| {
             let available_height = ui.available_height();
             let bottom_row_height = 30.0;
@@ -47,7 +49,7 @@ impl ChatbotUi {
                     ui.allocate_space(egui::vec2(ui.available_width(), bottom_padding));
                 }
                 
-                bottom_panel::render(ui, chat, settings, &mut self.selected_provider, &mut self.selected_model);
+                bottom_panel::render(ui, chat, settings, &mut self.selected_provider, &mut self.selected_model, providers);
             });
         });
     
