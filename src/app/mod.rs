@@ -47,9 +47,21 @@ impl ChatbotApp {
 
     fn switch_provider(&mut self, index: usize) {
         if index < self.providers.len() && index != self.current_provider_index {
+            // Save current chat file name
+            let current_file = self.chat.get_current_file().map(String::from);
+            
+            // Switch provider
             self.current_provider_index = index;
             self.chat = Chat::new(Arc::clone(&self.providers[index]));
-            self.ui = ChatbotUi::new();
+            
+            // Reload the chat if there was an active file
+            if let Some(file) = current_file {
+                if let Err(e) = self.chat.load_chat(&file) {
+                    eprintln!("Failed to load chat after switching provider: {}", e);
+                }
+            }
+
+            // Update UI
             self.ui.selected_provider = self.providers[index].name().to_string();
             self.ui.selected_model = self.providers[index].models()[0].to_string();
         }
