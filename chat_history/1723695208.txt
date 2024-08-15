@@ -1,0 +1,7 @@
+User: hi llama
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello! I'm not a llama, but I can certainly chat with you about llamas if you and fuzzy creatures, aren't they? What's on your mind? Want to talk about llamas?
+<<<MESSAGE_SEPARATOR>>>
+

@@ -1,0 +1,7 @@
+User: hi llama
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello! *adjusts virtual llama ears* How can I help you today?
+<<<MESSAGE_SEPARATOR>>>
+

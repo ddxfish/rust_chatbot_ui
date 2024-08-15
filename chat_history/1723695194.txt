@@ -1,0 +1,21 @@
+User: hi llama!
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello! I'm not actually a llama, but I'm happy to chat with you! How are you doing today?
+<<<MESSAGE_SEPARATOR>>>
+
+User: okay
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Just okay day if you'd like! Would you like to talk about something in particular or just have some fun conversations? I can suggest some fun topics, like:
+
+* We could imagine a fantastical adventure together
+* I could share some fun facts about llamas (since you mentioned them!)
+* We could play a game of "Would you rather..."
+* Or we could just chat about your favorite hobbies or interests!
+
+What sounds good to you?
+<<<MESSAGE_SEPARATOR>>>
+

@@ -1,7 +1,7 @@
 use crate::message::Message;
 use std::fs::{self, File, OpenOptions};
 use std::io::{Write, Read};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 const MESSAGE_SEPARATOR: &str = "\n<<<MESSAGE_SEPARATOR>>>\n";
@@ -14,6 +14,7 @@ pub struct ChatHistory {
 
 impl ChatHistory {
     pub fn new(directory: &str) -> Self {
+        println!("Debug: Creating new ChatHistory with directory: {}", directory);
         let mut chat_history = Self {
             history_files: Vec::new(),
             directory: directory.to_string(),
@@ -24,6 +25,7 @@ impl ChatHistory {
     }
 
     fn load_history(&mut self) {
+        println!("Debug: Loading chat history");
         self.history_files = fs::read_dir(&self.directory)
             .into_iter()
             .flatten()
@@ -39,6 +41,7 @@ impl ChatHistory {
             })
             .collect();
         self.history_files.sort_by(|a, b| b.cmp(a));
+        println!("Debug: Loaded {} chat files", self.history_files.len());
     }
 
     pub fn get_history_files(&self) -> Vec<String> {
@@ -46,6 +49,7 @@ impl ChatHistory {
     }
 
     pub fn create_new_chat(&mut self) -> Result<(), std::io::Error> {
+        println!("Debug: Creating new chat");
         fs::create_dir_all(&self.directory)?;
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -53,20 +57,25 @@ impl ChatHistory {
             .as_secs();
         let file_name = format!("{}.txt", timestamp);
         File::create(Path::new(&self.directory).join(&file_name))?;
-        self.current_file = Some(file_name);
+        self.current_file = Some(file_name.clone());
         self.load_history();
+        println!("Debug: Created new chat file: {}", file_name);
         Ok(())
     }
 
     pub fn append_message(&mut self, content: &str, is_user: bool) -> Result<(), std::io::Error> {
         if let Some(current_file) = &self.current_file {
+            println!("Debug: Appending message to file: {}", current_file);
             let mut file = OpenOptions::new().append(true).open(Path::new(&self.directory).join(current_file))?;
             writeln!(file, "{}{}{}", if is_user { "User: " } else { "Bot: " }, content, MESSAGE_SEPARATOR)?;
+        } else {
+            println!("Debug: No current file to append message");
         }
         Ok(())
     }
 
     pub fn load_chat(&mut self, file_name: &str, messages: &mut Vec<Message>) -> Result<(), std::io::Error> {
+        println!("Debug: Loading chat from file: {}", file_name);
         let mut content = String::new();
         File::open(Path::new(&self.directory).join(file_name))?.read_to_string(&mut content)?;
         self.current_file = Some(file_name.to_string());
@@ -81,14 +90,17 @@ impl ChatHistory {
                 }
             }
         }
+        println!("Debug: Loaded {} messages from file", messages.len());
         Ok(())
     }
 
     pub fn delete_chat(&mut self, file_name: &str) -> Result<(), std::io::Error> {
+        println!("Debug: Deleting chat file: {}", file_name);
         fs::remove_file(Path::new(&self.directory).join(file_name))?;
         self.load_history();
         if self.current_file.as_ref().map_or(false, |f| f == file_name) {
             self.current_file = None;
+            println!("Debug: Cleared current file as it was deleted");
         }
         Ok(())
     }
@@ -98,9 +110,39 @@ impl ChatHistory {
     }
 
     pub fn export_chat(&self, path: &Path, messages: &[Message]) -> Result<(), std::io::Error> {
+        println!("Debug: Exporting chat to: {:?}", path);
         let mut file = File::create(path)?;
         for message in messages {
             writeln!(file, "{}{}{}", if message.is_user() { "User: " } else { "Bot: " }, message.content(), MESSAGE_SEPARATOR)?;
+        }
+        println!("Debug: Exported {} messages", messages.len());
+        Ok(())
+    }
+
+    pub fn rename_current_chat(&mut self, new_name: &str) -> Result<(), std::io::Error> {
+        println!("Debug: Attempting to rename current chat to: {}", new_name);
+        if let Some(current_file) = &self.current_file {
+            let old_path = Path::new(&self.directory).join(current_file);
+            let mut new_name = new_name.to_string();
+            new_name.retain(|c| c.is_alphanumeric() || c.is_whitespace());
+            new_name = new_name.replace(" ", "_");
+
+            let mut new_path = PathBuf::from(&self.directory);
+            new_path.push(format!("{}.txt", new_name));
+
+            let mut counter = 1;
+            while new_path.exists() {
+                new_path.set_file_name(format!("{}_{}.txt", new_name, counter));
+                counter += 1;
+            }
+
+            println!("Debug: Renaming from {:?} to {:?}", old_path, new_path);
+            fs::rename(&old_path, &new_path)?;
+            self.current_file = Some(new_path.file_name().unwrap().to_string_lossy().to_string());
+            self.load_history();
+            println!("Debug: Successfully renamed chat file");
+        } else {
+            println!("Debug: No current file to rename");
         }
         Ok(())
     }

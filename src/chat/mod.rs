@@ -15,6 +15,7 @@ pub struct Chat {
     ui_sender: mpsc::UnboundedSender<String>,
     ui_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
     history: Arc<Mutex<history::ChatHistory>>,
+    needs_naming: Arc<Mutex<bool>>,
 }
 
 impl Chat {
@@ -28,6 +29,7 @@ impl Chat {
             ui_sender,
             ui_receiver: Arc::new(Mutex::new(ui_receiver)),
             history: Arc::new(Mutex::new(history::ChatHistory::new("chat_history"))),
+            needs_naming: Arc::new(Mutex::new(false)),
         }
     }
 
@@ -48,23 +50,59 @@ impl Chat {
     }
 
     pub fn process_input(&self, input: String) {
+        println!("Debug: Processing input: {}", input);
         self.add_message(input.clone(), true);
         *self.is_processing.lock().unwrap() = true;
+        *self.needs_naming.lock().unwrap() = true;
         let chatbot = Arc::clone(&self.chatbot);
         let messages = Arc::clone(&self.messages);
         let is_processing = Arc::clone(&self.is_processing);
         let ui_sender = self.ui_sender.clone();
+        let history = Arc::clone(&self.history);
+        let needs_naming = Arc::clone(&self.needs_naming);
+
+        // Clone the messages before spawning the task
+        let messages_clone = self.messages.lock().unwrap().clone();
 
         self.runtime.spawn(async move {
-            let messages_clone = messages.lock().unwrap().clone();
+            println!("Debug: Starting to stream response");
             if let Ok(mut rx) = chatbot.stream_response(&messages_clone).await {
+                println!("Debug: Successfully got stream response");
+                let mut full_response = String::new();
                 while let Some(chunk) = rx.recv().await {
+                    println!("Debug: Received chunk: {}", chunk);
+                    full_response.push_str(&chunk);
                     if ui_sender.send(chunk).is_err() {
+                        println!("Debug: Error sending chunk to UI");
                         break;
                     }
                 }
+                // Add the full response to messages and history
+                messages.lock().unwrap().push(Message::new(full_response.clone(), false));
+                if let Err(e) = history.lock().unwrap().append_message(&full_response, false) {
+                    eprintln!("Failed to append bot message to history: {}", e);
+                }
+            } else {
+                println!("Debug: Failed to get stream response");
             }
             *is_processing.lock().unwrap() = false;
+            println!("Debug: Finished processing response");
+
+            if *needs_naming.lock().unwrap() {
+                println!("Debug: Generating chat name");
+                let current_messages = messages.lock().unwrap().clone();
+                match chatbot.generate_chat_name(&current_messages).await {
+                    Ok(name) => {
+                        println!("Debug: Generated chat name: {}", name);
+                        match history.lock().unwrap().rename_current_chat(&name) {
+                            Ok(_) => println!("Debug: Successfully renamed chat to: {}", name),
+                            Err(e) => eprintln!("Error: Failed to rename chat: {}", e),
+                        }
+                    }
+                    Err(e) => eprintln!("Error: Failed to generate chat name: {}", e),
+                }
+                *needs_naming.lock().unwrap() = false;
+            }
         });
     }
 
@@ -73,11 +111,15 @@ impl Chat {
     }
 
     pub fn create_new_chat(&self) -> Result<(), std::io::Error> {
+        println!("Debug: Creating new chat");
         self.messages.lock().unwrap().clear();
+        *self.needs_naming.lock().unwrap() = false;
         self.history.lock().unwrap().create_new_chat()
     }
 
     pub fn load_chat(&self, file_name: &str) -> Result<(), std::io::Error> {
+        println!("Debug: Loading chat: {}", file_name);
+        *self.needs_naming.lock().unwrap() = false;
         self.history.lock().unwrap().load_chat(file_name, &mut self.messages.lock().unwrap())
     }
 
@@ -90,10 +132,12 @@ impl Chat {
     }
 
     pub fn delete_chat(&self, file_name: &str) -> Result<(), std::io::Error> {
+        println!("Debug: Deleting chat: {}", file_name);
         self.history.lock().unwrap().delete_chat(file_name)
     }
 
     pub fn export_chat(&self, path: &std::path::Path) -> Result<(), std::io::Error> {
+        println!("Debug: Exporting chat to: {:?}", path);
         self.history.lock().unwrap().export_chat(path, &self.messages.lock().unwrap())
     }
 }

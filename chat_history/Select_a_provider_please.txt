@@ -1,0 +1,10 @@
+User: Hi llama, can we talk about boats and fish?
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Select a provider please
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Select a provider please
+<<<MESSAGE_SEPARATOR>>>
+

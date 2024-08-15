@@ -1,0 +1,30 @@
+User: lets talk about boats and fish
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Let's:
+
+1. Boat types: sailboats, speedboats, yachts, or fishing boats?
+2. Fishing techniques: rod and reel, netting, or underwater fishing?
+3. Fish species: saltwater, freshwater, or exotic fish like sharks or rays?
+4. Boating adventures: stories of fishing trips, boat tours, or island hopping?
+5. Marine life: coral reefs, ocean conservation, or marine wildlife encounters?
+
+Or do you have a specific question or topic in mind?
+
+Let's set sail and explore the world of boats and fish together!
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Let's:
+
+1. Boat types: sailboats, speedboats, yachts, or fishing boats?
+2. Fishing techniques: rod and reel, netting, or underwater fishing?
+3. Fish species: saltwater, freshwater, or exotic fish like sharks or rays?
+4. Boating adventures: stories of fishing trips, boat tours, or island hopping?
+5. Marine life: coral reefs, ocean conservation, or marine wildlife encounters?
+
+Or do you have a specific question or topic in mind?
+
+Let's set sail and explore the world of boats and fish together!
+<<<MESSAGE_SEPARATOR>>>
+

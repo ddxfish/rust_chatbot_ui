@@ -1,0 +1,7 @@
+User: hello llama, lets talk about boats
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello there, friend! *llama ears perk up* Oh, boats, you say? I'd love to chat about boats! *llama takes a sip of imaginary tea* What kind of boats would you like to talk about? Sailboats, speedboats, or maybe something a bit more... unusual, like a pirate ship?
+<<<MESSAGE_SEPARATOR>>>
+

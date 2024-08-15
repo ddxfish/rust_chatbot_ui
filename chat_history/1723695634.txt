@@ -1,0 +1,14 @@
+User: hey llama
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hey there! I'm not a llama, but I'm happy to chat with you! What's on your mind? Want to talk about something in particular or just hang out and chat?
+<<<MESSAGE_SEPARATOR>>>
+
+User: you good?
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: I'm doing well, thanks for asking! I'm a large language model, so I don't have feelings or emotions like humans do, but I'm always happy to chat and help with any questions or topics you'd like to discuss. It's great to have someone to talk to! How about you, how's your day going so far?
+<<<MESSAGE_SEPARATOR>>>
+
