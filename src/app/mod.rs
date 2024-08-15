@@ -25,10 +25,10 @@ impl ChatbotApp {
         cc.egui_ctx.set_pixels_per_point(1.0);
         
         let settings = Settings::new();
-        let providers: Vec<Arc<dyn Provider + Send + Sync>> = providers::get_providers(settings.get_fireworks_api_key().to_string())
-            .into_iter()
-            .map(|p| Arc::from(p) as Arc<dyn Provider + Send + Sync>)
-            .collect();
+        let providers: Vec<Arc<dyn Provider + Send + Sync>> = providers::get_providers(settings.get_api_keys())
+        .into_iter()
+        .map(|p| Arc::from(p) as Arc<dyn Provider + Send + Sync>)
+        .collect();
         
         let chat = Chat::new(Arc::clone(&providers[0]));
         
