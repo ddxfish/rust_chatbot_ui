@@ -16,11 +16,14 @@ pub struct Chat {
     ui_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
     history: Arc<Mutex<history::ChatHistory>>,
     needs_naming: Arc<Mutex<bool>>,
+    name_sender: mpsc::UnboundedSender<String>,
+    name_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
 }
 
 impl Chat {
     pub fn new(provider: Arc<dyn Provider + Send + Sync>) -> Self {
         let (ui_sender, ui_receiver) = mpsc::unbounded_channel();
+        let (name_sender, name_receiver) = mpsc::unbounded_channel();
         Self {
             messages: Arc::new(Mutex::new(Vec::new())),
             chatbot: Arc::new(Chatbot::new(provider)),
@@ -30,6 +33,8 @@ impl Chat {
             ui_receiver: Arc::new(Mutex::new(ui_receiver)),
             history: Arc::new(Mutex::new(history::ChatHistory::new("chat_history"))),
             needs_naming: Arc::new(Mutex::new(true)),
+            name_sender,
+            name_receiver: Arc::new(Mutex::new(name_receiver)),
         }
     }
 
@@ -40,6 +45,10 @@ impl Chat {
         println!("Debug: Writing message to history file");
         if let Err(e) = self.history.lock().unwrap().append_message(&content, is_user) {
             eprintln!("Failed to append message to history: {}", e);
+        }
+
+        if !is_user && *self.needs_naming.lock().unwrap() {
+            self.generate_chat_name();
         }
     }
 
@@ -56,14 +65,11 @@ impl Chat {
         self.add_message(input.clone(), true);
         *self.is_processing.lock().unwrap() = true;
         let chatbot = Arc::clone(&self.chatbot);
-        let messages = Arc::clone(&self.messages);
         let is_processing = Arc::clone(&self.is_processing);
         let ui_sender = self.ui_sender.clone();
-        let history = Arc::clone(&self.history);
         let needs_naming = Arc::clone(&self.needs_naming);
 
         let messages_clone = self.messages.lock().unwrap().clone();
-        let should_name = *self.needs_naming.lock().unwrap();
 
         self.runtime.spawn(async move {
             println!("Debug: Starting to stream response");
@@ -78,37 +84,48 @@ impl Chat {
                         break;
                     }
                 }
-                println!("Debug: Full response received, adding to messages and history");
-                messages.lock().unwrap().push(Message::new(full_response.clone(), false));
-                if let Err(e) = history.lock().unwrap().append_message(&full_response, false) {
-                    eprintln!("Failed to append bot message to history: {}", e);
+                println!("Debug: Finished streaming response");
+                
+                // Set needs_naming to true after the first bot response
+                if messages_clone.len() == 1 {
+                    *needs_naming.lock().unwrap() = true;
+                    println!("Debug: Set needs_naming to true");
                 }
             } else {
                 println!("Debug: Failed to get stream response");
             }
             *is_processing.lock().unwrap() = false;
-            println!("Debug: Finished processing response");
+        });
+    }
 
-            if should_name {
-                println!("Debug: Generating chat name");
-                let current_messages = messages.lock().unwrap().clone();
-                match chatbot.generate_chat_name(&current_messages).await {
-                    Ok(name) => {
-                        println!("Debug: Generated chat name: {}", name);
-                        match history.lock().unwrap().rename_current_chat(&name) {
-                            Ok(_) => println!("Debug: Successfully renamed chat to: {}", name),
-                            Err(e) => eprintln!("Error: Failed to rename chat: {}", e),
-                        }
+    fn generate_chat_name(&self) {
+        let chatbot = Arc::clone(&self.chatbot);
+        let messages = Arc::clone(&self.messages);
+        let name_sender = self.name_sender.clone();
+        let needs_naming = Arc::clone(&self.needs_naming);
+
+        self.runtime.spawn(async move {
+            println!("Debug: Generating chat name");
+            let current_messages = messages.lock().unwrap().clone();
+            match chatbot.generate_chat_name(&current_messages).await {
+                Ok(name) => {
+                    println!("Debug: Generated chat name: {}", name);
+                    if name_sender.send(name).is_err() {
+                        eprintln!("Error: Failed to send generated chat name");
                     }
-                    Err(e) => eprintln!("Error: Failed to generate chat name: {}", e),
                 }
-                *needs_naming.lock().unwrap() = false;
+                Err(e) => eprintln!("Error: Failed to generate chat name: {}", e),
             }
+            *needs_naming.lock().unwrap() = false;
         });
     }
 
     pub fn check_ui_updates(&self) -> Option<String> {
         self.ui_receiver.lock().unwrap().try_recv().ok()
+    }
+
+    pub fn check_name_updates(&self) -> Option<String> {
+        self.name_receiver.lock().unwrap().try_recv().ok()
     }
 
     pub fn create_new_chat(&self) -> Result<(), std::io::Error> {
@@ -140,5 +157,9 @@ impl Chat {
     pub fn export_chat(&self, path: &std::path::Path) -> Result<(), std::io::Error> {
         println!("Debug: Exporting chat to: {:?}", path);
         self.history.lock().unwrap().export_chat(path, &self.messages.lock().unwrap())
+    }
+
+    pub fn rename_current_chat(&self, new_name: &str) -> Result<(), std::io::Error> {
+        self.history.lock().unwrap().rename_current_chat(new_name)
     }
 }
