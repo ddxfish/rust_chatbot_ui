@@ -1,4 +1,5 @@
 pub mod fireworks;
+pub mod claude;
 
 use std::fmt::Display;
 use serde_json::Value;
@@ -27,13 +28,13 @@ impl Display for ProviderError {
 pub trait Provider: Display {
     fn name(&self) -> &'static str;
     fn models(&self) -> Vec<&'static str>;
-    //async fn generate_response(&self, messages: Vec<Value>) -> Result<String, ProviderError>;
     async fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError>;
 }
 
-pub fn get_providers(api_key: String) -> Vec<Box<dyn Provider + Send + Sync>> {
+pub fn get_providers(api_keys: String) -> Vec<Box<dyn Provider + Send + Sync>> {
+    let keys: Vec<String> = api_keys.split(',').map(String::from).collect();
     vec![
-        Box::new(fireworks::Fireworks::new(api_key)),
-        // Add other providers here
+        Box::new(fireworks::Fireworks::new(keys.get(0).cloned().unwrap_or_default())),
+        Box::new(claude::Claude::new(keys.get(1).cloned().unwrap_or_default())),
     ]
 }

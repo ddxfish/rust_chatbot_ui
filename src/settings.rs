@@ -6,6 +6,7 @@ use crate::ui::theme;
 
 pub struct Settings {
     fireworks_api_key: String,
+    claude_api_key: String,
     keyring: Entry,
     show_settings: bool,
     feedback: Option<(String, f32)>,
@@ -13,10 +14,14 @@ pub struct Settings {
 
 impl Settings {
     pub fn new() -> Self {
-        let keyring = Entry::new("rusty_chatbot", "fireworks_api_key").expect("Failed to create keyring entry");
-        let fireworks_api_key = keyring.get_password().unwrap_or_default();
+        let keyring = Entry::new("rusty_chatbot", "api_keys").expect("Failed to create keyring entry");
+        let api_keys = keyring.get_password().unwrap_or_default();
+        let keys: Vec<&str> = api_keys.split(',').collect();
+        let fireworks_api_key = keys.get(0).unwrap_or(&"").to_string();
+        let claude_api_key = keys.get(1).unwrap_or(&"").to_string();
         Self {
             fireworks_api_key,
+            claude_api_key,
             keyring,
             show_settings: false,
             feedback: None,
@@ -40,10 +45,15 @@ impl Settings {
                     
                     ui.heading("Fireworks API Key");
                     ui.text_edit_singleline(&mut self.fireworks_api_key);
-                    if ui.button("Save API Key").clicked() {
-                        match self.keyring.set_password(&self.fireworks_api_key) {
-                            Ok(_) => self.set_feedback("Fireworks API key saved successfully.".to_string(), 3.0),
-                            Err(_) => self.set_feedback("Failed to save Fireworks API key.".to_string(), 3.0),
+                    
+                    ui.heading("Claude API Key");
+                    ui.text_edit_singleline(&mut self.claude_api_key);
+                    
+                    if ui.button("Save API Keys").clicked() {
+                        let api_keys = format!("{},{}", self.fireworks_api_key, self.claude_api_key);
+                        match self.keyring.set_password(&api_keys) {
+                            Ok(_) => self.set_feedback("API keys saved successfully.".to_string(), 3.0),
+                            Err(_) => self.set_feedback("Failed to save API keys.".to_string(), 3.0),
                         }
                     }
                     
@@ -80,7 +90,14 @@ impl Settings {
         &self.fireworks_api_key
     }
 
+    pub fn get_claude_api_key(&self) -> &str {
+        &self.claude_api_key
+    }
+
     fn set_feedback(&mut self, message: String, duration: f32) {
         self.feedback = Some((message, duration));
+    }
+    pub fn get_api_keys(&self) -> String {
+        format!("{},{}", self.fireworks_api_key, self.claude_api_key)
     }
 }
