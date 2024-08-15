@@ -69,6 +69,13 @@ impl ChatbotUi {
             self.is_loading = false;
         }
 
+        // Check for name updates
+        if let Some(new_name) = chat.check_name_updates() {
+            if let Err(e) = chat.rename_current_chat(&new_name) {
+                eprintln!("Error: Failed to rename chat: {}", e);
+            }
+        }
+
         ui.ctx().request_repaint();
     }
 }
