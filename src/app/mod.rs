@@ -17,6 +17,8 @@ pub struct ChatbotApp {
     ui: ChatbotUi,
     settings: Settings,
     icons: Icons,
+    providers: Vec<Arc<dyn Provider + Send + Sync>>,
+    current_provider_index: usize,
 }
 
 impl ChatbotApp {
@@ -26,9 +28,9 @@ impl ChatbotApp {
         
         let settings = Settings::new();
         let providers: Vec<Arc<dyn Provider + Send + Sync>> = providers::get_providers(settings.get_api_keys())
-        .into_iter()
-        .map(|p| Arc::from(p) as Arc<dyn Provider + Send + Sync>)
-        .collect();
+            .into_iter()
+            .map(|p| Arc::from(p) as Arc<dyn Provider + Send + Sync>)
+            .collect();
         
         let chat = Chat::new(Arc::clone(&providers[0]));
         
@@ -38,6 +40,18 @@ impl ChatbotApp {
             ui: ChatbotUi::new(),
             settings,
             icons: Icons::new(&cc.egui_ctx),
+            providers,
+            current_provider_index: 0,
+        }
+    }
+
+    fn switch_provider(&mut self, index: usize) {
+        if index < self.providers.len() && index != self.current_provider_index {
+            self.current_provider_index = index;
+            self.chat = Chat::new(Arc::clone(&self.providers[index]));
+            self.ui = ChatbotUi::new();
+            self.ui.selected_provider = self.providers[index].name().to_string();
+            self.ui.selected_model = self.providers[index].models()[0].to_string();
         }
     }
 }
@@ -55,7 +69,14 @@ impl eframe::App for ChatbotApp {
             });
 
         eframe::egui::CentralPanel::default().show(ctx, |ui| {
-            self.ui.render(ui, &mut self.chat, &mut self.settings, &self.icons);
+            let previous_provider = self.ui.selected_provider.clone();
+            self.ui.render(ui, &mut self.chat, &mut self.settings, &self.icons, &self.providers);
+            
+            if previous_provider != self.ui.selected_provider {
+                let new_index = self.providers.iter().position(|p| p.name() == self.ui.selected_provider).unwrap_or(0);
+                self.switch_provider(new_index);
+            }
+            
             ctx.request_repaint();
         });
 

@@ -1,11 +1,12 @@
 use egui::{Ui, ComboBox, Layout, Align, Window, TextEdit, Id};
 use crate::chat::Chat;
 use crate::settings::Settings;
-use crate::providers::{Provider, get_providers};
+use crate::providers::Provider;
 use rfd::FileDialog;
 use std::path::Path;
+use std::sync::Arc;
 
-pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, selected_provider: &mut String, selected_model: &mut String) {
+pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, selected_provider: &mut String, selected_model: &mut String, providers: &[Arc<dyn Provider + Send + Sync>]) {
     static mut SHOW_CUSTOM_MODEL_POPUP: bool = false;
     static mut CUSTOM_MODEL_INPUT: String = String::new();
 
@@ -16,17 +17,17 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, selected_pr
         ComboBox::from_id_source("provider_combo")
             .selected_text(selected_provider.as_str())
             .show_ui(ui, |ui| {
-                for provider in get_providers(settings.get_fireworks_api_key().to_string()) {
+                for provider in providers {
                     if ui.selectable_label(selected_provider == provider.name(), provider.name()).clicked() {
                         *selected_provider = provider.name().to_string();
-                        selected_model.clear();
+                        *selected_model = provider.models()[0].to_string();
                     }
                 }
             });
 
         ui.add_space(10.0);
 
-        if let Some(current_provider) = get_providers(settings.get_fireworks_api_key().to_string()).into_iter().find(|p| p.name() == *selected_provider) {
+        if let Some(current_provider) = providers.iter().find(|p| p.name() == *selected_provider) {
             ComboBox::from_id_source("model_combo")
                 .selected_text(selected_model.as_str())
                 .show_ui(ui, |ui| {

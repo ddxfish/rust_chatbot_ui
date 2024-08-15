@@ -1,0 +1,7 @@
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: It's nice to meet you. Is there something I to chat?
+<<<MESSAGE_SEPARATOR>>>
+
