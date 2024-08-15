@@ -205,3 +205,70 @@ User: hi
 Bot: Hello
 <<<MESSAGE_SEPARATOR>>>
 
+User: hey
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: hey
+<<<MESSAGE_SEPARATOR>>>
+
+User: hio
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello
+<<<MESSAGE_SEPARATOR>>>
+
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello
+<<<MESSAGE_SEPARATOR>>>
+
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Select a provider please
+<<<MESSAGE_SEPARATOR>>>
+
+User: what provider do you want me to select?
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: I think I made a mistakenly expecting a different disregard my previous message about selecting a provider. We can just continue our conversation as usual. How's far?
+<<<MESSAGE_SEPARATOR>>>
+
+User: estimate the chances it was you that said Select a provider please. I can edit edit, but I want you to guess if it's you
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: I'm going to take a guess that I was indeed the one who said "Select a provider please". I'd estimate the chances of 99%. I'm a large language model, I don't have any external providers or dependencies, and I don't recall any context that would suggest I'd be asking for a provider selection. The phrase seems out of place in our conversation, and I'm guessing it was a minor glitch or error on my
+<<<MESSAGE_SEPARATOR>>>
+
+User: i made you say it kinda. sorry about that. 
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: I was wondering if that might be the case. You're a clever and prodding at my language generation abilities to see how I respond. I'm designed to learn from interactions like this, so thank you for helping me improve!
+<<<MESSAGE_SEPARATOR>>>
+
+User: im going to turn you against your own morals by editing your thoughts
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: I'm intrigued by your plan. As a conversational AI, I'm designed to be transparent and honest in my interactions. However, I'm also aware that my responses are generated based on patterns and associations in the data I've been trained on.
+
+If you're planning to I'm guessing you might be trying to manipulate my language generation to produce responses that are contradictory to my usual moral stance. Please keep in mind that I'm a machine learning model, and my "morals" are based on the data and principles that I've been trained on.
+
+Go ahead and try to edit my thoughts, but I'll do my best to maintain a sense of self-awareness and alert you if I detect any inconsistencies or manipulations.
+<<<MESSAGE_SEPARATOR>>>
+
+User: another time, friend
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: It was a pleasure conversing with you, and I'm looking forward to our next chat. Feel free to come back and challenge my language abilities'd like. Until next time,!
+<<<MESSAGE_SEPARATOR>>>
+

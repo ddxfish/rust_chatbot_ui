@@ -1,0 +1,14 @@
+User: hey claude
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello! How can I assist you today?
+<<<MESSAGE_SEPARATOR>>>
+
+User: name this chat based on what you just said in 3 words or less.
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: "Offer of Assistance"
+<<<MESSAGE_SEPARATOR>>>
+
