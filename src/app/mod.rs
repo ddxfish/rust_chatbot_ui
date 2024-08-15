@@ -7,7 +7,7 @@ use crate::settings::Settings;
 use crate::providers::{self, Provider};
 use eframe;
 use std::sync::Arc;
-
+use eframe::egui::{self, FontData, FontDefinitions, FontFamily};
 pub use icons::Icons;
 pub use state::ChatbotAppState;
 
@@ -21,8 +21,20 @@ pub struct ChatbotApp {
     current_provider_index: usize,
 }
 
+fn load_custom_font(ctx: &eframe::egui::Context) {
+    let mut fonts = FontDefinitions::default();
+    fonts.font_data.insert(
+        "Roboto".to_owned(),
+        FontData::from_static(include_bytes!("../../assets/Lora-Regular.ttf")),
+    );
+    fonts.families.get_mut(&FontFamily::Proportional).unwrap()
+        .insert(0, "Roboto".to_owned());
+    ctx.set_fonts(fonts);
+}
+
 impl ChatbotApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        load_custom_font(&cc.egui_ctx);
         cc.egui_ctx.set_visuals(egui::Visuals::dark());
         cc.egui_ctx.set_pixels_per_point(1.0);
         
@@ -66,6 +78,7 @@ impl ChatbotApp {
             self.ui.selected_model = self.providers[index].models()[0].to_string();
         }
     }
+
 }
 
 impl eframe::App for ChatbotApp {
