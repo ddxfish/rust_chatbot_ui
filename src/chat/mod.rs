@@ -29,13 +29,15 @@ impl Chat {
             ui_sender,
             ui_receiver: Arc::new(Mutex::new(ui_receiver)),
             history: Arc::new(Mutex::new(history::ChatHistory::new("chat_history"))),
-            needs_naming: Arc::new(Mutex::new(false)),
+            needs_naming: Arc::new(Mutex::new(true)),
         }
     }
 
     pub fn add_message(&self, content: String, is_user: bool) {
+        println!("Debug: Adding message to memory: {} (User: {})", content, is_user);
         let message = Message::new(content.clone(), is_user);
         self.messages.lock().unwrap().push(message);
+        println!("Debug: Writing message to history file");
         if let Err(e) = self.history.lock().unwrap().append_message(&content, is_user) {
             eprintln!("Failed to append message to history: {}", e);
         }
@@ -53,7 +55,6 @@ impl Chat {
         println!("Debug: Processing input: {}", input);
         self.add_message(input.clone(), true);
         *self.is_processing.lock().unwrap() = true;
-        *self.needs_naming.lock().unwrap() = true;
         let chatbot = Arc::clone(&self.chatbot);
         let messages = Arc::clone(&self.messages);
         let is_processing = Arc::clone(&self.is_processing);
@@ -61,8 +62,8 @@ impl Chat {
         let history = Arc::clone(&self.history);
         let needs_naming = Arc::clone(&self.needs_naming);
 
-        // Clone the messages before spawning the task
         let messages_clone = self.messages.lock().unwrap().clone();
+        let should_name = *self.needs_naming.lock().unwrap();
 
         self.runtime.spawn(async move {
             println!("Debug: Starting to stream response");
@@ -77,7 +78,7 @@ impl Chat {
                         break;
                     }
                 }
-                // Add the full response to messages and history
+                println!("Debug: Full response received, adding to messages and history");
                 messages.lock().unwrap().push(Message::new(full_response.clone(), false));
                 if let Err(e) = history.lock().unwrap().append_message(&full_response, false) {
                     eprintln!("Failed to append bot message to history: {}", e);
@@ -88,7 +89,7 @@ impl Chat {
             *is_processing.lock().unwrap() = false;
             println!("Debug: Finished processing response");
 
-            if *needs_naming.lock().unwrap() {
+            if should_name {
                 println!("Debug: Generating chat name");
                 let current_messages = messages.lock().unwrap().clone();
                 match chatbot.generate_chat_name(&current_messages).await {
@@ -113,7 +114,7 @@ impl Chat {
     pub fn create_new_chat(&self) -> Result<(), std::io::Error> {
         println!("Debug: Creating new chat");
         self.messages.lock().unwrap().clear();
-        *self.needs_naming.lock().unwrap() = false;
+        *self.needs_naming.lock().unwrap() = true;
         self.history.lock().unwrap().create_new_chat()
     }
 

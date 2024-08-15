@@ -1,13 +1,10 @@
-User: hi
+User: 1 word answer. are eggs good?
 
 <<<MESSAGE_SEPARATOR>>>
 
-User: hi
-
+Bot: Yes.
 <<<MESSAGE_SEPARATOR>>>
 
-User: hi
-
-
+Bot: Yes.
 <<<MESSAGE_SEPARATOR>>>
 

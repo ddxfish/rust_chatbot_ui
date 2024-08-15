@@ -1,0 +1,20 @@
+User: 1 word answers please. hello!
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hi!
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hi!
+<<<MESSAGE_SEPARATOR>>>
+
+User: how are you
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Good
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Good
+<<<MESSAGE_SEPARATOR>>>
+

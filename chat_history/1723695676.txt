@@ -1,7 +1,0 @@
-User: hi
-
-<<<MESSAGE_SEPARATOR>>>
-
-Bot: How's it going? Is there something I can help you with or would you like to chat?
-<<<MESSAGE_SEPARATOR>>>
-

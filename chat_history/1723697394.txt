@@ -1,0 +1,11 @@
+User: llama car chat
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: I'd love to have a fun chat about cars with you. Here's a question to get us started:
+
+If you were a llama, what kind of car would you adventurous car, like a Jeep or a Land Rover? Or perhaps a car that's a bit more... unusual, like a car shaped like a llama?
+
+Let me know, and we can chat about all things
+<<<MESSAGE_SEPARATOR>>>
+

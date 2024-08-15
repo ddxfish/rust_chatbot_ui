@@ -1,0 +1,21 @@
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: How's chat?
+<<<MESSAGE_SEPARATOR>>>
+
+User: good you?
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: I'm just a computer program, so I don't and ready to chat with you! How about we talk about something interesting? What's been on your mind lately?
+<<<MESSAGE_SEPARATOR>>>
+
+User: what was the first thing I asked you?
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Your first question was "Hi"
+<<<MESSAGE_SEPARATOR>>>
+
