@@ -44,16 +44,18 @@ impl ChatbotApp {
             .map(|p| Arc::from(p) as Arc<dyn Provider + Send + Sync>)
             .collect();
         
-        let chat = Chat::new(Arc::clone(&providers[0]));
+        let initial_provider = providers[1].name().to_string(); // Start with Claude instead of None
+        let initial_model = providers[1].models()[0].to_string();
+        let chat = Chat::new(Arc::clone(&providers[1]));
         
         Self {
             state: ChatbotAppState::new(),
             chat,
-            ui: ChatbotUi::new(),
+            ui: ChatbotUi::new(initial_provider, initial_model),
             settings,
             icons: Icons::new(&cc.egui_ctx),
             providers,
-            current_provider_index: 0,
+            current_provider_index: 1, // Start with Claude instead of None
         }
     }
 
@@ -85,8 +87,24 @@ impl eframe::App for ChatbotApp {
             .default_width(200.0)
             .width_range(100.0..=400.0)
             .show(ctx, |ui| {
-                self.state.render_chat_history(ui, &mut self.chat, &self.icons);
-                self.state.render_bottom_left_section(ui, &mut self.chat, &mut self.settings, &mut self.ui, &self.providers);
+                let available_height = ui.available_height();
+                let bottom_panel_height = 150.0; // Adjust this value as needed
+                
+                egui::Frame::none()
+                    .fill(ctx.style().visuals.extreme_bg_color)
+                    .show(ui, |ui| {
+                        ui.set_max_height(available_height - bottom_panel_height);
+                        self.state.render_chat_history(ui, &mut self.chat, &self.icons);
+                    });
+
+                ui.add_space(10.0);
+
+                egui::Frame::none()
+                    .fill(ctx.style().visuals.extreme_bg_color)
+                    .show(ui, |ui| {
+                        ui.set_max_height(bottom_panel_height);
+                        self.state.render_bottom_left_section(ui, &mut self.chat, &mut self.settings, &mut self.ui, &self.providers);
+                    });
             });
 
         eframe::egui::CentralPanel::default().show(ctx, |ui| {

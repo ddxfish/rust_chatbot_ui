@@ -7,7 +7,7 @@ use crate::settings::Settings;
 use crate::ui::ChatbotUi;
 use crate::providers::Provider;
 use crate::ui::bottom_panel;
-use eframe::egui;
+use eframe::egui::{self, Ui, ScrollArea};
 use std::sync::Arc;
 
 pub struct ChatbotAppState {
@@ -28,14 +28,15 @@ impl ChatbotAppState {
     }
 
     pub fn render_chat_history(&mut self, ui: &mut egui::Ui, chat: &mut Chat, icons: &Icons) {
-        if let Some(file_to_delete) = self.chat_history.render(ui, chat, icons) {
-            self.delete_confirmation.set_file_to_delete(file_to_delete);
-        }
+        ScrollArea::vertical().show(ui, |ui| {
+            if let Some(file_to_delete) = self.chat_history.render(ui, chat, icons) {
+                self.delete_confirmation.set_file_to_delete(file_to_delete);
+            }
+        });
     }
 
-    pub fn render_bottom_left_section(&mut self, ui: &mut egui::Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui: &mut ChatbotUi, providers: &[Arc<dyn Provider + Send + Sync>]) {
+    pub fn render_bottom_left_section(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui: &mut ChatbotUi, providers: &[Arc<dyn Provider + Send + Sync>]) {
         ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
-            ui.add_space(10.0);
             bottom_panel::render(ui, chat, settings, chatbot_ui, providers);
         });
     }

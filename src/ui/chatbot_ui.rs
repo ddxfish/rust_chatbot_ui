@@ -15,15 +15,16 @@ pub struct ChatbotUi {
 }
 
 impl ChatbotUi {
-    pub fn new() -> Self {
+    pub fn new(initial_provider: String, initial_model: String) -> Self {
         Self {
             input: String::new(),
-            selected_provider: String::new(),
-            selected_model: String::new(),
+            selected_provider: initial_provider,
+            selected_model: initial_model,
             is_loading: false,
             current_response: String::new(),
         }
     }
+
 
     pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons, providers: &[Arc<dyn Provider + Send + Sync>]) {
         egui::CentralPanel::default().show_inside(ui, |ui| {
