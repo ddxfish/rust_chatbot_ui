@@ -10,7 +10,7 @@ pub struct Icons {
 impl Icons {
     pub fn new(ctx: &egui::Context) -> Self {
         Self {
-            send: load_icon_texture(ctx, "assets/send_icon.png"),
+            send: load_icon_texture(ctx, "assets/paper-plane-regular-white.png"),
             close: load_icon_texture(ctx, "assets/close_icon.png"),
             new_chat: load_icon_texture(ctx, "assets/app_icon.png"),
             trash: load_icon_texture(ctx, "assets/trash_icon.png"),

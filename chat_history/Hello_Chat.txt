@@ -1,0 +1,135 @@
+User: hey
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: How's it going? Is there something I can help you with or would you like to chat?
+<<<MESSAGE_SEPARATOR>>>
+
+User: yeah sci fi trivia lets go, books
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Let's start with some sci-fi book trivia. Here's a question:
+
+What 1968 science fiction novel by Philip K. Dick explores the concept of a post-apocalyptic world where advanced androids, called Nexus-6, have been created to serve humanity?
+
+A) Electric Sheep?
+B) The Man in the High Castle
+C) Ubik
+D) A Scanner Darkly
+
+Let me know your answer!
+<<<MESSAGE_SEPARATOR>>>
+
+User: yo its Do Androids Dream of Electric Sheep
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: The correct answer is indeed A) Do Androids Dream of Electric Sheep?. That novel was the basis for the famous movie Blade Runner, and it's a classic of the sci-fi genre. Well done!
+
+Here's the next question:
+
+What 1951 science fiction novel by Isaac Asimov is set in a future where humanity has colonized the galaxy and is divided into two groups: the Spacers and the Earthmen?
+
+A) I, Robot
+B) Foundation
+C) The Caves of Steel
+D) The End of Eternity
+
+Let me know your answer!
+<<<MESSAGE_SEPARATOR>>>
+
+User: c. makeit harder
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: The correct answer is indeed C) The Caves of Steel. That novel is a classic of the sci-fi genre and explores the intersection of humanity and technology.
+
+Okay, let's step up the difficulty. tells the story of a post-apocalyptic world where a group of monks in the American Southwest preserve the knowledge of the past in a hidden abbey, and follows the journey of a young monk named Brother Francis as he uncovers the secrets of a mysterious artifact?
+
+A) The Power
+B) The Sirens of Titan
+C) A Canticle for Leibowitz
+D) The Machine's a bit more nuanced, but you're doing great so far!
+<<<MESSAGE_SEPARATOR>>>
+
+User: c
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: The correct answer is indeed C) A Canticle for Leibowitz. That novel is a classic of the sci-fi genre, written by Walter M. Miller Jr. in 1959, and explores the themes of nuclear war, survival, and the preservation of knowledge.
+
+Well done!
+
+Okay, let's try something even more challenging:
+
+What 1970s science fiction novel by Gene Wolfe the story of Severian, a young torturer who is exiled from his guild and sets out journey to the distant city of Thrax, where he becomes embroiled in of the Torturer
+B) The Claw of the Conciliator
+C) The Sword of the Lictor
+D) The Citadel of the Autarch
+
+Note: This one is a bit more nuanced, and the series is known for its complex and layered storytelling.
+<<<MESSAGE_SEPARATOR>>>
+
+User: 'x i dont know
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Don't worry, it's a tough one!
+
+The correct answer is A) The Shadow of the Torturer. The Book of the New Sun is a series of four novels by Gene Wolfe, and it's considered one follows the story of Severian, a young torturer who is exiled from his guild and sets out on a journey to the distant city of Thrax.
+
+The series is known for its:
+
+* Complex, layered storytelling
+* Unreliable narrator
+* Multiple timelines sci-fi and fantasy elements
+* Exploration of themes such as identity, morality, and the nature of read, but it's definitely rewarding for those who are willing to put in the effort.
+
+No worries if you didn't know this one - letHere's a new question:
+
+What 1980s science fiction novel by William Gibson explores the concept of virtual reality and the intersection of artificial intelligence and human consciousness?
+
+A) Neuromancer
+B) Count Zero
+C) Mona Lisa Overdrive
+D) Burning Chrome
+<<<MESSAGE_SEPARATOR>>>
+
+User: a. a bit harder
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot:  answer is indeed A) Neuromancer. That novel is a classic of the sci-fi genre, and it's widely credited with popularizing the concept of cyberpunk.
+
+Okay, let's try something even more challenging:
+
+What 1960s science fiction novel by Stanislaw Lem explores the concept of a sentient planet, and follows the story of a spaceship crew that is sent to investigate the planet's unusual behavior, only to discover that the planet is a vast, interconnected network of consciousness that is manipulating the crew's perceptions of reality?
+
+A) Solaris
+B) The Invincible
+C) The Cyberiad
+D) His Master This one is a bit more nuanced, and the novel is known for its philosophical and psychological themes.
+
+Also, works are often translated from Polish, so the translations might vary slightly.
+<<<MESSAGE_SEPARATOR>>>
+
+User: a
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: The correct answer is indeed A) Solaris. That novel is a classic of the sci-fi genre, and it's a masterpiece of psychological and philosophical exploration. The novel explores the concept of a sentient planet, and the ways in which human consciousness can be manipulated and altered by external forces.
+
+Well done!
+
+Okay, let's try something even more challenging:
+
+What 1960s science fiction novel by Thomas Pynchon explores the intersection of paranoia, conspiracy, and history, and follows the story of a protagonist who becomes obsessed with uncovering the truth behind a mysterious corporation known as the "Tristero"?
+
+A) Gravity's Rainbow
+B) V.
+C) The Crying of Vineland
+
+Note: This one is is often described as "postmodern" and " experimental".
+<<<MESSAGE_SEPARATOR>>>
+
