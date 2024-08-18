@@ -1,0 +1,21 @@
+User: hey
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Select a provider please
+<<<MESSAGE_SEPARATOR>>>
+
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Select a provider please
+<<<MESSAGE_SEPARATOR>>>
+
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Select a provider please
+<<<MESSAGE_SEPARATOR>>>
+

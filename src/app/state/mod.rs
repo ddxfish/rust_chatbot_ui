@@ -3,7 +3,12 @@ mod delete_confirmation;
 
 use crate::chat::Chat;
 use crate::app::Icons;
+use crate::settings::Settings;
+use crate::ui::ChatbotUi;
+use crate::providers::Provider;
+use crate::ui::bottom_panel;
 use eframe::egui;
+use std::sync::Arc;
 
 pub struct ChatbotAppState {
     chat_history: chat_history::ChatHistory,
@@ -26,6 +31,13 @@ impl ChatbotAppState {
         if let Some(file_to_delete) = self.chat_history.render(ui, chat, icons) {
             self.delete_confirmation.set_file_to_delete(file_to_delete);
         }
+    }
+
+    pub fn render_bottom_left_section(&mut self, ui: &mut egui::Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui: &mut ChatbotUi, providers: &[Arc<dyn Provider + Send + Sync>]) {
+        ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
+            ui.add_space(10.0);
+            bottom_panel::render(ui, chat, settings, chatbot_ui, providers);
+        });
     }
 
     pub fn handle_delete_confirmation(&mut self, ctx: &egui::Context, chat: &mut Chat) {
