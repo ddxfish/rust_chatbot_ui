@@ -1,0 +1,50 @@
+User: hey llama
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hey there! I'm not a real llama, but I can definitely chat with you about llamas if you'd like! What's on your mind?
+<<<MESSAGE_SEPARATOR>>>
+
+User: write me a hello llama in assembly
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Here is a simple "Hello, Llama!" program in x    msg db 'Hello, Llama!', 0
+
+section .text
+    global _start
+
+_start:
+    ; Print the message
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, msg
+    mov edx, 13
+    int 0x80
+
+    xor ebx, ebx
+    int 0x80
+```
+Let me explain what this code does:
+
+* The `section .data` directive defines a section for initialized data.
+* The `msg` variable is defined as a byte array containing the string "Hello, Llama!" followed by a null terminator (0).
+* The `section .text` directive defines a section for code.
+* The `_start` label is the entry point of the program.
+* The `mov` instructions move values into the registers:
+	+ `eax` is set to 4, which is the system call number for `sys_write`.
+	+ `ebx` is set to 1, which is the file descriptor for the standard output.
+	+ `ecx` is set to the address of the `msg` variable.
+	+ `edx` is set to 13, which is the length of the string.
+* The `int 0x80` instruction invokes the system call.
+* The second `mov` instruction sets `eax` to 1, which is the system call number for `sys_exit`.
+ which is the return value.
+* The final `int  that this code is written for a Linux system and `int 0x80` instruction to invoke system calls. The code may not work on other systems or with different run this code, you can use the following commands:
+```
+$ nasm -f elf hello_llama.asm
+$ ld -m elf_i386 -s -o hello_llama hello_llama.o
+$ ./hello_llama
+```
+This will print "Hello, Llama!" to the console.
+<<<MESSAGE_SEPARATOR>>>
+

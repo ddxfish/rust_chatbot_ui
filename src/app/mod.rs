@@ -83,13 +83,13 @@ impl eframe::App for ChatbotApp {
         self.state.update(&mut self.chat);
 
         eframe::egui::SidePanel::left("chat_history_panel")
-            .resizable(false)
+            .resizable(true)
             .default_width(200.0)
-            .width_range(200.0..=200.0)
+            .width_range(150.0..=400.0)
             .show(ctx, |ui| {
                 ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
                     let available_height = ui.available_height();
-                    let bottom_panel_height = 120.0;
+                    let bottom_panel_height = 100.0;
                     
                     egui::ScrollArea::vertical().max_height(available_height - bottom_panel_height).show(ui, |ui| {
                         self.state.render_chat_history(ui, &mut self.chat, &self.icons);
