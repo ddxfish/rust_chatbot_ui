@@ -1,4 +1,4 @@
-use egui::{Ui, ComboBox, Window, TextEdit, RichText, Layout};
+use egui::{Ui, ComboBox, Window, TextEdit, RichText, Layout, Align, Frame};
 use crate::chat::Chat;
 use crate::settings::Settings;
 use crate::providers::Provider;
@@ -11,9 +11,15 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
     static mut SHOW_CUSTOM_MODEL_POPUP: bool = false;
     static mut CUSTOM_MODEL_INPUT: String = String::new();
 
-    ui.with_layout(Layout::top_down_justified(egui::Align::LEFT), |ui| {
+    ui.with_layout(Layout::top_down(Align::LEFT), |ui| {
+        
+        
+        // Add flexible space to push buttons to the bottom
+        ui.add_space(ui.available_height() - 80.0);
+
         ComboBox::from_id_source("provider_combo")
             .selected_text(chatbot_ui.selected_provider.as_str())
+            .width(ui.available_width())
             .show_ui(ui, |ui| {
                 for provider in providers {
                     if ui.selectable_label(chatbot_ui.selected_provider == provider.name(), provider.name()).clicked() {
@@ -23,11 +29,10 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
                 }
             });
 
-        ui.add_space(5.0);
-
         if let Some(current_provider) = providers.iter().find(|p| p.name() == chatbot_ui.selected_provider) {
             ComboBox::from_id_source("model_combo")
                 .selected_text(chatbot_ui.selected_model.as_str())
+                .width(ui.available_width())
                 .show_ui(ui, |ui| {
                     for model in current_provider.models() {
                         if ui.selectable_value(&mut chatbot_ui.selected_model, model.to_string(), model).clicked() {
@@ -43,10 +48,12 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
                 });
         }
 
-        ui.add_space(5.0);
 
-        ui.horizontal(|ui| {
-            if ui.button(RichText::new("Export").size(14.0)).clicked() {
+
+        ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
+            let button_width = ui.available_width() / 2.0 - 5.0;
+            
+            if ui.add_sized([button_width, 30.0], egui::Button::new(RichText::new("Export").size(14.0))).clicked() {
                 if let Some(path) = FileDialog::new()
                     .add_filter("Text", &["txt"])
                     .set_directory("/")
@@ -57,10 +64,14 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
                 }
             }
 
-            if ui.button(RichText::new("Settings").size(14.0)).clicked() {
+            ui.add_space(10.0);
+
+            if ui.add_sized([button_width, 30.0], egui::Button::new(RichText::new("Settings").size(14.0))).clicked() {
                 settings.toggle_settings();
             }
         });
+
+        ui.add_space(10.0);
     });
 
     unsafe {
