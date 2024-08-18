@@ -11,46 +11,10 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
     static mut SHOW_CUSTOM_MODEL_POPUP: bool = false;
     static mut CUSTOM_MODEL_INPUT: String = String::new();
 
-    ui.with_layout(Layout::top_down(Align::LEFT), |ui| {
-        
-        
-        // Add flexible space to push buttons to the bottom
-        ui.add_space(ui.available_height() - 80.0);
+    ui.with_layout(Layout::bottom_up(Align::LEFT), |ui| {
+        ui.add_space(5.0); // Add a small space at the bottom
 
-        ComboBox::from_id_source("provider_combo")
-            .selected_text(chatbot_ui.selected_provider.as_str())
-            .width(ui.available_width())
-            .show_ui(ui, |ui| {
-                for provider in providers {
-                    if ui.selectable_label(chatbot_ui.selected_provider == provider.name(), provider.name()).clicked() {
-                        chatbot_ui.selected_provider = provider.name().to_string();
-                        chatbot_ui.selected_model = provider.models()[0].to_string();
-                    }
-                }
-            });
-
-        if let Some(current_provider) = providers.iter().find(|p| p.name() == chatbot_ui.selected_provider) {
-            ComboBox::from_id_source("model_combo")
-                .selected_text(chatbot_ui.selected_model.as_str())
-                .width(ui.available_width())
-                .show_ui(ui, |ui| {
-                    for model in current_provider.models() {
-                        if ui.selectable_value(&mut chatbot_ui.selected_model, model.to_string(), model).clicked() {
-                            chatbot_ui.selected_model = model.to_string();
-                        }
-                    }
-                    if ui.selectable_label(false, "Other").clicked() {
-                        unsafe {
-                            SHOW_CUSTOM_MODEL_POPUP = true;
-                            CUSTOM_MODEL_INPUT.clear();
-                        }
-                    }
-                });
-        }
-
-
-
-        ui.with_layout(Layout::left_to_right(Align::Center), |ui| {
+        ui.horizontal(|ui| {
             let button_width = ui.available_width() / 2.0 - 5.0;
             
             if ui.add_sized([button_width, 30.0], egui::Button::new(RichText::new("Export").size(14.0))).clicked() {
@@ -71,7 +35,40 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
             }
         });
 
-        ui.add_space(10.0);
+        ui.add_space(5.0);
+
+        ComboBox::from_id_source("model_combo")
+            .selected_text(chatbot_ui.selected_model.as_str())
+            .width(ui.available_width())
+            .show_ui(ui, |ui| {
+                if let Some(current_provider) = providers.iter().find(|p| p.name() == chatbot_ui.selected_provider) {
+                    for model in current_provider.models() {
+                        if ui.selectable_value(&mut chatbot_ui.selected_model, model.to_string(), model).clicked() {
+                            chatbot_ui.selected_model = model.to_string();
+                        }
+                    }
+                    if ui.selectable_label(false, "Other").clicked() {
+                        unsafe {
+                            SHOW_CUSTOM_MODEL_POPUP = true;
+                            CUSTOM_MODEL_INPUT.clear();
+                        }
+                    }
+                }
+            });
+
+        ui.add_space(5.0);
+
+        ComboBox::from_id_source("provider_combo")
+            .selected_text(chatbot_ui.selected_provider.as_str())
+            .width(ui.available_width())
+            .show_ui(ui, |ui| {
+                for provider in providers {
+                    if ui.selectable_label(chatbot_ui.selected_provider == provider.name(), provider.name()).clicked() {
+                        chatbot_ui.selected_provider = provider.name().to_string();
+                        chatbot_ui.selected_model = provider.models()[0].to_string();
+                    }
+                }
+            });
     });
 
     unsafe {
