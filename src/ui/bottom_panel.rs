@@ -43,7 +43,7 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
             .selected_text(chatbot_ui.selected_model.as_str())
             .width(dropdown_width)
             //.text_style(egui::TextStyle::Body)
-            .height(48.0) // 
+            //.height(48.0) // 
             .show_ui(ui, |ui| {
                 if let Some(current_provider) = providers.iter().find(|p| p.name() == chatbot_ui.selected_provider) {
                     for model in current_provider.models() {
