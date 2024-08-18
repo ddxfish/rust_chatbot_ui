@@ -7,7 +7,7 @@ use crate::settings::Settings;
 use crate::providers::{self, Provider};
 use eframe;
 use std::sync::Arc;
-use eframe::egui::{self, FontData, FontDefinitions, FontFamily};
+use eframe::egui::{self, FontData, FontDefinitions, FontFamily, Align, Layout};
 pub use icons::Icons;
 pub use state::ChatbotAppState;
 
@@ -44,7 +44,7 @@ impl ChatbotApp {
             .map(|p| Arc::from(p) as Arc<dyn Provider + Send + Sync>)
             .collect();
         
-        let initial_provider = providers[1].name().to_string(); // Start with Claude instead of None
+        let initial_provider = providers[1].name().to_string();
         let initial_model = providers[1].models()[0].to_string();
         let chat = Chat::new(Arc::clone(&providers[1]));
         
@@ -55,7 +55,7 @@ impl ChatbotApp {
             settings,
             icons: Icons::new(&cc.egui_ctx),
             providers,
-            current_provider_index: 1, // Start with Claude instead of None
+            current_provider_index: 1,
         }
     }
 
@@ -87,24 +87,19 @@ impl eframe::App for ChatbotApp {
             .default_width(200.0)
             .width_range(100.0..=400.0)
             .show(ctx, |ui| {
-                let available_height = ui.available_height();
-                let bottom_panel_height = 150.0; // Adjust this value as needed
-                
-                egui::Frame::none()
-                    .fill(ctx.style().visuals.extreme_bg_color)
-                    .show(ui, |ui| {
-                        ui.set_max_height(available_height - bottom_panel_height);
-                        self.state.render_chat_history(ui, &mut self.chat, &self.icons);
-                    });
+                ui.with_layout(Layout::top_down(Align::LEFT), |ui| {
+                    let available_height = ui.available_height();
+                    let bottom_panel_height = 100.0; // Reduced height
+                    
+                    self.state.render_chat_history(ui, &mut self.chat, &self.icons);
 
-                ui.add_space(10.0);
+                    ui.allocate_space(egui::vec2(ui.available_width(), available_height - bottom_panel_height - ui.min_size().y));
 
-                egui::Frame::none()
-                    .fill(ctx.style().visuals.extreme_bg_color)
-                    .show(ui, |ui| {
+                    ui.with_layout(Layout::bottom_up(Align::LEFT), |ui| {
                         ui.set_max_height(bottom_panel_height);
                         self.state.render_bottom_left_section(ui, &mut self.chat, &mut self.settings, &mut self.ui, &self.providers);
                     });
+                });
             });
 
         eframe::egui::CentralPanel::default().show(ctx, |ui| {
