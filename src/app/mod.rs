@@ -87,16 +87,16 @@ impl eframe::App for ChatbotApp {
             .default_width(200.0)
             .width_range(100.0..=400.0)
             .show(ctx, |ui| {
-                ui.with_layout(Layout::top_down(Align::LEFT), |ui| {
+                ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
                     let available_height = ui.available_height();
-                    let bottom_panel_height = 100.0; // Reduced height
+                    let bottom_panel_height = 120.0; // Adjusted height for the bottom panel
                     
-                    self.state.render_chat_history(ui, &mut self.chat, &self.icons);
-
-                    ui.allocate_space(egui::vec2(ui.available_width(), available_height - bottom_panel_height - ui.min_size().y));
+                    egui::ScrollArea::vertical().max_height(available_height - bottom_panel_height).show(ui, |ui| {
+                        self.state.render_chat_history(ui, &mut self.chat, &self.icons);
+                    });
 
                     ui.with_layout(Layout::bottom_up(Align::LEFT), |ui| {
-                        ui.set_max_height(bottom_panel_height);
+                        ui.set_min_height(bottom_panel_height);
                         self.state.render_bottom_left_section(ui, &mut self.chat, &mut self.settings, &mut self.ui, &self.providers);
                     });
                 });

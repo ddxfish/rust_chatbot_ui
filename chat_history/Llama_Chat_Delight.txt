@@ -94,3 +94,10 @@ To troubleshoot this issue, you can try the following:
 If you're stillcurl` command you're using, and I'll do my best to help you troubleshoot the problem.
 <<<MESSAGE_SEPARATOR>>>
 
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello again! It's nice to have a fresh start. How can
+<<<MESSAGE_SEPARATOR>>>
+
