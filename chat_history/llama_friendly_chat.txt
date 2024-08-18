@@ -1,7 +1,0 @@
-User: hi llama
-
-<<<MESSAGE_SEPARATOR>>>
-
-Bot: Hello! I'm happy to chat with you. How's your day going so far?
-<<<MESSAGE_SEPARATOR>>>
-
