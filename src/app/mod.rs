@@ -86,6 +86,7 @@ impl eframe::App for ChatbotApp {
             .width_range(100.0..=400.0)
             .show(ctx, |ui| {
                 self.state.render_chat_history(ui, &mut self.chat, &self.icons);
+                self.state.render_bottom_left_section(ui, &mut self.chat, &mut self.settings, &mut self.ui, &self.providers);
             });
 
         eframe::egui::CentralPanel::default().show(ctx, |ui| {
