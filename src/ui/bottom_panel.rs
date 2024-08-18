@@ -12,10 +12,10 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
     static mut CUSTOM_MODEL_INPUT: String = String::new();
 
     ui.with_layout(Layout::bottom_up(Align::LEFT), |ui| {
-        ui.add_space(5.0); // Add a small space at the bottom
+        ui.add_space(18.0); // Add a small space at the bottom
 
         ui.horizontal(|ui| {
-            let button_width = ui.available_width() / 2.0 - 5.0;
+            let button_width = ui.available_width() / 2.0 - 10.0;
             
             if ui.add_sized([button_width, 30.0], egui::Button::new(RichText::new("Export").size(14.0))).clicked() {
                 if let Some(path) = FileDialog::new()
@@ -37,9 +37,13 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
 
         ui.add_space(5.0);
 
+        let dropdown_width = ui.available_width() * 0.99; // Use 95% of available width
+
         ComboBox::from_id_source("model_combo")
             .selected_text(chatbot_ui.selected_model.as_str())
-            .width(ui.available_width())
+            .width(dropdown_width)
+            //.text_style(egui::TextStyle::Body)
+            .height(48.0) // 
             .show_ui(ui, |ui| {
                 if let Some(current_provider) = providers.iter().find(|p| p.name() == chatbot_ui.selected_provider) {
                     for model in current_provider.models() {
@@ -60,7 +64,7 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
 
         ComboBox::from_id_source("provider_combo")
             .selected_text(chatbot_ui.selected_provider.as_str())
-            .width(ui.available_width())
+            .width(dropdown_width)
             .show_ui(ui, |ui| {
                 for provider in providers {
                     if ui.selectable_label(chatbot_ui.selected_provider == provider.name(), provider.name()).clicked() {

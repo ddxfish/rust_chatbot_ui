@@ -34,7 +34,7 @@ impl Provider for Fireworks {
     }
 
     async fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
-        let (tx, rx) = mpsc::channel(100);
+        let (tx, rx) = mpsc::channel(1024);
         let client = self.client.clone();
         let api_key = self.api_key.clone();
 
