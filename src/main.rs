@@ -7,6 +7,7 @@ mod settings;
 mod providers;
 use eframe::NativeOptions;
 use egui::IconData;
+use crate::ui::theme::DarkTheme;
 
 fn load_icon(path: &str) -> IconData {
     let image = image::open(path).expect("Failed to open icon").into_rgba8();
@@ -28,6 +29,10 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "Rust Chatbot UI",
         options,
-        Box::new(|cc| Ok(Box::new(app::ChatbotApp::new(cc))))
+        Box::new(|cc| {
+            let theme = DarkTheme::new();
+            cc.egui_ctx.set_visuals(theme.apply_to_visuals());
+            Ok(Box::new(app::ChatbotApp::new(cc)))
+        })
     )
 }

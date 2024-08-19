@@ -1,19 +1,19 @@
-use egui::{Ui, ScrollArea, Align, FontId, TextFormat, text::LayoutJob, FontFamily, Color32, Frame, Stroke, Rounding};
+use egui::{Ui, ScrollArea, Align, FontId, TextFormat, text::LayoutJob, FontFamily, Frame, Stroke, Rounding};
 use crate::chat::Chat;
+use crate::ui::theme::DarkTheme;
 
-pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool) {
+pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool, theme: &DarkTheme) {
     let mut scroll_to_bottom = false;
     ScrollArea::vertical()
         .auto_shrink([false; 2])
         .stick_to_bottom(true)
         .show(ui, |ui| {
             for message in chat.get_messages() {
-                render_message(ui, message.is_user(), message.content());
+                render_message(ui, message.is_user(), message.content(), theme);
             }
 
-            // Add the current (streaming) response
             if !current_response.is_empty() {
-                render_message(ui, false, current_response);
+                render_message(ui, false, current_response, theme);
             }
 
             if is_loading {
@@ -30,11 +30,11 @@ pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_load
     }
 }
 
-fn render_message(ui: &mut Ui, is_user: bool, content: &str) {
+fn render_message(ui: &mut Ui, is_user: bool, content: &str, theme: &DarkTheme) {
     let (border_color, background_color) = if is_user {
-        (Color32::from_rgb(0, 122, 255), Color32::from_rgb(45,45,45)) // Blue border, lighter grey background
+        (theme.user_message_border, theme.user_message_bg)
     } else {
-        (Color32::from_rgb(128, 0, 128), Color32::from_rgb(30,30,30)) // Royal purple border, dark grey background
+        (theme.bot_message_border, theme.bot_message_bg)
     };
 
     let frame = Frame::none()
@@ -54,7 +54,7 @@ fn render_message(ui: &mut Ui, is_user: bool, content: &str) {
             0.0,
             TextFormat {
                 font_id: FontId::new(18.0, FontFamily::Proportional),
-                color: Color32::from_rgb(210,210,210), // White text for both user and bot
+                color: theme.message_text_color,
                 ..Default::default()
             },
         );

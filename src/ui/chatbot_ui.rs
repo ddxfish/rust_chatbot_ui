@@ -4,6 +4,7 @@ use crate::settings::Settings;
 use crate::app::Icons;
 use super::{message_view, input_area};
 use crate::providers::Provider;
+use crate::ui::theme::DarkTheme;
 use std::sync::Arc;
 
 pub struct ChatbotUi {
@@ -25,8 +26,7 @@ impl ChatbotUi {
         }
     }
 
-
-    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons, providers: &[Arc<dyn Provider + Send + Sync>]) {
+    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons, providers: &[Arc<dyn Provider + Send + Sync>], theme: &DarkTheme) {
         egui::CentralPanel::default().show_inside(ui, |ui| {
             let available_height = ui.available_height();
             let input_height = 45.0;
@@ -38,15 +38,14 @@ impl ChatbotUi {
                 .stick_to_bottom(true)
                 .max_height(message_height)
                 .show(ui, |ui| {
-                    message_view::render_messages(ui, chat, &self.current_response, self.is_loading);
+                    message_view::render_messages(ui, chat, &self.current_response, self.is_loading, theme);
                 });
             
-            input_area::render_input(ui, chat, icons, &mut self.input, &mut self.is_loading);
+            input_area::render_input(ui, chat, icons, &mut self.input, &mut self.is_loading, theme);
             
             if bottom_padding > 0.0 {
                 ui.allocate_space(egui::vec2(ui.available_width(), bottom_padding));
             }
-            
         });
         
         settings.render(ui.ctx(), icons);

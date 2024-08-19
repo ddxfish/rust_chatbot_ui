@@ -1,18 +1,19 @@
 use egui::{Ui, TextEdit, Button, Vec2, Image};
 use crate::chat::Chat;
 use crate::app::Icons;
+use crate::ui::theme::DarkTheme;
 
-pub fn render_input(ui: &mut Ui, chat: &mut Chat, icons: &Icons, input: &mut String, is_loading: &mut bool) {
+pub fn render_input(ui: &mut Ui, chat: &mut Chat, icons: &Icons, input: &mut String, is_loading: &mut bool, theme: &DarkTheme) {
     let input_field = TextEdit::multiline(input)
         .desired_rows(3)
         .hint_text("Type your message here...")
-        .font(egui::FontId::proportional(16.0));
+        .font(egui::FontId::proportional(16.0))
+        .text_color(theme.override_text_color);
 
     let response = ui.add_sized(
         [ui.available_width(), 50.0],
         input_field
     );
-    //ui.add_space(50.0);
 
     let button_size = Vec2::new(20.0, 20.0);
     let button_pos = ui.min_rect().right_bottom() - button_size - Vec2::new(12.0, 38.0);

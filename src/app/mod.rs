@@ -5,6 +5,7 @@ use crate::chat::Chat;
 use crate::ui::ChatbotUi;
 use crate::settings::Settings;
 use crate::providers::{self, Provider};
+use crate::ui::theme::DarkTheme;
 use eframe;
 use std::sync::Arc;
 use eframe::egui::{self, FontData, FontDefinitions, FontFamily, Align, Layout};
@@ -19,6 +20,7 @@ pub struct ChatbotApp {
     icons: Icons,
     providers: Vec<Arc<dyn Provider + Send + Sync>>,
     current_provider_index: usize,
+    theme: DarkTheme,
 }
 
 fn load_custom_font(ctx: &eframe::egui::Context) {
@@ -35,7 +37,8 @@ fn load_custom_font(ctx: &eframe::egui::Context) {
 impl ChatbotApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         load_custom_font(&cc.egui_ctx);
-        cc.egui_ctx.set_visuals(egui::Visuals::dark());
+        let theme = DarkTheme::new();
+        cc.egui_ctx.set_visuals(theme.apply_to_visuals());
         cc.egui_ctx.set_pixels_per_point(1.0);
         
         let settings = Settings::new();
@@ -56,6 +59,7 @@ impl ChatbotApp {
             icons: Icons::new(&cc.egui_ctx),
             providers,
             current_provider_index: 1,
+            theme,
         }
     }
 
@@ -92,19 +96,19 @@ impl eframe::App for ChatbotApp {
                     let bottom_panel_height = 100.0;
                     
                     egui::ScrollArea::vertical().max_height(available_height - bottom_panel_height).show(ui, |ui| {
-                        self.state.render_chat_history(ui, &mut self.chat, &self.icons);
+                        self.state.render_chat_history(ui, &mut self.chat, &self.icons, &self.theme);
                     });
 
                     ui.with_layout(Layout::bottom_up(Align::LEFT), |ui| {
                         ui.set_min_height(bottom_panel_height);
-                        self.state.render_bottom_left_section(ui, &mut self.chat, &mut self.settings, &mut self.ui, &self.providers);
+                        self.state.render_bottom_left_section(ui, &mut self.chat, &mut self.settings, &mut self.ui, &self.providers, &self.theme);
                     });
                 });
             });
 
         eframe::egui::CentralPanel::default().show(ctx, |ui| {
             let previous_provider = self.ui.selected_provider.clone();
-            self.ui.render(ui, &mut self.chat, &mut self.settings, &self.icons, &self.providers);
+            self.ui.render(ui, &mut self.chat, &mut self.settings, &self.icons, &self.providers, &self.theme);
             
             if previous_provider != self.ui.selected_provider {
                 let new_index = self.providers.iter().position(|p| p.name() == self.ui.selected_provider).unwrap_or(0);
