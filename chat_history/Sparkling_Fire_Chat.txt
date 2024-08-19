@@ -447,3 +447,31 @@ Could you please provide more information about:
 Once I have a better understanding of your problem, I can try to help you "uncode" the issue and find a solution.
 <<<MESSAGE_SEPARATOR>>>
 
+User: test
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: TEST
+<<<MESSAGE_SEPARATOR>>>
+
+User: TEST
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: TEST
+<<<MESSAGE_SEPARATOR>>>
+
+User: TESY!!!!!
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: TESY!!!!!!!
+<<<MESSAGE_SEPARATOR>>>
+
+User: you there?
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: I'm still here!
+<<<MESSAGE_SEPARATOR>>>
+
