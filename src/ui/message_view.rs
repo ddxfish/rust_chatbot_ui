@@ -1,4 +1,4 @@
-use egui::{Ui, ScrollArea, Align, FontId, TextFormat, text::LayoutJob, FontFamily, Color32};
+use egui::{Ui, ScrollArea, Align, FontId, TextFormat, text::LayoutJob, FontFamily, Color32, Frame, Stroke, Rounding};
 use crate::chat::Chat;
 
 pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool) {
@@ -7,18 +7,14 @@ pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_load
         .auto_shrink([false; 2])
         .stick_to_bottom(true)
         .show(ui, |ui| {
-            let mut job = LayoutJob::default();
-
             for message in chat.get_messages() {
-                add_message_to_job(&mut job, message.is_user(), message.content(), ui);
+                render_message(ui, message.is_user(), message.content());
             }
 
             // Add the current (streaming) response
             if !current_response.is_empty() {
-                add_message_to_job(&mut job, false, current_response, ui);
+                render_message(ui, false, current_response);
             }
-
-            ui.label(job);
 
             if is_loading {
                 ui.add(egui::Spinner::new());
@@ -34,18 +30,29 @@ pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_load
     }
 }
 
-fn add_message_to_job(job: &mut LayoutJob, is_user: bool, content: &str, ui: &Ui) {
-    let prefix = if is_user { "You: " } else { "Bot: " };
-    let text = format!("{}{}\n\n", prefix, content);
-    
-    job.append(
-        &text,
-        0.0,
-        TextFormat {
-            font_id: FontId::new(20.0, FontFamily::Proportional),
-            color: if is_user { Color32::LIGHT_BLUE } else { Color32::LIGHT_GREEN },
-            line_height: Some(25.5),
-            ..Default::default()
-        },
-    );
+fn render_message(ui: &mut Ui, is_user: bool, content: &str) {
+    let frame = Frame::none()
+        .fill(if is_user { Color32::from_rgb(30, 30, 30) } else { Color32::from_rgb(40, 40, 40) })
+        .stroke(Stroke::new(1.0, if is_user { Color32::LIGHT_BLUE } else { Color32::LIGHT_GREEN }))
+        .rounding(Rounding::same(5.0))
+        .outer_margin(10.0)
+        .inner_margin(10.0);
+
+    frame.show(ui, |ui| {
+        let mut job = LayoutJob::default();
+        let prefix = if is_user { "You: " } else { "Bot: " };
+        let text = format!("{}{}\n", prefix, content);
+        
+        job.append(
+            &text,
+            0.0,
+            TextFormat {
+                font_id: FontId::new(20.0, FontFamily::Proportional),
+                color: if is_user { Color32::LIGHT_BLUE } else { Color32::LIGHT_GREEN },
+                ..Default::default()
+            },
+        );
+
+        ui.label(job);
+    });
 }
