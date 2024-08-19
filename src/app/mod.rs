@@ -24,11 +24,11 @@ pub struct ChatbotApp {
 fn load_custom_font(ctx: &eframe::egui::Context) {
     let mut fonts = FontDefinitions::default();
     fonts.font_data.insert(
-        "Roboto".to_owned(),
-        FontData::from_static(include_bytes!("../../assets/Lora-Regular.ttf")),
+        "NotoSans".to_owned(),
+        FontData::from_static(include_bytes!("../../assets/NotoSans-Medium.ttf")),
     );
     fonts.families.get_mut(&FontFamily::Proportional).unwrap()
-        .insert(0, "Roboto".to_owned());
+        .insert(0, "NotoSans".to_owned());
     ctx.set_fonts(fonts);
 }
 

@@ -65,26 +65,51 @@ impl Provider for Fireworks {
                 };
 
             let mut stream = response.bytes_stream();
+            let mut buffer = String::new();
+
             while let Some(item) = stream.next().await {
-                if let Ok(chunk) = item {
-                    if let Ok(text) = String::from_utf8(chunk.to_vec()) {
-                        for line in text.lines() {
-                            if line.starts_with("data: ") {
-                                let data = &line[6..];
-                                if data != "[DONE]" {
-                                    if let Ok(json) = serde_json::from_str::<Value>(data) {
-                                        if let Some(content) = json["choices"][0]["delta"]["content"].as_str() {
-                                            if tx.send(content.to_string()).await.is_err() {
-                                                eprintln!("Error sending chunk through channel");
-                                                return;
+                match item {
+                    Ok(chunk) => {
+                        if let Ok(text) = String::from_utf8(chunk.to_vec()) {
+                            buffer.push_str(&text);
+                            
+                            while let Some(pos) = buffer.find('\n') {
+                                let line = buffer[..pos].to_string();
+                                buffer = buffer[pos + 1..].to_string();
+
+                                if line.starts_with("data: ") {
+                                    let data = &line[6..];
+                                    if data == "[DONE]" {
+                                        println!("Debug: Stream completed");
+                                        return;
+                                    }
+
+                                    match serde_json::from_str::<Value>(data) {
+                                        Ok(json) => {
+                                            if let Some(content) = json["choices"][0]["delta"]["content"].as_str() {
+                                                println!("Debug: Received content chunk: {}", content);
+                                                if tx.send(content.to_string()).await.is_err() {
+                                                    eprintln!("Error sending chunk through channel");
+                                                    return;
+                                                }
                                             }
                                         }
+                                        Err(e) => eprintln!("Error parsing JSON: {:?}", e),
                                     }
                                 }
                             }
+                        } else {
+                            eprintln!("Error converting chunk to UTF-8");
                         }
                     }
+                    Err(e) => {
+                        eprintln!("Error receiving chunk: {:?}", e);
+                    }
                 }
+            }
+
+            if !buffer.is_empty() {
+                eprintln!("Unprocessed data in buffer: {}", buffer);
             }
         });
 
