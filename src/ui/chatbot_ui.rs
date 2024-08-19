@@ -30,7 +30,7 @@ impl ChatbotUi {
         egui::CentralPanel::default().show_inside(ui, |ui| {
             let available_height = ui.available_height();
             let input_height = 45.0;
-            let bottom_padding = 20.0;
+            let bottom_padding = 25.0;
             let message_height = available_height - input_height - bottom_padding;
             
             ScrollArea::vertical()
