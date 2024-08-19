@@ -1,0 +1,16 @@
+User: hello
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: Hello! It's nice to meet you. Is there something I can help you with or would you like to chat?
+<<<MESSAGE_SEPARATOR>>>
+
+User: yes
+
+<<<MESSAGE_SEPARATOR>>>
+
+Bot: I'd be happy to chat with you. How's your day going so far? Is there something on your mind that you'd like to talk about, or are you just looking for some conversation?
+
+We could talk about hobbies, movies, books, or anything else that interests you. Or if you're feeling stuck, I can suggest some conversation topics. Just let me know what you're in the mood for!
+<<<MESSAGE_SEPARATOR>>>
+
