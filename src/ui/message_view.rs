@@ -31,9 +31,15 @@ pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_load
 }
 
 fn render_message(ui: &mut Ui, is_user: bool, content: &str) {
+    let (border_color, background_color) = if is_user {
+        (Color32::from_rgb(0, 122, 255), Color32::from_rgb(45,45,45)) // Blue border, lighter grey background
+    } else {
+        (Color32::from_rgb(128, 0, 128), Color32::from_rgb(30,30,30)) // Royal purple border, dark grey background
+    };
+
     let frame = Frame::none()
-        .fill(if is_user { Color32::from_rgb(30, 30, 30) } else { Color32::from_rgb(40, 40, 40) })
-        .stroke(Stroke::new(1.0, if is_user { Color32::LIGHT_BLUE } else { Color32::LIGHT_GREEN }))
+        .fill(background_color)
+        .stroke(Stroke::new(1.0, border_color))
         .rounding(Rounding::same(5.0))
         .outer_margin(10.0)
         .inner_margin(10.0);
@@ -47,8 +53,8 @@ fn render_message(ui: &mut Ui, is_user: bool, content: &str) {
             &text,
             0.0,
             TextFormat {
-                font_id: FontId::new(20.0, FontFamily::Proportional),
-                color: if is_user { Color32::LIGHT_BLUE } else { Color32::LIGHT_GREEN },
+                font_id: FontId::new(18.0, FontFamily::Proportional),
+                color: Color32::from_rgb(210,210,210), // White text for both user and bot
                 ..Default::default()
             },
         );
