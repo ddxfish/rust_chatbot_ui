@@ -36,9 +36,7 @@ impl ChatHistory {
         }
     }
 
-    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, icons: &Icons) -> Option<String> {
-        let mut file_to_delete = None;
-
+    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, icons: &Icons) {
         ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
             ui.horizontal(|ui| {
                 ui.add(Image::new(&icons.new_chat).fit_to_exact_size(Vec2::new(40.0, 40.0)));
@@ -71,7 +69,9 @@ impl ChatHistory {
                         
                         ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                             if ui.add(Button::image(Image::new(&icons.trash).fit_to_exact_size(Vec2::new(10.0, 10.0)))).clicked() {
-                                file_to_delete = Some(file.clone());
+                                if let Err(e) = chat.delete_chat(&file) {
+                                    eprintln!("Failed to delete chat: {}", e);
+                                }
                             }
                         });
                     });
@@ -79,8 +79,6 @@ impl ChatHistory {
                 }
             });
         });
-
-        file_to_delete
     }
 }
 

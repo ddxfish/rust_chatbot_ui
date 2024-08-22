@@ -118,6 +118,6 @@ impl eframe::App for ChatbotApp {
             ctx.request_repaint();
         });
 
-        self.state.handle_delete_confirmation(ctx, &mut self.chat);
+        
     }
 }
