@@ -46,14 +46,15 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
             .show_ui(ui, |ui| {
                 if let Some(current_provider) = providers.iter().find(|p| p.name() == chatbot_ui.selected_provider) {
                     for model in current_provider.models() {
-                        if ui.selectable_value(&mut chatbot_ui.selected_model, model.to_string(), model).clicked() {
+                        if model == "Other" {
+                            if ui.selectable_label(false, "Other").clicked() {
+                                unsafe {
+                                    SHOW_CUSTOM_MODEL_POPUP = true;
+                                    CUSTOM_MODEL_INPUT.clear();
+                                }
+                            }
+                        } else if ui.selectable_value(&mut chatbot_ui.selected_model, model.to_string(), model).clicked() {
                             chatbot_ui.selected_model = model.to_string();
-                        }
-                    }
-                    if ui.selectable_label(false, "Other").clicked() {
-                        unsafe {
-                            SHOW_CUSTOM_MODEL_POPUP = true;
-                            CUSTOM_MODEL_INPUT.clear();
                         }
                     }
                 }

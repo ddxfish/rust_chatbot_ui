@@ -63,11 +63,16 @@ impl ChatHistory {
         Ok(())
     }
 
-    pub fn append_message(&mut self, content: &str, is_user: bool) -> Result<(), std::io::Error> {
+    pub fn append_message(&mut self, content: &str, is_user: bool, model: Option<&str>) -> Result<(), std::io::Error> {
         if let Some(current_file) = &self.current_file {
             println!("Debug: Appending message to file: {}", current_file);
             let mut file = OpenOptions::new().append(true).open(Path::new(&self.directory).join(current_file))?;
-            writeln!(file, "{}{}{}", if is_user { "User: " } else { "Bot: " }, content, MESSAGE_SEPARATOR)?;
+            let prefix = if is_user { 
+                "User: ".to_string() 
+            } else { 
+                format!("{}: ", model.unwrap_or("Bot"))
+            };
+            writeln!(file, "{}{}{}", prefix, content, MESSAGE_SEPARATOR)?;
         } else {
             println!("Debug: No current file to append message");
         }
@@ -84,9 +89,9 @@ impl ChatHistory {
             let trimmed = message.trim();
             if !trimmed.is_empty() {
                 if let Some(content) = trimmed.strip_prefix("User: ") {
-                    messages.push(Message::new(content.to_string(), true));
-                } else if let Some(content) = trimmed.strip_prefix("Bot: ") {
-                    messages.push(Message::new(content.to_string(), false));
+                    messages.push(Message::new(content.to_string(), true, None));
+                } else if let Some((model, content)) = trimmed.split_once(": ") {
+                    messages.push(Message::new(content.to_string(), false, Some(model.to_string())));
                 }
             }
         }
@@ -113,7 +118,12 @@ impl ChatHistory {
         println!("Debug: Exporting chat to: {:?}", path);
         let mut file = File::create(path)?;
         for message in messages {
-            writeln!(file, "{}{}{}", if message.is_user() { "User: " } else { "Bot: " }, message.content(), MESSAGE_SEPARATOR)?;
+            let prefix = if message.is_user() {
+                "User: ".to_string()
+            } else {
+                format!("{}: ", message.model().unwrap_or("Bot"))
+            };
+            writeln!(file, "{}{}{}", prefix, message.content(), MESSAGE_SEPARATOR)?;
         }
         println!("Debug: Exported {} messages", messages.len());
         Ok(())
