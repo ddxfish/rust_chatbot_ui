@@ -54,8 +54,11 @@ impl Chatbot {
         Ok(final_name)
     }
     
-    
+    pub fn get_current_model(&self) -> String {
+        self.provider.models()[0].to_string()
+    }
 }
+
 fn limit_to_three_words(s: &str) -> String {
     let mut words = s.split_whitespace();
     let word1 = words.next().unwrap_or("");
@@ -68,6 +71,7 @@ fn limit_to_three_words(s: &str) -> String {
         format!("{} {} {}", word1, word2, word3)
     }
 }
+
 fn process_chat_name(name: String) -> String {
     name.trim()
         .to_lowercase()

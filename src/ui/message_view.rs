@@ -3,17 +3,20 @@ use crate::chat::Chat;
 use crate::ui::theme::DarkTheme;
 
 pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool, theme: &DarkTheme) {
+    println!("Debug: Rendering messages");
     let mut scroll_to_bottom = false;
     ScrollArea::vertical()
         .auto_shrink([false; 2])
         .stick_to_bottom(true)
         .show(ui, |ui| {
             for message in chat.get_messages() {
-                render_message(ui, message.is_user(), message.content(), theme);
+                render_message(ui, message.is_user(), message.content(), message.model(), theme);
             }
 
             if !current_response.is_empty() {
-                render_message(ui, false, current_response, theme);
+                println!("Debug: Rendering current response");
+                println!("Debug: Current model: {}", chat.get_current_model());
+                render_message(ui, false, current_response, Some(&chat.get_current_model()), theme);
             }
 
             if is_loading {
@@ -30,7 +33,8 @@ pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_load
     }
 }
 
-fn render_message(ui: &mut Ui, is_user: bool, content: &str, theme: &DarkTheme) {
+fn render_message(ui: &mut Ui, is_user: bool, content: &str, model: Option<&str>, theme: &DarkTheme) {
+    println!("Debug: Rendering message. Is user: {}, Model: {:?}", is_user, model);
     let (border_color, background_color) = if is_user {
         (theme.user_message_border, theme.user_message_bg)
     } else {
@@ -45,20 +49,16 @@ fn render_message(ui: &mut Ui, is_user: bool, content: &str, theme: &DarkTheme) 
         .inner_margin(10.0);
 
     frame.show(ui, |ui| {
-        let mut job = LayoutJob::default();
-        let prefix = if is_user { "You:\n" } else { "Bot:\n" };
-        let text = format!("{}{}", prefix, content);
-        
-        job.append(
-            &text,
-            0.0,
-            TextFormat {
-                font_id: FontId::new(18.0, FontFamily::Proportional),
-                color: theme.message_text_color,
-                ..Default::default()
-            },
-        );
+        let prefix = if is_user { 
+            "You:\n ".to_string() 
+        } else { 
+            format!("{}:\n ", model.unwrap_or("Bot"))
+        };
+        println!("Debug: Message prefix: {}", prefix);
 
-        ui.label(job);
+        ui.horizontal(|ui| {
+            ui.colored_label(if is_user { theme.user_message_border } else { theme.bot_message_border }, prefix);
+            ui.label(content);
+        });
     });
 }

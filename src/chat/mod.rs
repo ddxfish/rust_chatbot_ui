@@ -18,15 +18,19 @@ pub struct Chat {
     needs_naming: Arc<Mutex<bool>>,
     name_sender: mpsc::UnboundedSender<String>,
     name_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
+    current_model: Arc<Mutex<String>>,
 }
 
 impl Chat {
     pub fn new(provider: Arc<dyn Provider + Send + Sync>) -> Self {
+        println!("Debug: Creating new Chat instance");
         let (ui_sender, ui_receiver) = mpsc::unbounded_channel();
         let (name_sender, name_receiver) = mpsc::unbounded_channel();
+        let initial_model = provider.models()[0].to_string();
+        println!("Debug: Initial model set to: {}", initial_model);
         Self {
             messages: Arc::new(Mutex::new(Vec::new())),
-            chatbot: Arc::new(Chatbot::new(provider)),
+            chatbot: Arc::new(Chatbot::new(Arc::clone(&provider))),
             runtime: Runtime::new().unwrap(),
             is_processing: Arc::new(Mutex::new(false)),
             ui_sender,
@@ -35,15 +39,17 @@ impl Chat {
             needs_naming: Arc::new(Mutex::new(true)),
             name_sender,
             name_receiver: Arc::new(Mutex::new(name_receiver)),
+            current_model: Arc::new(Mutex::new(initial_model)),
         }
     }
 
     pub fn add_message(&self, content: String, is_user: bool) {
         println!("Debug: Adding message to memory: {} (User: {})", content, is_user);
-        let message = Message::new(content.clone(), is_user);
+        let model = if is_user { None } else { Some(self.get_current_model()) };
+        let message = Message::new(content.clone(), is_user, model.clone());
         self.messages.lock().unwrap().push(message);
         println!("Debug: Writing message to history file");
-        if let Err(e) = self.history.lock().unwrap().append_message(&content, is_user) {
+        if let Err(e) = self.history.lock().unwrap().append_message(&content, is_user, model.as_deref()) {
             eprintln!("Failed to append message to history: {}", e);
         }
 
@@ -68,6 +74,7 @@ impl Chat {
         let is_processing = Arc::clone(&self.is_processing);
         let ui_sender = self.ui_sender.clone();
         let needs_naming = Arc::clone(&self.needs_naming);
+        let current_model = Arc::clone(&self.current_model);
 
         let messages_clone = self.messages.lock().unwrap().clone();
 
@@ -91,6 +98,11 @@ impl Chat {
                     *needs_naming.lock().unwrap() = true;
                     println!("Debug: Set needs_naming to true");
                 }
+
+                // Make sure to update the current model after receiving a response
+                let model = chatbot.get_current_model();
+                println!("Debug: Updating current model to: {}", model);
+                *current_model.lock().unwrap() = model;
             } else {
                 println!("Debug: Failed to get stream response");
             }
@@ -161,5 +173,16 @@ impl Chat {
 
     pub fn rename_current_chat(&self, new_name: &str) -> Result<(), std::io::Error> {
         self.history.lock().unwrap().rename_current_chat(new_name)
+    }
+
+    pub fn get_current_model(&self) -> String {
+        let model = self.current_model.lock().unwrap().clone();
+        println!("Debug: Getting current model: {}", model);
+        model
+    }
+
+    pub fn set_current_model(&self, model: String) {
+        println!("Debug: Setting current model to: {}", model);
+        *self.current_model.lock().unwrap() = model;
     }
 }
