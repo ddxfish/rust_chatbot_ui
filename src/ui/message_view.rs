@@ -46,8 +46,8 @@ fn render_message(ui: &mut Ui, is_user: bool, content: &str, theme: &DarkTheme) 
 
     frame.show(ui, |ui| {
         let mut job = LayoutJob::default();
-        let prefix = if is_user { "You: " } else { "Bot: " };
-        let text = format!("{}{}\n", prefix, content);
+        let prefix = if is_user { "You:\n" } else { "Bot:\n" };
+        let text = format!("{}{}", prefix, content);
         
         job.append(
             &text,
