@@ -23,11 +23,9 @@ pub struct Chat {
 
 impl Chat {
     pub fn new(provider: Arc<dyn Provider + Send + Sync>) -> Self {
-        println!("Debug: Creating new Chat instance");
         let (ui_sender, ui_receiver) = mpsc::unbounded_channel();
         let (name_sender, name_receiver) = mpsc::unbounded_channel();
         let initial_model = provider.models()[0].to_string();
-        println!("Debug: Initial model set to: {}", initial_model);
         Self {
             messages: Arc::new(Mutex::new(Vec::new())),
             chatbot: Arc::new(Chatbot::new(Arc::clone(&provider))),
@@ -44,11 +42,9 @@ impl Chat {
     }
 
     pub fn add_message(&self, content: String, is_user: bool) {
-        println!("Debug: Adding message to memory: {} (User: {})", content, is_user);
         let model = if is_user { None } else { Some(self.get_current_model()) };
         let message = Message::new(content.clone(), is_user, model.clone());
         self.messages.lock().unwrap().push(message);
-        println!("Debug: Writing message to history file");
         if let Err(e) = self.history.lock().unwrap().append_message(&content, is_user, model.as_deref()) {
             eprintln!("Failed to append message to history: {}", e);
         }
@@ -67,8 +63,8 @@ impl Chat {
     }
 
     pub fn process_input(&self, input: String) {
-        println!("Debug: Processing input: {}", input);
-        self.add_message(input.clone(), true);
+        let input_with_newlines = input.replace("\\n", "\n");
+        self.add_message(input_with_newlines.clone(), true);
         *self.is_processing.lock().unwrap() = true;
         let chatbot = Arc::clone(&self.chatbot);
         let is_processing = Arc::clone(&self.is_processing);
@@ -79,32 +75,21 @@ impl Chat {
         let messages_clone = self.messages.lock().unwrap().clone();
 
         self.runtime.spawn(async move {
-            println!("Debug: Starting to stream response");
             if let Ok(mut rx) = chatbot.stream_response(&messages_clone).await {
-                println!("Debug: Successfully got stream response");
                 let mut full_response = String::new();
                 while let Some(chunk) = rx.recv().await {
-                    println!("Debug: Received chunk: {}", chunk);
                     full_response.push_str(&chunk);
                     if ui_sender.send(chunk).is_err() {
-                        println!("Debug: Error sending chunk to UI");
                         break;
                     }
                 }
-                println!("Debug: Finished streaming response");
                 
-                // Set needs_naming to true after the first bot response
                 if messages_clone.len() == 1 {
                     *needs_naming.lock().unwrap() = true;
-                    println!("Debug: Set needs_naming to true");
                 }
 
-                // Make sure to update the current model after receiving a response
                 let model = chatbot.get_current_model();
-                println!("Debug: Updating current model to: {}", model);
                 *current_model.lock().unwrap() = model;
-            } else {
-                println!("Debug: Failed to get stream response");
             }
             *is_processing.lock().unwrap() = false;
         });
@@ -117,11 +102,9 @@ impl Chat {
         let needs_naming = Arc::clone(&self.needs_naming);
 
         self.runtime.spawn(async move {
-            println!("Debug: Generating chat name");
             let current_messages = messages.lock().unwrap().clone();
             match chatbot.generate_chat_name(&current_messages).await {
                 Ok(name) => {
-                    println!("Debug: Generated chat name: {}", name);
                     if name_sender.send(name).is_err() {
                         eprintln!("Error: Failed to send generated chat name");
                     }
@@ -141,14 +124,12 @@ impl Chat {
     }
 
     pub fn create_new_chat(&self) -> Result<(), std::io::Error> {
-        println!("Debug: Creating new chat");
         self.messages.lock().unwrap().clear();
         *self.needs_naming.lock().unwrap() = true;
         self.history.lock().unwrap().create_new_chat()
     }
 
     pub fn load_chat(&self, file_name: &str) -> Result<(), std::io::Error> {
-        println!("Debug: Loading chat: {}", file_name);
         *self.needs_naming.lock().unwrap() = false;
         self.history.lock().unwrap().load_chat(file_name, &mut self.messages.lock().unwrap())
     }
@@ -162,12 +143,10 @@ impl Chat {
     }
 
     pub fn delete_chat(&self, file_name: &str) -> Result<(), std::io::Error> {
-        println!("Debug: Deleting chat: {}", file_name);
         self.history.lock().unwrap().delete_chat(file_name)
     }
 
     pub fn export_chat(&self, path: &std::path::Path) -> Result<(), std::io::Error> {
-        println!("Debug: Exporting chat to: {:?}", path);
         self.history.lock().unwrap().export_chat(path, &self.messages.lock().unwrap())
     }
 
@@ -176,13 +155,10 @@ impl Chat {
     }
 
     pub fn get_current_model(&self) -> String {
-        let model = self.current_model.lock().unwrap().clone();
-        println!("Debug: Getting current model: {}", model);
-        model
+        self.current_model.lock().unwrap().clone()
     }
 
     pub fn set_current_model(&self, model: String) {
-        println!("Debug: Setting current model to: {}", model);
         *self.current_model.lock().unwrap() = model;
     }
 }

@@ -1,4 +1,4 @@
-use egui::{Color32, Rounding, Stroke, Visuals};
+use egui::{Color32, Rounding, Stroke, Visuals, FontId, FontFamily};
 
 pub struct DarkTheme {
     pub panel_fill: Color32,
@@ -14,6 +14,9 @@ pub struct DarkTheme {
     pub message_text_color: Color32,
     pub selected_chat_color: Color32,
     pub unselected_chat_color: Color32,
+    pub input_text_color: Color32,
+    pub default_font: FontId,
+    pub header_font: FontId,
 }
 
 impl DarkTheme {
@@ -32,6 +35,9 @@ impl DarkTheme {
             message_text_color: Color32::from_rgb(210, 210, 210),
             selected_chat_color: Color32::YELLOW,
             unselected_chat_color: Color32::WHITE,
+            input_text_color: Color32::from_rgb(220, 220, 220),
+            default_font: FontId::new(16.0, FontFamily::Proportional),
+            header_font: FontId::new(18.0, FontFamily::Proportional),
         }
     }
 
@@ -49,11 +55,11 @@ impl DarkTheme {
 
 pub fn custom_light_theme() -> Visuals {
     let mut visuals = Visuals::light();
-    visuals.panel_fill = Color32::from_gray(210);
-    visuals.window_fill = Color32::from_gray(200);
-    visuals.extreme_bg_color = Color32::from_gray(180);
-    visuals.widgets.noninteractive.bg_fill = Color32::from_gray(210);
-    visuals.widgets.inactive.bg_fill = Color32::from_gray(180);
-    visuals.override_text_color = Some(Color32::from_rgb(60, 60, 60));
+    visuals.panel_fill = Color32::from_gray(240);
+    visuals.window_fill = Color32::from_gray(230);
+    visuals.extreme_bg_color = Color32::from_gray(220);
+    visuals.widgets.noninteractive.bg_fill = Color32::from_gray(230);
+    visuals.widgets.inactive.bg_fill = Color32::from_gray(220);
+    visuals.override_text_color = Some(Color32::from_rgb(20, 20, 20));
     visuals
 }
