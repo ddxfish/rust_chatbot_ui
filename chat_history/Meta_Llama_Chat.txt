@@ -1,0 +1,9 @@
+User: are you meta llama
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: I am indeed Meta Llama, a large language model developed by Meta AI. I'm here to help answer your questions, provide information, and engage in conversation to the best of my abilities. I'm a bit different from other language models, as I'm designed to be more conversational and understanding, with a dash of humor and personality.
+
+So, what's on your mind? Want to chat about something in particular, or just see where the conversation takes us?
+<<<MESSAGE_SEPARATOR>>>
+

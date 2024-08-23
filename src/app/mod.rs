@@ -21,6 +21,7 @@ pub struct ChatbotApp {
     providers: Vec<Arc<dyn Provider + Send + Sync>>,
     current_provider_index: usize,
     theme: DarkTheme,
+    previous_model: Option<String>,
 }
 
 fn load_custom_font(ctx: &eframe::egui::Context) {
@@ -60,24 +61,14 @@ impl ChatbotApp {
             providers,
             current_provider_index: 1,
             theme,
+            previous_model: None,
         }
     }
 
-    fn switch_provider(&mut self, index: usize) {
-        if index < self.providers.len() && index != self.current_provider_index {
-            let current_file = self.chat.get_current_file().map(String::from);
-            
-            self.current_provider_index = index;
-            self.chat = Chat::new(Arc::clone(&self.providers[index]));
-            
-            if let Some(file) = current_file {
-                if let Err(e) = self.chat.load_chat(&file) {
-                    eprintln!("Failed to load chat after switching provider: {}", e);
-                }
-            }
-
-            self.ui.selected_provider = self.providers[index].name().to_string();
-            self.ui.selected_model = self.providers[index].models()[0].to_string();
+    fn switch_provider(&mut self, model: String) {
+        if let Some(current_provider) = self.providers.iter().find(|p| p.models().contains(&model.as_str())) {
+            self.chat = Chat::new(Arc::clone(&current_provider));
+            self.ui.selected_model = model;
         }
     }
 }
@@ -106,17 +97,19 @@ impl eframe::App for ChatbotApp {
                 });
             });
 
-        eframe::egui::CentralPanel::default().show(ctx, |ui| {
-            let previous_provider = self.ui.selected_provider.clone();
-            self.ui.render(ui, &mut self.chat, &mut self.settings, &self.icons, &self.providers, &self.theme);
-            
-            if previous_provider != self.ui.selected_provider {
-                let new_index = self.providers.iter().position(|p| p.name() == self.ui.selected_provider).unwrap_or(0);
-                self.switch_provider(new_index);
-            }
-            
-            ctx.request_repaint();
-        });
+            eframe::egui::CentralPanel::default().show(ctx, |ui| {
+                self.ui.render(ui, &mut self.chat, &mut self.settings, &self.icons, &self.providers, &self.theme);
+                
+                if let Some(previous_model) = self.state.previous_model.take() {
+                    if previous_model != self.ui.selected_model {
+                        self.switch_provider(self.ui.selected_model.clone());
+                        self.state.previous_model = Some(self.ui.selected_model.clone());
+                    }
+                } else {
+                    self.state.previous_model = Some(self.ui.selected_model.clone());
+                }
+                ctx.request_repaint();
+            });
 
         
     }
