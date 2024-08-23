@@ -9,7 +9,8 @@ use tokio::sync::mpsc;
 
 pub struct Chat {
     messages: Arc<Mutex<Vec<Message>>>,
-    chatbot: Arc<Chatbot>,
+    pub chatbot: Arc<Chatbot>,
+    pub provider: Arc<dyn Provider + Send + Sync>,
     runtime: Runtime,
     is_processing: Arc<Mutex<bool>>,
     ui_sender: mpsc::UnboundedSender<String>,
@@ -18,18 +19,17 @@ pub struct Chat {
     needs_naming: Arc<Mutex<bool>>,
     name_sender: mpsc::UnboundedSender<String>,
     name_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
-    current_model: Arc<Mutex<String>>,
+    pub current_model: Arc<Mutex<String>>,
 }
 
 impl Chat {
-    pub fn new(provider: Arc<dyn Provider + Send + Sync>) -> Self {
+    pub fn new(initial_provider: Arc<dyn Provider + Send + Sync>, initial_model: String) -> Self {
         let (ui_sender, ui_receiver) = mpsc::unbounded_channel();
         let (name_sender, name_receiver) = mpsc::unbounded_channel();
-        let initial_model = provider.models()[0].to_string();
+        let initial_model = initial_provider.models()[0].to_string();
         Self {
             messages: Arc::new(Mutex::new(Vec::new())),
-            chatbot: Arc::new(Chatbot::new(Arc::clone(&provider))),
-            runtime: Runtime::new().unwrap(),
+            chatbot: Arc::new(Chatbot::new(Arc::clone(&initial_provider))),            runtime: Runtime::new().unwrap(),
             is_processing: Arc::new(Mutex::new(false)),
             ui_sender,
             ui_receiver: Arc::new(Mutex::new(ui_receiver)),
@@ -38,9 +38,14 @@ impl Chat {
             name_sender,
             name_receiver: Arc::new(Mutex::new(name_receiver)),
             current_model: Arc::new(Mutex::new(initial_model)),
+            provider: initial_provider,
         }
     }
-
+    pub fn update_provider(&mut self, new_provider: Arc<dyn Provider + Send + Sync>) {
+            self.provider = new_provider;
+            // Any other necessary updates when changing the provider
+    }
+    
     pub fn add_message(&self, content: String, is_user: bool) {
         let model = if is_user { None } else { Some(self.get_current_model()) };
         let message = Message::new(content.clone(), is_user, model.clone());

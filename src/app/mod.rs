@@ -50,7 +50,7 @@ impl ChatbotApp {
         
         let initial_provider = providers[1].name().to_string();
         let initial_model = providers[1].models()[0].to_string();
-        let chat = Chat::new(Arc::clone(&providers[1]));
+        let chat = Chat::new(Arc::clone(&providers[1]), providers[1].models()[0].to_string());
         
         Self {
             state: ChatbotAppState::new(),
@@ -67,8 +67,24 @@ impl ChatbotApp {
 
     fn switch_provider(&mut self, model: String) {
         if let Some(current_provider) = self.providers.iter().find(|p| p.models().contains(&model.as_str())) {
-            self.chat = Chat::new(Arc::clone(&current_provider));
-            self.ui.selected_model = model;
+            println!("Switching to provider type: {}", std::any::type_name::<dyn Provider + Send + Sync>());
+            
+            // Update the provider in the existing chat
+            self.chat.update_provider(Arc::clone(current_provider));
+            
+            // Update the selected model in the UI
+            let model_clone = model.clone();
+            let providers_clone = self.providers.clone();
+            if let Some(chatbot) = Arc::get_mut(&mut self.chat.chatbot) {
+                chatbot.switch_model(&providers_clone, model_clone);
+            }
+            
+            // Update the current model in the chat
+            if let Ok(mut current_model) = self.chat.current_model.lock() {
+                *current_model = model;
+            }
+            
+            println!("Provider and model updated successfully");
         }
     }
 }
@@ -103,11 +119,9 @@ impl eframe::App for ChatbotApp {
                 if let Some(previous_model) = self.state.previous_model.take() {
                     if previous_model != self.ui.selected_model {
                         self.switch_provider(self.ui.selected_model.clone());
-                        self.state.previous_model = Some(self.ui.selected_model.clone());
                     }
-                } else {
-                    self.state.previous_model = Some(self.ui.selected_model.clone());
                 }
+                self.state.previous_model = Some(self.ui.selected_model.clone());
                 ctx.request_repaint();
             });
 
