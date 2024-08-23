@@ -11,13 +11,15 @@ use eframe::egui::{self, Ui, ScrollArea};
 use std::sync::Arc;
 
 pub struct ChatbotAppState {
-    chat_history: chat_history::ChatHistory,
+    pub chat_history: chat_history::ChatHistory,
+    pub previous_model: Option<String>,
 }
 
 impl ChatbotAppState {
     pub fn new() -> Self {
         Self {
             chat_history: chat_history::ChatHistory::new(),
+            previous_model: None,
         }
     }
 
