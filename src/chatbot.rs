@@ -57,7 +57,19 @@ impl Chatbot {
     pub fn get_current_model(&self) -> String {
         self.provider.models()[0].to_string()
     }
+    pub fn switch_model(&mut self, providers: &Vec<Arc<dyn Provider + Send + Sync>>, model: String) {
+        if let Some(new_provider) = providers.iter().find(|p| p.models().contains(&model.as_str())) {
+            self.provider = Arc::clone(new_provider);
+        } else {
+            // Handle the case where the model is not found
+            // You can choose to log an error, return an error, or panic
+            panic!("Model not found: {}", model);
+        }
+    }
+
 }
+
+
 
 fn limit_to_three_words(s: &str) -> String {
     let mut words = s.split_whitespace();

@@ -1,0 +1,7 @@
+User: what model are you
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: I'm an AI model called Llama. Llama stands for "Large Language Model Meta AI."
+<<<MESSAGE_SEPARATOR>>>
+

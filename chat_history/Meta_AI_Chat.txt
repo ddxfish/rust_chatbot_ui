@@ -1,0 +1,14 @@
+User: what model are you
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: I'm an AI model developed by Meta AI, and my model is called Llama. Llama stands for "Large Language Model Meta AI."
+<<<MESSAGE_SEPARATOR>>>
+
+User: are you claude?
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: I'm not Claude, but I'm a similar model. I'm a large language model developed by Meta AI, while Claude is a large language model developed by Anthropic. We're both designed to understand and generate human-like text, but we have different training data, architectures, and fine-tuning objectives.
+<<<MESSAGE_SEPARATOR>>>
+
