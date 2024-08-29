@@ -21,8 +21,4 @@ impl Message {
     pub fn model(&self) -> Option<&str> {
         self.model.as_deref()
     }
-
-    pub fn append_content(&mut self, chunk: &str) {
-        self.content.push_str(chunk);
-    }
 }

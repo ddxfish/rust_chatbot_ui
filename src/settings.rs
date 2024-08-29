@@ -86,14 +86,6 @@ impl Settings {
         self.show_settings = !self.show_settings;
     }
 
-    pub fn get_fireworks_api_key(&self) -> &str {
-        &self.fireworks_api_key
-    }
-
-    pub fn get_claude_api_key(&self) -> &str {
-        &self.claude_api_key
-    }
-
     fn set_feedback(&mut self, message: String, duration: f32) {
         self.feedback = Some((message, duration));
     }
