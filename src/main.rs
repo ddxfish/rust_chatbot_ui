@@ -6,11 +6,14 @@ mod chatbot;
 mod settings;
 mod providers;
 use eframe::NativeOptions;
-use egui::IconData;
+use egui::{ViewportBuilder, IconData};
 use crate::ui::theme::DarkTheme;
+use image::GenericImageView;
 
-fn load_icon(path: &str) -> IconData {
-    let image = image::open(path).expect("Failed to open icon").into_rgba8();
+fn load_icon() -> IconData {
+    let image = image::load_from_memory(include_bytes!("../assets/app_icon.png"))
+        .expect("Failed to load icon")
+        .into_rgba8();
     let (width, height) = image.dimensions();
     IconData {
         rgba: image.into_raw(),
@@ -20,18 +23,22 @@ fn load_icon(path: &str) -> IconData {
 }
 
 fn main() -> Result<(), eframe::Error> {
+    let icon = load_icon();
+    
     let options = NativeOptions {
-        viewport: eframe::egui::ViewportBuilder::default()
+        viewport: ViewportBuilder::default()
             .with_inner_size([850.0, 600.0])
-            .with_icon(load_icon("assets/app_icon.png")),
+            .with_icon(icon),
         ..Default::default()
     };
+
     eframe::run_native(
         "Rust Chatbot UI",
         options,
         Box::new(|cc| {
             let theme = DarkTheme::new();
             cc.egui_ctx.set_visuals(theme.apply_to_visuals());
+            
             Ok(Box::new(app::ChatbotApp::new(cc)))
         })
     )
