@@ -39,17 +39,14 @@ impl ChatbotApp {
         let theme = DarkTheme::new();
         cc.egui_ctx.set_visuals(theme.apply_to_visuals());
         cc.egui_ctx.set_pixels_per_point(1.0);
-        
+
         let settings = Settings::new();
-        let providers: Vec<Arc<dyn Provider + Send + Sync>> = providers::get_providers(settings.get_api_keys())
-            .into_iter()
-            .map(|p| Arc::from(p) as Arc<dyn Provider + Send + Sync>)
-            .collect();
-        
+        let providers = Self::create_providers(&settings.get_api_keys());
+
         let initial_provider = providers[1].name().to_string();
         let initial_model = providers[1].models()[0].to_string();
         let chat = Chat::new(Arc::clone(&providers[1]));
-        
+
         Self {
             state: ChatbotAppState::new(),
             chat,
@@ -61,32 +58,54 @@ impl ChatbotApp {
         }
     }
 
+    fn create_providers(api_keys: &str) -> Vec<Arc<dyn Provider + Send + Sync>> {
+        providers::get_providers(api_keys.to_string())
+            .into_iter()
+            .map(|p| Arc::from(p) as Arc<dyn Provider + Send + Sync>)
+            .collect()
+    }
+
     fn switch_provider(&mut self, model: String) {
         if let Some(current_provider) = self.providers.iter().find(|p| p.models().contains(&model.as_str())) {
             println!("Switching to provider type: {}", std::any::type_name::<dyn Provider + Send + Sync>());
-            
+
             // Update the provider in the existing chat
             self.chat.update_provider(Arc::clone(current_provider));
-            
+
             // Update the selected model in the UI
             let model_clone = model.clone();
             let providers_clone = self.providers.clone();
             if let Some(chatbot) = Arc::get_mut(&mut self.chat.chatbot) {
                 chatbot.switch_model(&providers_clone, model_clone);
             }
-            
+
             // Update the current model in the chat
             if let Ok(mut current_model) = self.chat.current_model.lock() {
                 *current_model = model;
             }
-            
+
             println!("Provider and model updated successfully");
+        }
+    }
+
+    fn reload_providers(&mut self) {
+        let api_keys = self.settings.get_api_keys();
+        self.providers = Self::create_providers(&api_keys);
+        
+        // Update the chat with the new provider
+        if let Some(current_provider) = self.providers.iter().find(|p| p.name() == self.ui.selected_provider) {
+            self.chat.update_provider(Arc::clone(current_provider));
         }
     }
 }
 
 impl eframe::App for ChatbotApp {
     fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
+        if self.settings.api_keys_updated {
+            self.reload_providers();
+            self.settings.api_keys_updated = false;
+        }
+
         self.state.update(&mut self.chat);
 
         eframe::egui::SidePanel::left("chat_history_panel")
@@ -97,7 +116,7 @@ impl eframe::App for ChatbotApp {
                 ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
                     let available_height = ui.available_height();
                     let bottom_panel_height = 100.0;
-                    
+
                     egui::ScrollArea::vertical().max_height(available_height - bottom_panel_height).show(ui, |ui| {
                         self.state.render_chat_history(ui, &mut self.chat, &self.icons, &self.theme);
                     });
@@ -111,7 +130,7 @@ impl eframe::App for ChatbotApp {
 
             eframe::egui::CentralPanel::default().show(ctx, |ui| {
                 self.ui.render(ui, &mut self.chat, &mut self.settings, &self.icons, &self.providers, &self.theme);
-                
+
                 if let Some(previous_model) = self.state.previous_model.take() {
                     if previous_model != self.ui.selected_model {
                         self.switch_provider(self.ui.selected_model.clone());
@@ -120,7 +139,5 @@ impl eframe::App for ChatbotApp {
                 self.state.previous_model = Some(self.ui.selected_model.clone());
                 ctx.request_repaint();
             });
-
-        
     }
 }
