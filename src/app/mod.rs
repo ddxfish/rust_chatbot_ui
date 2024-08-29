@@ -43,9 +43,9 @@ impl ChatbotApp {
         let settings = Settings::new();
         let providers = Self::create_providers(&settings.get_api_keys());
 
-        let initial_provider = providers[1].name().to_string();
-        let initial_model = providers[1].models()[0].to_string();
-        let chat = Chat::new(Arc::clone(&providers[1]));
+        let initial_provider = providers[0].name().to_string();
+        let initial_model = providers[0].models()[0].to_string();
+        let chat = Chat::new(Arc::clone(&providers[0]));
 
         Self {
             state: ChatbotAppState::new(),
@@ -69,17 +69,14 @@ impl ChatbotApp {
         if let Some(current_provider) = self.providers.iter().find(|p| p.models().contains(&model.as_str())) {
             println!("Switching to provider type: {}", std::any::type_name::<dyn Provider + Send + Sync>());
 
-            // Update the provider in the existing chat
             self.chat.update_provider(Arc::clone(current_provider));
 
-            // Update the selected model in the UI
             let model_clone = model.clone();
             let providers_clone = self.providers.clone();
             if let Some(chatbot) = Arc::get_mut(&mut self.chat.chatbot) {
                 chatbot.switch_model(&providers_clone, model_clone);
             }
 
-            // Update the current model in the chat
             if let Ok(mut current_model) = self.chat.current_model.lock() {
                 *current_model = model;
             }
@@ -91,10 +88,12 @@ impl ChatbotApp {
     fn reload_providers(&mut self) {
         let api_keys = self.settings.get_api_keys();
         self.providers = Self::create_providers(&api_keys);
-        
-        // Update the chat with the new provider
-        if let Some(current_provider) = self.providers.iter().find(|p| p.name() == self.ui.selected_provider) {
-            self.chat.update_provider(Arc::clone(current_provider));
+
+        self.ui.selected_provider = self.providers[0].name().to_string();
+        self.ui.selected_model = self.providers[0].models()[0].to_string();
+        self.chat.update_provider(Arc::clone(&self.providers[0]));
+        if let Err(e) = self.chat.create_new_chat() {
+            eprintln!("Failed to create new chat: {}", e);
         }
     }
 }
