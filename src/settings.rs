@@ -8,8 +8,9 @@ pub struct Settings {
     fireworks_api_key: String,
     claude_api_key: String,
     keyring: Entry,
-    show_settings: bool,
+    pub show_settings: bool,
     feedback: Option<(String, f32)>,
+    pub api_keys_updated: bool,
 }
 
 impl Settings {
@@ -25,6 +26,7 @@ impl Settings {
             keyring,
             show_settings: false,
             feedback: None,
+            api_keys_updated: false,
         }
     }
 
@@ -42,21 +44,24 @@ impl Settings {
                             }
                         });
                     });
-                    
+
                     ui.heading("Fireworks API Key");
                     ui.text_edit_singleline(&mut self.fireworks_api_key);
-                    
+
                     ui.heading("Claude API Key");
                     ui.text_edit_singleline(&mut self.claude_api_key);
-                    
+
                     if ui.button("Save API Keys").clicked() {
                         let api_keys = format!("{},{}", self.fireworks_api_key, self.claude_api_key);
                         match self.keyring.set_password(&api_keys) {
-                            Ok(_) => self.set_feedback("API keys saved successfully.".to_string(), 3.0),
+                            Ok(_) => {
+                                self.set_feedback("API keys saved successfully.".to_string(), 3.0);
+                                self.api_keys_updated = true;
+                            },
                             Err(_) => self.set_feedback("Failed to save API keys.".to_string(), 3.0),
                         }
                     }
-                    
+
                     ui.add_space(10.0);
                     ui.heading("Theme");
                     ui.horizontal(|ui| {
@@ -67,7 +72,7 @@ impl Settings {
                             ui.ctx().set_visuals(egui::Visuals::dark());
                         }
                     });
-                    
+
                     if let Some((message, _)) = &self.feedback {
                         ui.label(message);
                     }
