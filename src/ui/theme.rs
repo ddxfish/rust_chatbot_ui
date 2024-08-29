@@ -1,4 +1,4 @@
-use egui::{Color32, Rounding, Stroke, Visuals, FontId, FontFamily};
+use egui::{Color32, Visuals, FontId, FontFamily};
 //
 pub struct DarkTheme {
     pub panel_fill: Color32,

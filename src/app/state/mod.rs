@@ -27,7 +27,7 @@ impl ChatbotAppState {
         self.chat_history.update(chat);
     }
 
-    pub fn render_chat_history(&mut self, ui: &mut egui::Ui, chat: &mut Chat, icons: &Icons, theme: &DarkTheme) {
+    pub fn render_chat_history(&mut self, ui: &mut egui::Ui, chat: &mut Chat, icons: &Icons, _theme: &DarkTheme) {
         ScrollArea::vertical().show(ui, |ui| {
             self.chat_history.render(ui, chat, icons);
         });

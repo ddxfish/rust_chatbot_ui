@@ -1,4 +1,4 @@
-use egui::{Ui, ScrollArea, Align, FontId, TextFormat, text::LayoutJob, FontFamily, Frame, Stroke, Rounding, Color32, Label, Layout, RichText};
+use egui::{Ui, ScrollArea, Align, FontId, TextFormat, text::LayoutJob, FontFamily, Frame, Stroke, Rounding, Label, Layout, RichText};
 use crate::chat::Chat;
 use crate::ui::theme::DarkTheme;
 

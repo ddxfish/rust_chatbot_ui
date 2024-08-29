@@ -1,4 +1,4 @@
-use egui::{Ui, ScrollArea, Align, Layout, FontId, TextEdit, Button, Vec2, Image};
+use egui::{Ui, ScrollArea, FontId, TextEdit, Button, Vec2, Image};
 use crate::chat::Chat;
 use crate::settings::Settings;
 use crate::app::Icons;
@@ -26,7 +26,7 @@ impl ChatbotUi {
         }
     }
 
-    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons, providers: &[Arc<dyn Provider + Send + Sync>], theme: &DarkTheme) {
+    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons, _providers: &[Arc<dyn Provider + Send + Sync>], theme: &DarkTheme) {
         egui::CentralPanel::default().show_inside(ui, |ui| {
             ui.vertical(|ui| {
                 let available_height = ui.available_height();

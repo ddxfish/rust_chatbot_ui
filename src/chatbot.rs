@@ -84,13 +84,3 @@ fn limit_to_three_words(s: &str) -> String {
     }
 }
 
-fn process_chat_name(name: String) -> String {
-    name.trim()
-        .to_lowercase()
-        .split_whitespace()
-        .filter(|word| !word.is_empty())
-        .take(3)
-        .map(String::from)
-        .collect::<Vec<String>>()
-        .join("-")
-}
