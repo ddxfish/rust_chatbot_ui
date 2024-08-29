@@ -19,9 +19,7 @@ pub struct ChatbotApp {
     settings: Settings,
     icons: Icons,
     providers: Vec<Arc<dyn Provider + Send + Sync>>,
-    current_provider_index: usize,
     theme: DarkTheme,
-    previous_model: Option<String>,
 }
 
 fn load_custom_font(ctx: &eframe::egui::Context) {
@@ -50,7 +48,7 @@ impl ChatbotApp {
         
         let initial_provider = providers[1].name().to_string();
         let initial_model = providers[1].models()[0].to_string();
-        let chat = Chat::new(Arc::clone(&providers[1]), providers[1].models()[0].to_string());
+        let chat = Chat::new(Arc::clone(&providers[1]));
         
         Self {
             state: ChatbotAppState::new(),
@@ -59,9 +57,7 @@ impl ChatbotApp {
             settings,
             icons: Icons::new(&cc.egui_ctx),
             providers,
-            current_provider_index: 1,
             theme,
-            previous_model: None,
         }
     }
 

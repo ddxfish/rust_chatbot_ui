@@ -23,7 +23,7 @@ pub struct Chat {
 }
 
 impl Chat {
-    pub fn new(initial_provider: Arc<dyn Provider + Send + Sync>, initial_model: String) -> Self {
+    pub fn new(initial_provider: Arc<dyn Provider + Send + Sync>) -> Self {
         let (ui_sender, ui_receiver) = mpsc::unbounded_channel();
         let (name_sender, name_receiver) = mpsc::unbounded_channel();
         let initial_model = initial_provider.models()[0].to_string();
@@ -163,7 +163,4 @@ impl Chat {
         self.current_model.lock().unwrap().clone()
     }
 
-    pub fn set_current_model(&self, model: String) {
-        *self.current_model.lock().unwrap() = model;
-    }
 }
