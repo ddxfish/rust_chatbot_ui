@@ -7,6 +7,8 @@ use serde_json::Value;
 use tokio::sync::mpsc;
 
 #[derive(Debug)]
+
+
 pub enum ProviderError {
     RequestError(String),
     ResponseError(String),
@@ -30,9 +32,6 @@ pub trait Provider: Display {
     fn name(&self) -> &'static str;
     fn models(&self) -> Vec<&'static str>;
     async fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError>;
-    fn supports_custom_model(&self) -> bool {
-        self.models().contains(&"Other")
-    }
 }
 
 pub fn get_providers(api_keys: String) -> Vec<Box<dyn Provider + Send + Sync>> {
