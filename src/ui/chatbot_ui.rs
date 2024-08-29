@@ -71,15 +71,24 @@ impl ChatbotUi {
                 ui.add_space(padding);
             });
         });
-        
+
         settings.render(ui.ctx(), icons);
 
         if chat.is_processing() {
             self.is_loading = true;
+        } else {
+            self.is_loading = false;
         }
 
         while let Some(chunk) = chat.check_ui_updates() {
             self.current_response.push_str(&chunk);
+            ui.ctx().request_repaint();
+        }
+
+        if let Some(error) = chat.check_error_updates() {
+            chat.add_message(error, false);
+            self.is_loading = false;
+            self.current_response.clear();
             ui.ctx().request_repaint();
         }
 

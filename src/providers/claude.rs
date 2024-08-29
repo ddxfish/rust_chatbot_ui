@@ -12,7 +12,6 @@ pub struct Claude {
 
 impl Claude {
     pub fn new(api_key: String) -> Self {
-        println!("Debug: Creating new Claude instance");
         Self {
             client: Client::new(),
             api_key,
@@ -36,13 +35,11 @@ impl Provider for Claude {
     }
 
     async fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
-        println!("Debug: Starting Claude stream_response");
         let (tx, rx) = mpsc::channel(1024);
         let client = self.client.clone();
         let api_key = self.api_key.clone();
 
         tokio::spawn(async move {
-            println!("Debug: Sending request to Claude API");
             let response = match client
                 .post("https://api.anthropic.com/v1/messages")
                 .header("anthropic-version", "2023-06-01")
@@ -56,57 +53,75 @@ impl Provider for Claude {
                 }))
                 .send()
                 .await {
-                    Ok(res) => {
-                        println!("Debug: Successfully sent request to Claude API");
-                        res
-                    },
+                    Ok(res) => res,
                     Err(e) => {
                         eprintln!("Error sending request to Claude API: {:?}", e);
+                        let _ = tx.send(format!("Error: Failed to send request to Claude API - {}", e)).await;
                         return;
                     }
                 };
 
-            println!("Debug: Starting to process Claude API response stream");
+            if !response.status().is_success() {
+                let error_body = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+                eprintln!("Error response from Claude API: {}", error_body);
+                let _ = tx.send(format!("Error: Claude API returned error - {}", error_body)).await;
+                return;
+            }
+
             let mut stream = response.bytes_stream();
+            let mut buffer = String::new();
+
             while let Some(item) = stream.next().await {
                 match item {
                     Ok(chunk) => {
                         if let Ok(text) = String::from_utf8(chunk.to_vec()) {
-                            for line in text.lines() {
+                            buffer.push_str(&text);
+
+                            while let Some(pos) = buffer.find('\n') {
+                                let line = buffer[..pos].to_string();
+                                buffer = buffer[pos + 1..].to_string();
+
                                 if line.starts_with("data: ") {
                                     let data = &line[6..];
                                     if data == "[DONE]" {
-                                        println!("Debug: Claude stream completed");
                                         return;
                                     }
 
                                     match serde_json::from_str::<Value>(data) {
                                         Ok(json) => {
                                             if let Some(content) = json["delta"]["text"].as_str() {
-                                                println!("Debug: Received content chunk from Claude: {}", content);
                                                 if tx.send(content.to_string()).await.is_err() {
                                                     eprintln!("Error sending chunk through channel");
                                                     return;
                                                 }
                                             }
                                         }
-                                        Err(e) => eprintln!("Error parsing JSON from Claude: {:?}", e),
+                                        Err(e) => {
+                                            eprintln!("Error parsing JSON from Claude: {:?}", e);
+                                            let _ = tx.send(format!("Error: Failed to parse Claude response - {}", e)).await;
+                                        }
                                     }
                                 }
                             }
                         } else {
                             eprintln!("Error converting Claude response chunk to UTF-8");
+                            let _ = tx.send("Error: Failed to convert Claude response to text".to_string()).await;
                         }
                     }
                     Err(e) => {
                         eprintln!("Error receiving chunk from Claude: {:?}", e);
+                        let _ = tx.send(format!("Error: Failed to receive response from Claude - {}", e)).await;
+                        return;
                     }
                 }
             }
-            println!("Debug: Finished processing Claude API response stream");
+
+            if !buffer.is_empty() {
+                eprintln!("Unprocessed data in buffer from Claude: {}", buffer);
+                let _ = tx.send(format!("Error: Unprocessed data from Claude - {}", buffer)).await;
+            }
         });
 
-        println!("Debug: Returning Claude response receiver");
         Ok(rx)
     }
 }

@@ -1,0 +1,14 @@
+User: test
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: Error: API returned error - {"error":{"code":"INTERNAL_SERVER_ERROR","docs":"https://fireworks.ai/docs/api-reference/errors/code/INTERNAL_SERVER_ERROR","message":"something unexpected happened"}}
+<<<MESSAGE_SEPARATOR>>>
+
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: Hello! How can I assist you today?
+<<<MESSAGE_SEPARATOR>>>
+

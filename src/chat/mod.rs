@@ -20,16 +20,20 @@ pub struct Chat {
     name_sender: mpsc::UnboundedSender<String>,
     name_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
     pub current_model: Arc<Mutex<String>>,
+    error_sender: mpsc::UnboundedSender<String>,
+    error_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
 }
 
 impl Chat {
     pub fn new(initial_provider: Arc<dyn Provider + Send + Sync>) -> Self {
         let (ui_sender, ui_receiver) = mpsc::unbounded_channel();
         let (name_sender, name_receiver) = mpsc::unbounded_channel();
+        let (error_sender, error_receiver) = mpsc::unbounded_channel();
         let initial_model = initial_provider.models()[0].to_string();
         Self {
             messages: Arc::new(Mutex::new(Vec::new())),
-            chatbot: Arc::new(Chatbot::new(Arc::clone(&initial_provider))),            runtime: Runtime::new().unwrap(),
+            chatbot: Arc::new(Chatbot::new(Arc::clone(&initial_provider))),
+            runtime: Runtime::new().unwrap(),
             is_processing: Arc::new(Mutex::new(false)),
             ui_sender,
             ui_receiver: Arc::new(Mutex::new(ui_receiver)),
@@ -39,13 +43,15 @@ impl Chat {
             name_receiver: Arc::new(Mutex::new(name_receiver)),
             current_model: Arc::new(Mutex::new(initial_model)),
             provider: initial_provider,
+            error_sender,
+            error_receiver: Arc::new(Mutex::new(error_receiver)),
         }
     }
+
     pub fn update_provider(&mut self, new_provider: Arc<dyn Provider + Send + Sync>) {
-            self.provider = new_provider;
-            // Any other necessary updates when changing the provider
+        self.provider = new_provider;
     }
-    
+
     pub fn add_message(&self, content: String, is_user: bool) {
         let model = if is_user { None } else { Some(self.get_current_model()) };
         let message = Message::new(content.clone(), is_user, model.clone());
@@ -76,25 +82,32 @@ impl Chat {
         let ui_sender = self.ui_sender.clone();
         let needs_naming = Arc::clone(&self.needs_naming);
         let current_model = Arc::clone(&self.current_model);
+        let error_sender = self.error_sender.clone();
 
         let messages_clone = self.messages.lock().unwrap().clone();
 
         self.runtime.spawn(async move {
-            if let Ok(mut rx) = chatbot.stream_response(&messages_clone).await {
-                let mut full_response = String::new();
-                while let Some(chunk) = rx.recv().await {
-                    full_response.push_str(&chunk);
-                    if ui_sender.send(chunk).is_err() {
-                        break;
+            match chatbot.stream_response(&messages_clone).await {
+                Ok(mut rx) => {
+                    let mut full_response = String::new();
+                    while let Some(chunk) = rx.recv().await {
+                        full_response.push_str(&chunk);
+                        if ui_sender.send(chunk).is_err() {
+                            break;
+                        }
                     }
-                }
-                
-                if messages_clone.len() == 1 {
-                    *needs_naming.lock().unwrap() = true;
-                }
 
-                let model = chatbot.get_current_model();
-                *current_model.lock().unwrap() = model;
+                    if messages_clone.len() == 1 {
+                        *needs_naming.lock().unwrap() = true;
+                    }
+
+                    let model = chatbot.get_current_model();
+                    *current_model.lock().unwrap() = model;
+                }
+                Err(e) => {
+                    let error_message = format!("Error: {}", e);
+                    error_sender.send(error_message).unwrap();
+                }
             }
             *is_processing.lock().unwrap() = false;
         });
@@ -126,6 +139,10 @@ impl Chat {
 
     pub fn check_name_updates(&self) -> Option<String> {
         self.name_receiver.lock().unwrap().try_recv().ok()
+    }
+
+    pub fn check_error_updates(&self) -> Option<String> {
+        self.error_receiver.lock().unwrap().try_recv().ok()
     }
 
     pub fn create_new_chat(&self) -> Result<(), std::io::Error> {
@@ -162,5 +179,4 @@ impl Chat {
     pub fn get_current_model(&self) -> String {
         self.current_model.lock().unwrap().clone()
     }
-
 }
