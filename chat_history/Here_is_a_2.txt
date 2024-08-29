@@ -1,0 +1,14 @@
+User: hello testing
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: Hello! Testing successful! Is there anything I can help you with or would you like to chat?
+<<<MESSAGE_SEPARATOR>>>
+
+User: thatll do pig, thatll do.
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: Classic quote! "That'll do pig, that'll do" is a iconic line from the movie Babe (1995). I'm glad I could pass the test!
+<<<MESSAGE_SEPARATOR>>>
+
