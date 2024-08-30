@@ -5,3 +5,24 @@ User: hello
 llama-v3p1-405b-instruct: Hello! How can I assist you today?
 <<<MESSAGE_SEPARATOR>>>
 
+User: L:LLLLAMAMAM
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: It looks like you're sending a message in a unique way! I'm not sure what "L:LLLLAMAMAM" means, but I'm happy to try and decipher it. Are you trying to communicate something in particular, or is this just a fun expression?
+<<<MESSAGE_SEPARATOR>>>
+
+User: *gestures hands in a buck tooth motion and spits*
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: I think I'm starting to get a sense of the playful vibe you're going for! The "L:LLLLAMAMAM" and the buck tooth gesture, combined with the spitting motion, makes me think of a llama! Am I right?
+<<<MESSAGE_SEPARATOR>>>
+
+User: YES!
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: I'm glad I was able to "spit" out the correct answer! Llamas are definitely known for their adorable buck teeth and spitting habits. You're a creative and fun person, I can tell! Do you have a favorite thing about llamas, or was this just a fun moment of llama-themed silliness?
+<<<MESSAGE_SEPARATOR>>>
+
