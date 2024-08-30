@@ -6,6 +6,7 @@ use crate::providers::Provider;
 use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
+use serde_json::json;
 
 pub struct Chat {
     messages: Arc<Mutex<Vec<Message>>>,
@@ -73,7 +74,7 @@ impl Chat {
         *self.is_processing.lock().unwrap()
     }
 
-    pub fn process_input(&self, input: String) {
+    pub fn process_input(&self, input: String, model: &str) {
         let input_with_newlines = input.replace("\\n", "\n");
         self.add_message(input_with_newlines.clone(), true);
         *self.is_processing.lock().unwrap() = true;
@@ -84,7 +85,12 @@ impl Chat {
         let current_model = Arc::clone(&self.current_model);
         let error_sender = self.error_sender.clone();
 
-        let messages_clone = self.messages.lock().unwrap().clone();
+        let mut messages_clone = self.messages.lock().unwrap().clone();
+        
+        // Add the model as a system message if it's a custom model
+        if model.starts_with("accounts/fireworks/models/") {
+            messages_clone.insert(0, Message::new(format!("Model: {}", model), false, Some("system".to_string())));
+        }
 
         self.runtime.spawn(async move {
             match chatbot.stream_response(&messages_clone).await {
@@ -178,5 +184,8 @@ impl Chat {
 
     pub fn get_current_model(&self) -> String {
         self.current_model.lock().unwrap().clone()
+    }
+    pub fn set_current_model(&self, model: &str) {
+        *self.current_model.lock().unwrap() = model.to_string();
     }
 }

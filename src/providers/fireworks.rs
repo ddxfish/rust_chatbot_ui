@@ -40,20 +40,28 @@ impl Provider for Fireworks {
         let api_key = self.api_key.clone();
 
         tokio::spawn(async move {
+            let (model, api_messages) = if messages.first().and_then(|m| m["role"].as_str()) == Some("system") &&
+                                           messages.first().and_then(|m| m["content"].as_str()).map_or(false, |c| c.starts_with("Model: ")) {
+                let custom_model = messages[0]["content"].as_str().unwrap().strip_prefix("Model: ").unwrap();
+                (format!("accounts/fireworks/models/{}", custom_model), messages[1..].to_vec())
+            } else {
+                ("accounts/fireworks/models/llama-v3p1-70b-instruct".to_string(), messages)
+            };
+
             let response = match client
                 .post("https://api.fireworks.ai/inference/v1/chat/completions")
                 .header("Accept", "application/json")
                 .header("Content-Type", "application/json")
                 .header("Authorization", format!("Bearer {}", api_key))
                 .json(&json!({
-                    "model": "accounts/fireworks/models/llama-v3p1-70b-instruct",
+                    "model": model,
                     "max_tokens": 16384,
                     "top_p": 1,
                     "top_k": 40,
                     "presence_penalty": 0,
                     "frequency_penalty": 0,
                     "temperature": 0.6,
-                    "messages": messages,
+                    "messages": api_messages,
                     "stream": true
                 }))
                 .send()
