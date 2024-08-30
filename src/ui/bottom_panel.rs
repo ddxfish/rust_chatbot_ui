@@ -17,7 +17,7 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
 
         ui.horizontal(|ui| {
             let button_width = ui.available_width() / 2.0 - 10.0;
-            
+
             if ui.add_sized([button_width, 30.0], egui::Button::new(RichText::new("Export").size(14.0).color(theme.override_text_color))).clicked() {
                 if let Some(path) = FileDialog::new()
                     .add_filter("Text", &["txt"])
@@ -55,6 +55,7 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
                             }
                         } else if ui.selectable_value(&mut chatbot_ui.selected_model, model.to_string(), model).clicked() {
                             chatbot_ui.selected_model = model.to_string();
+                            chatbot_ui.model_changed = true;
                         }
                     }
                 }
@@ -70,6 +71,7 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
                     if ui.selectable_label(chatbot_ui.selected_provider == provider.name(), provider.name()).clicked() {
                         chatbot_ui.selected_provider = provider.name().to_string();
                         chatbot_ui.selected_model = provider.models()[0].to_string();
+                        chatbot_ui.model_changed = true;
                     }
                 }
             });
@@ -90,7 +92,8 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
                             SHOW_CUSTOM_MODEL_POPUP = false;
                         }
                         if ui.button(RichText::new("OK").color(theme.override_text_color)).clicked() {
-                            chatbot_ui.selected_model = CUSTOM_MODEL_INPUT.clone();
+                            chatbot_ui.selected_model = format!("accounts/fireworks/models/{}", CUSTOM_MODEL_INPUT.clone());
+                            chatbot_ui.model_changed = true;
                             SHOW_CUSTOM_MODEL_POPUP = false;
                         }
                     });

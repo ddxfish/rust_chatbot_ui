@@ -1,7 +1,0 @@
-User: hi
-
-<<<MESSAGE_SEPARATOR>>>
-
-Then select model: API key goes in Settings. Then select a provider and model.
-<<<MESSAGE_SEPARATOR>>>
-

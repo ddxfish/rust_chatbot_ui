@@ -13,6 +13,7 @@ pub struct ChatbotUi {
     pub selected_model: String,
     pub is_loading: bool,
     pub current_response: String,
+    pub model_changed: bool,
 }
 
 impl ChatbotUi {
@@ -23,10 +24,20 @@ impl ChatbotUi {
             selected_model: initial_model,
             is_loading: false,
             current_response: String::new(),
+            model_changed: false,
         }
     }
 
-    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons, _providers: &[Arc<dyn Provider + Send + Sync>], theme: &DarkTheme) {
+    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons, providers: &[Arc<dyn Provider + Send + Sync>], theme: &DarkTheme) {
+        if self.model_changed {
+            if let Some(provider) = providers.iter().find(|p| p.name() == self.selected_provider) {
+                chat.update_provider(Arc::clone(provider));
+                chat.set_current_model(&self.selected_model);
+                println!("Debug: Provider updated to {} with model {}", self.selected_provider, self.selected_model);
+            }
+            self.model_changed = false;
+        }
+
         egui::CentralPanel::default().show_inside(ui, |ui| {
             ui.vertical(|ui| {
                 let available_height = ui.available_height();
@@ -61,7 +72,8 @@ impl ChatbotUi {
                         || (ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift))
                     {
                         if !self.input.trim().is_empty() {
-                            chat.process_input(std::mem::take(&mut self.input));
+                            println!("Debug: Processing input with model: {}", self.selected_model);
+                            chat.process_input(std::mem::take(&mut self.input), &self.selected_model);
                             self.is_loading = true;
                         }
                         response.request_focus();
