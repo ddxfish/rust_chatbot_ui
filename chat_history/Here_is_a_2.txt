@@ -1,7 +1,0 @@
-User: hi
-
-<<<MESSAGE_SEPARATOR>>>
-
-llama-v3p1-405b-instruct: Hello! How can I assist you today?
-<<<MESSAGE_SEPARATOR>>>
-
