@@ -120,7 +120,10 @@ impl eframe::App for ChatbotApp {
             ctx.set_visuals(self.theme.apply_to_visuals());
         }
 
-        self.state.update(&mut self.chat);
+                // Only update the state when there's a change in the chat
+                if self.chat.has_updates() {
+                    self.state.update(&mut self.chat);
+                }
 
         eframe::egui::SidePanel::left("chat_history_panel")
             .resizable(true)
