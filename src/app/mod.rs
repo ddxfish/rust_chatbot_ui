@@ -42,15 +42,16 @@ impl ChatbotApp {
         cc.egui_ctx.set_pixels_per_point(1.0);
 
         let providers = Self::create_providers(&settings.get_api_keys());
+        let initial_provider = settings.get_first_provider_with_key(&providers);
+        let initial_model = initial_provider.models()[0].to_string();
 
-        let initial_provider = providers[0].name().to_string();
-        let initial_model = providers[0].models()[0].to_string();
-        let chat = Chat::new(Arc::clone(&providers[0]));
+        let mut chat = Chat::new(Arc::clone(&initial_provider));
+        chat.load_most_recent_or_create_new().unwrap_or_else(|e| eprintln!("Failed to load or create chat: {}", e));
 
         Self {
             state: ChatbotAppState::new(),
             chat,
-            ui: ChatbotUi::new(initial_provider, initial_model),
+            ui: ChatbotUi::new(initial_provider.name().to_string(), initial_model),
             settings,
             icons: Icons::new(&cc.egui_ctx),
             providers,

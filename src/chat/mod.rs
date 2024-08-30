@@ -86,8 +86,7 @@ impl Chat {
         let error_sender = self.error_sender.clone();
 
         let mut messages_clone = self.messages.lock().unwrap().clone();
-        
-        // Add the model as a system message if it's a custom model
+
         if model.starts_with("accounts/fireworks/models/") {
             messages_clone.insert(0, Message::new(format!("Model: {}", model), false, Some("system".to_string())));
         }
@@ -185,7 +184,20 @@ impl Chat {
     pub fn get_current_model(&self) -> String {
         self.current_model.lock().unwrap().clone()
     }
+
     pub fn set_current_model(&self, model: &str) {
         *self.current_model.lock().unwrap() = model.to_string();
+    }
+
+    pub fn load_most_recent_or_create_new(&mut self) -> Result<(), std::io::Error> {
+        let history = self.history.lock().unwrap();
+        let files = history.get_history_files();
+        drop(history);  // Release the lock before calling other methods
+
+        if let Some(most_recent) = files.first() {
+            self.load_chat(most_recent)
+        } else {
+            self.create_new_chat()
+        }
     }
 }

@@ -3,6 +3,8 @@ use eframe::egui;
 use egui::{Button, Image, Vec2, ComboBox};
 use crate::app::Icons;
 use crate::ui::theme::{Theme, get_themes};
+use crate::providers::Provider;
+use std::sync::Arc;
 
 pub struct Settings {
     fireworks_api_key: String,
@@ -103,7 +105,30 @@ impl Settings {
         format!("{},{}", self.fireworks_api_key, self.claude_api_key)
     }
 
-    pub fn get_current_theme(&self) -> Theme {
-        self.themes[self.current_theme_index].clone()
+    pub fn get_current_theme(&self) -> &Theme {
+        &self.themes[self.current_theme_index]
+    }
+
+    pub fn get_first_provider_with_key(&self, providers: &[Arc<dyn Provider + Send + Sync>]) -> Arc<dyn Provider + Send + Sync> {
+        let api_keys = self.get_api_keys();
+        let keys: Vec<&str> = api_keys.split(',').collect();
+        
+        for provider in providers {
+            match provider.name() {
+                "Fireworks" => {
+                    if !keys[0].is_empty() {
+                        return Arc::clone(provider);
+                    }
+                },
+                "Claude" => {
+                    if !keys[1].is_empty() {
+                        return Arc::clone(provider);
+                    }
+                },
+                _ => {}
+            }
+        }
+        
+        Arc::clone(&providers[0])
     }
 }
