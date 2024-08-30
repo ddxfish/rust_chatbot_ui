@@ -23,6 +23,7 @@ pub struct Chat {
     pub current_model: Arc<Mutex<String>>,
     error_sender: mpsc::UnboundedSender<String>,
     error_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
+    has_updates: Arc<Mutex<bool>>,
 }
 
 impl Chat {
@@ -46,11 +47,13 @@ impl Chat {
             provider: initial_provider,
             error_sender,
             error_receiver: Arc::new(Mutex::new(error_receiver)),
+            has_updates: Arc::new(Mutex::new(true)),
         }
     }
 
     pub fn update_provider(&mut self, new_provider: Arc<dyn Provider + Send + Sync>) {
         self.provider = new_provider;
+        self.set_has_updates();
     }
 
     pub fn add_message(&self, content: String, is_user: bool) {
@@ -64,6 +67,7 @@ impl Chat {
         if !is_user && *self.needs_naming.lock().unwrap() {
             self.generate_chat_name();
         }
+        self.set_has_updates();
     }
 
     pub fn get_messages(&self) -> Vec<Message> {
@@ -116,6 +120,7 @@ impl Chat {
             }
             *is_processing.lock().unwrap() = false;
         });
+        self.set_has_updates();
     }
 
     fn generate_chat_name(&self) {
@@ -153,12 +158,16 @@ impl Chat {
     pub fn create_new_chat(&self) -> Result<(), std::io::Error> {
         self.messages.lock().unwrap().clear();
         *self.needs_naming.lock().unwrap() = true;
-        self.history.lock().unwrap().create_new_chat()
+        self.history.lock().unwrap().create_new_chat()?;
+        self.set_has_updates();
+        Ok(())
     }
 
     pub fn load_chat(&self, file_name: &str) -> Result<(), std::io::Error> {
         *self.needs_naming.lock().unwrap() = false;
-        self.history.lock().unwrap().load_chat(file_name, &mut self.messages.lock().unwrap())
+        self.history.lock().unwrap().load_chat(file_name, &mut self.messages.lock().unwrap())?;
+        self.set_has_updates();
+        Ok(())
     }
 
     pub fn get_history_files(&self) -> Vec<String> {
@@ -170,7 +179,9 @@ impl Chat {
     }
 
     pub fn delete_chat(&self, file_name: &str) -> Result<(), std::io::Error> {
-        self.history.lock().unwrap().delete_chat(file_name)
+        self.history.lock().unwrap().delete_chat(file_name)?;
+        self.set_has_updates();
+        Ok(())
     }
 
     pub fn export_chat(&self, path: &std::path::Path) -> Result<(), std::io::Error> {
@@ -178,7 +189,9 @@ impl Chat {
     }
 
     pub fn rename_current_chat(&self, new_name: &str) -> Result<(), std::io::Error> {
-        self.history.lock().unwrap().rename_current_chat(new_name)
+        self.history.lock().unwrap().rename_current_chat(new_name)?;
+        self.set_has_updates();
+        Ok(())
     }
 
     pub fn get_current_model(&self) -> String {
@@ -187,9 +200,10 @@ impl Chat {
 
     pub fn set_current_model(&self, model: &str) {
         *self.current_model.lock().unwrap() = model.to_string();
+        self.set_has_updates();
     }
 
-    pub fn load_most_recent_or_create_new(&mut self) -> Result<(), std::io::Error> {
+    pub fn load_most_recent_or_create_new(&self) -> Result<(), std::io::Error> {
         let history = self.history.lock().unwrap();
         let files = history.get_history_files();
         drop(history);  // Release the lock before calling other methods
@@ -199,5 +213,16 @@ impl Chat {
         } else {
             self.create_new_chat()
         }
+    }
+
+    pub fn has_updates(&self) -> bool {
+        let mut has_updates = self.has_updates.lock().unwrap();
+        let updates = *has_updates;
+        *has_updates = false;
+        updates
+    }
+
+    fn set_has_updates(&self) {
+        *self.has_updates.lock().unwrap() = true;
     }
 }
