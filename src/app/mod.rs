@@ -5,7 +5,7 @@ use crate::chat::Chat;
 use crate::ui::ChatbotUi;
 use crate::settings::Settings;
 use crate::providers::{self, Provider};
-use crate::ui::theme::DarkTheme;
+use crate::ui::theme::Theme;
 use eframe;
 use std::sync::Arc;
 use eframe::egui::{self, FontData, FontDefinitions, FontFamily, Align, Layout};
@@ -19,7 +19,7 @@ pub struct ChatbotApp {
     settings: Settings,
     icons: Icons,
     providers: Vec<Arc<dyn Provider + Send + Sync>>,
-    theme: DarkTheme,
+    theme: Theme,
 }
 
 fn load_custom_font(ctx: &eframe::egui::Context) {
@@ -36,11 +36,11 @@ fn load_custom_font(ctx: &eframe::egui::Context) {
 impl ChatbotApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         load_custom_font(&cc.egui_ctx);
-        let theme = DarkTheme::new();
+        let settings = Settings::new();
+        let theme = settings.get_current_theme().clone();
         cc.egui_ctx.set_visuals(theme.apply_to_visuals());
         cc.egui_ctx.set_pixels_per_point(1.0);
 
-        let settings = Settings::new();
         let providers = Self::create_providers(&settings.get_api_keys());
 
         let initial_provider = providers[0].name().to_string();
@@ -67,34 +67,26 @@ impl ChatbotApp {
 
     fn switch_provider(&mut self, model: String) {
         let (provider, is_custom) = if model.starts_with("accounts/fireworks/models/") {
-            // Custom Fireworks model
             (self.providers.iter().find(|p| p.name() == "Fireworks"), true)
         } else {
-            // Standard model
             (self.providers.iter().find(|p| p.models().contains(&model.as_str())), false)
         };
-    
+
         if let Some(current_provider) = provider {
             println!("Switching to provider: {} with model: {}", current_provider.name(), model);
-    
+
             self.chat.update_provider(Arc::clone(current_provider));
-    
+
             let model_clone = model.clone();
             let providers_clone = self.providers.clone();
             if let Some(chatbot) = Arc::get_mut(&mut self.chat.chatbot) {
                 chatbot.switch_model(&providers_clone, model_clone);
             }
-    
+
             if let Ok(mut current_model) = self.chat.current_model.lock() {
                 *current_model = model;
             }
-    
-            // if is_custom {
-            //     println!("Custom Fireworks model set: {}", model);
-            // } else {
-            //     println!("Standard model set: {}", model);
-            // }
-    
+
             println!("Provider and model updated successfully");
         } else {
             println!("Error: No provider found for model: {}", model);
@@ -119,6 +111,12 @@ impl eframe::App for ChatbotApp {
         if self.settings.api_keys_updated {
             self.reload_providers();
             self.settings.api_keys_updated = false;
+        }
+
+        let current_theme = self.settings.get_current_theme().clone();
+        if self.theme.name != current_theme.name {
+            self.theme = current_theme;
+            ctx.set_visuals(self.theme.apply_to_visuals());
         }
 
         self.state.update(&mut self.chat);

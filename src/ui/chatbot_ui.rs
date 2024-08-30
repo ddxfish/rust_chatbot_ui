@@ -4,7 +4,7 @@ use crate::settings::Settings;
 use crate::app::Icons;
 use super::message_view;
 use crate::providers::Provider;
-use crate::ui::theme::DarkTheme;
+use crate::ui::theme::Theme;
 use std::sync::Arc;
 
 pub struct ChatbotUi {
@@ -28,7 +28,7 @@ impl ChatbotUi {
         }
     }
 
-    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons, providers: &[Arc<dyn Provider + Send + Sync>], theme: &DarkTheme) {
+    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons, providers: &[Arc<dyn Provider + Send + Sync>], theme: &Theme) {
         if self.model_changed {
             if let Some(provider) = providers.iter().find(|p| p.name() == self.selected_provider) {
                 chat.update_provider(Arc::clone(provider));
@@ -61,7 +61,7 @@ impl ChatbotUi {
                         .desired_rows(3)
                         .hint_text("Type your message here...")
                         .font(FontId::proportional(16.0))
-                        .text_color(theme.override_text_color);
+                        .text_color(theme.input_text_color);
 
                     let response = ui.add_sized([ui.available_width() - 50.0, input_height], input_field);
 

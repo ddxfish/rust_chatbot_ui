@@ -3,6 +3,10 @@ use std::fs::{self, File, OpenOptions};
 use std::io::{Write, Read};
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
+use crate::chat::Chat;
+use crate::app::Icons;
+use crate::ui::theme::Theme;
+use eframe::egui::{self, RichText, Button, Image, Vec2, Color32, Layout, Align};
 
 const MESSAGE_SEPARATOR: &str = "\n<<<MESSAGE_SEPARATOR>>>\n";
 
@@ -24,7 +28,7 @@ impl ChatHistory {
         chat_history
     }
 
-    fn load_history(&mut self) {
+    pub fn load_history(&mut self) {
         println!("Debug: Loading chat history");
         self.history_files = fs::read_dir(&self.directory)
             .into_iter()
@@ -42,6 +46,53 @@ impl ChatHistory {
             .collect();
         self.history_files.sort_by(|a, b| b.cmp(a));
         println!("Debug: Loaded {} chat files", self.history_files.len());
+    }
+
+    pub fn render_history(&mut self, ui: &mut egui::Ui, chat: &mut Chat, icons: &Icons, theme: &Theme) {
+        ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
+            ui.horizontal(|ui| {
+                ui.add(Image::new(&icons.new_chat).fit_to_exact_size(Vec2::new(40.0, 40.0)));
+                if ui.button(RichText::new("New Chat").size(20.0)).clicked() {
+                    if let Err(e) = chat.create_new_chat() {
+                        eprintln!("Failed to create new chat: {}", e);
+                    }
+                }
+            });
+        });
+
+        egui::ScrollArea::vertical().show(ui, |ui| {
+            ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
+                let files = self.get_history_files();
+                let current_file = chat.get_current_file();
+
+                for file in files {
+                    ui.horizontal(|ui| {
+                        let is_current = current_file.as_ref().map_or(false, |current| current == &file);
+                        let display_name = format_file_name(&file);
+                        let text = if is_current {
+                            RichText::new(display_name).color(theme.selected_chat_color).size(18.0)
+                        } else {
+                            RichText::new(display_name).color(theme.unselected_chat_color).size(18.0)
+                        };
+
+                        if ui.add(egui::Label::new(text).wrap()).clicked() {
+                            if let Err(e) = chat.load_chat(&file) {
+                                eprintln!("Failed to load chat: {}", e);
+                            }
+                        }
+
+                        ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                            if ui.add(Button::image(Image::new(&icons.trash).fit_to_exact_size(Vec2::new(10.0, 10.0)))).clicked() {
+                                if let Err(e) = chat.delete_chat(&file) {
+                                    eprintln!("Failed to delete chat: {}", e);
+                                }
+                            }
+                        });
+                    });
+                    ui.add_space(5.0);
+                }
+            });
+        });
     }
 
     pub fn get_history_files(&self) -> Vec<String> {
@@ -163,4 +214,10 @@ impl ChatHistory {
         }
         Ok(())
     }
+}
+
+fn format_file_name(file_name: &str) -> String {
+    file_name
+        .trim_end_matches(".txt")
+        .replace('_', " ")
 }

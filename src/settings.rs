@@ -1,8 +1,8 @@
 use keyring::Entry;
 use eframe::egui;
-use egui::{Button, Image, Vec2};
+use egui::{Button, Image, Vec2, ComboBox};
 use crate::app::Icons;
-use crate::ui::theme;
+use crate::ui::theme::{Theme, get_themes};
 
 pub struct Settings {
     fireworks_api_key: String,
@@ -11,6 +11,8 @@ pub struct Settings {
     pub show_settings: bool,
     feedback: Option<(String, f32)>,
     pub api_keys_updated: bool,
+    pub themes: Vec<Theme>,
+    pub current_theme_index: usize,
 }
 
 impl Settings {
@@ -20,6 +22,7 @@ impl Settings {
         let keys: Vec<&str> = api_keys.split(',').collect();
         let fireworks_api_key = keys.get(0).unwrap_or(&"").to_string();
         let claude_api_key = keys.get(1).unwrap_or(&"").to_string();
+        let themes = get_themes();
         Self {
             fireworks_api_key,
             claude_api_key,
@@ -27,6 +30,8 @@ impl Settings {
             show_settings: false,
             feedback: None,
             api_keys_updated: false,
+            themes,
+            current_theme_index: 0,
         }
     }
 
@@ -64,14 +69,13 @@ impl Settings {
 
                     ui.add_space(10.0);
                     ui.heading("Theme");
-                    ui.horizontal(|ui| {
-                        if ui.button("Light").clicked() {
-                            ui.ctx().set_visuals(theme::custom_light_theme());
-                        }
-                        if ui.button("Dark").clicked() {
-                            ui.ctx().set_visuals(egui::Visuals::dark());
-                        }
-                    });
+                    ComboBox::from_label("Select Theme")
+                        .selected_text(&self.themes[self.current_theme_index].name)
+                        .show_ui(ui, |ui| {
+                            for (index, theme) in self.themes.iter().enumerate() {
+                                ui.selectable_value(&mut self.current_theme_index, index, &theme.name);
+                            }
+                        });
 
                     if let Some((message, _)) = &self.feedback {
                         ui.label(message);
@@ -97,5 +101,9 @@ impl Settings {
 
     pub fn get_api_keys(&self) -> String {
         format!("{},{}", self.fireworks_api_key, self.claude_api_key)
+    }
+
+    pub fn get_current_theme(&self) -> Theme {
+        self.themes[self.current_theme_index].clone()
     }
 }
