@@ -1,8 +1,8 @@
 use egui::{Ui, ScrollArea, Align, FontId, TextFormat, text::LayoutJob, FontFamily, Frame, Stroke, Rounding, Label, Layout, RichText};
 use crate::chat::Chat;
-use crate::ui::theme::DarkTheme;
+use crate::ui::theme::Theme;
 
-pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool, theme: &DarkTheme) {
+pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool, theme: &Theme) {
     let mut scroll_to_bottom = false;
     ScrollArea::vertical()
         .auto_shrink([false; 2])
@@ -19,7 +19,7 @@ pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_load
             if is_loading {
                 ui.add(egui::Spinner::new());
             }
-            
+
             let max_scroll = ui.max_rect().height() - ui.clip_rect().height();
             let current_scroll = ui.clip_rect().top() - ui.min_rect().top();
             scroll_to_bottom = (max_scroll - current_scroll).abs() < 1.0;
@@ -30,7 +30,7 @@ pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_load
     }
 }
 
-fn render_message(ui: &mut Ui, is_user: bool, content: &str, model: Option<&str>, theme: &DarkTheme) {
+fn render_message(ui: &mut Ui, is_user: bool, content: &str, model: Option<&str>, theme: &Theme) {
     let (border_color, background_color) = if is_user {
         (theme.user_message_border, theme.user_message_bg)
     } else {
@@ -70,6 +70,6 @@ fn render_message(ui: &mut Ui, is_user: bool, content: &str, model: Option<&str>
             ui.add(Label::new(job).wrap());
         });
     });
-    
+
     ui.add_space(10.0);
 }

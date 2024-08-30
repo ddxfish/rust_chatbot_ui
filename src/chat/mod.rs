@@ -1,4 +1,4 @@
-mod history;
+pub mod history;
 
 use crate::message::Message;
 use crate::chatbot::Chatbot;
