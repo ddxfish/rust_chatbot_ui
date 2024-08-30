@@ -66,22 +66,38 @@ impl ChatbotApp {
     }
 
     fn switch_provider(&mut self, model: String) {
-        if let Some(current_provider) = self.providers.iter().find(|p| p.models().contains(&model.as_str())) {
-            println!("Switching to provider type: {}", std::any::type_name::<dyn Provider + Send + Sync>());
-
+        let (provider, is_custom) = if model.starts_with("accounts/fireworks/models/") {
+            // Custom Fireworks model
+            (self.providers.iter().find(|p| p.name() == "Fireworks"), true)
+        } else {
+            // Standard model
+            (self.providers.iter().find(|p| p.models().contains(&model.as_str())), false)
+        };
+    
+        if let Some(current_provider) = provider {
+            println!("Switching to provider: {} with model: {}", current_provider.name(), model);
+    
             self.chat.update_provider(Arc::clone(current_provider));
-
+    
             let model_clone = model.clone();
             let providers_clone = self.providers.clone();
             if let Some(chatbot) = Arc::get_mut(&mut self.chat.chatbot) {
                 chatbot.switch_model(&providers_clone, model_clone);
             }
-
+    
             if let Ok(mut current_model) = self.chat.current_model.lock() {
                 *current_model = model;
             }
-
+    
+            // if is_custom {
+            //     println!("Custom Fireworks model set: {}", model);
+            // } else {
+            //     println!("Standard model set: {}", model);
+            // }
+    
             println!("Provider and model updated successfully");
+        } else {
+            println!("Error: No provider found for model: {}", model);
         }
     }
 

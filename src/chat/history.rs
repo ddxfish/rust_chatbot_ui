@@ -70,7 +70,14 @@ impl ChatHistory {
             let prefix = if is_user { 
                 "User: ".to_string() 
             } else { 
-                format!("{}: ", model.unwrap_or("Bot"))
+                let model_name = match model {
+                    Some(m) if m.starts_with("accounts/fireworks/models/") => {
+                        m.split('/').last().unwrap_or("Custom Model")
+                    },
+                    Some(m) => m,
+                    None => "Bot"
+                };
+                format!("{}: ", model_name)
             };
             writeln!(file, "{}{}{}", prefix, content, MESSAGE_SEPARATOR)?;
         } else {
