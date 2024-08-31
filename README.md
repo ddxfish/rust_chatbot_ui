@@ -10,11 +10,14 @@ A versatile and user-friendly chatbot UI built with Rust, supporting multiple AI
 
 ## Features
 
-- Support for multiple AI providers (GPT, Claude, Fireworks)
-- Easy-to-use interface
-- Customizable themes
-- Chat history management
-- Export functionality
+- **Multi-Provider Support**: Integrate with various AI providers including GPT, Claude, and Fireworks.
+- **Dynamic Model Switching**: Seamlessly change AI models mid-conversation without losing context.
+- **Intuitive Interface**: Easy-to-use design for smooth interactions.
+- **Customizable Themes**: Personalize your chat environment with different visual themes.
+- **Chat History Management**: Efficiently organize and access your past conversations.
+- **Export Functionality**: Save and share your chat sessions with ease.
+- **Real-time Model Adaptation**: Adjust your AI model on-the-fly for optimal responses.
+- **Context Preservation**: Switch between AI providers while maintaining conversation flow.
 
 ## Quick Start
 
@@ -41,18 +44,6 @@ A versatile and user-friendly chatbot UI built with Rust, supporting multiple AI
 ## Configuration
 
 API keys for different providers can be entered in the Settings panel within the application.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-Please ensure you read the [CONTRIBUTING.md](CONTRIBUTING.md) file for details on our code of conduct and the process for submitting pull requests.
 
 ## License
 

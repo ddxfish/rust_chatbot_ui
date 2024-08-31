@@ -3261,6 +3261,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust_chatbot_ui"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "eframe",
+ "egui",
+ "futures-util",
+ "image 0.24.9",
+ "keyring",
+ "reqwest",
+ "rfd",
+ "serde",
+ "serde_json",
+ "tokio",
+ "winit 0.28.7",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3306,24 +3324,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1c74cae0a4cf6ccbbf5f359f08efdf8ee7e1dc532573bf0db71968cb56b1448c"
 dependencies = [
  "base64",
-]
-
-[[package]]
-name = "rusty_chatbot_ui"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "eframe",
- "egui",
- "futures-util",
- "image 0.24.9",
- "keyring",
- "reqwest",
- "rfd",
- "serde",
- "serde_json",
- "tokio",
- "winit 0.28.7",
 ]
 
 [[package]]
