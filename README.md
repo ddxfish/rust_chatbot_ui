@@ -10,6 +10,7 @@ A versatile and user-friendly chatbot UI built with Rust, supporting multiple AI
 
 ## Features
 
+
 - **Multi-Provider Support**: Integrate with various AI providers including GPT, Claude, and Fireworks.
 - **Dynamic Model Switching**: Seamlessly change AI models mid-conversation without losing context.
 - **Intuitive Interface**: Easy-to-use design for smooth interactions.
