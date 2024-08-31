@@ -23,7 +23,7 @@ A versatile and user-friendly chatbot UI built with Rust, supporting multiple AI
 
 1. Clone the repository:
    ```
-   git clone 
+   git clone https://github.com/ddxfish/rust_chatbot_ui
    cd rust-chatbot-ui
    ```
 
@@ -32,7 +32,7 @@ A versatile and user-friendly chatbot UI built with Rust, supporting multiple AI
    cargo build --release
    ```
 
-3. Run the application:
+3. Or just run the application:
    ```
    cargo run --release
    ```
