@@ -5,6 +5,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A versatile and user-friendly chatbot UI built with Rust, supporting multiple AI providers.
+![image](https://github.com/user-attachments/assets/89b58343-d9fa-42b2-b119-e8c0be138fe6)
 
 ## Features
 
