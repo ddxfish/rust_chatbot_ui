@@ -1,4 +1,6 @@
-pub mod history;
+pub mod history_manager;
+pub mod file_operations;
+pub mod ui_rendering;
 
 use crate::message::Message;
 use crate::chatbot::Chatbot;
@@ -16,7 +18,7 @@ pub struct Chat {
     is_processing: Arc<Mutex<bool>>,
     ui_sender: mpsc::UnboundedSender<String>,
     ui_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
-    history: Arc<Mutex<history::ChatHistory>>,
+    history_manager: Arc<Mutex<history_manager::ChatHistory>>,
     needs_naming: Arc<Mutex<bool>>,
     name_sender: mpsc::UnboundedSender<String>,
     name_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
@@ -39,7 +41,7 @@ impl Chat {
             is_processing: Arc::new(Mutex::new(false)),
             ui_sender,
             ui_receiver: Arc::new(Mutex::new(ui_receiver)),
-            history: Arc::new(Mutex::new(history::ChatHistory::new("chat_history"))),
+            history_manager: Arc::new(Mutex::new(history_manager::ChatHistory::new("chat_history"))),
             needs_naming: Arc::new(Mutex::new(true)),
             name_sender,
             name_receiver: Arc::new(Mutex::new(name_receiver)),
@@ -60,7 +62,7 @@ impl Chat {
         let model = if is_user { None } else { Some(self.get_current_model()) };
         let message = Message::new(content.clone(), is_user, model.clone());
         self.messages.lock().unwrap().push(message);
-        if let Err(e) = self.history.lock().unwrap().append_message(&content, is_user, model.as_deref()) {
+        if let Err(e) = self.history_manager.lock().unwrap().append_message(&content, is_user, model.as_deref()) {
             eprintln!("Failed to append message to history: {}", e);
         }
 
@@ -158,38 +160,39 @@ impl Chat {
     pub fn create_new_chat(&self) -> Result<(), std::io::Error> {
         self.messages.lock().unwrap().clear();
         *self.needs_naming.lock().unwrap() = true;
-        self.history.lock().unwrap().create_new_chat()?;
+        self.history_manager.lock().unwrap().create_new_chat()?;
         self.set_has_updates();
         Ok(())
     }
 
     pub fn load_chat(&self, file_name: &str) -> Result<(), std::io::Error> {
         *self.needs_naming.lock().unwrap() = false;
-        self.history.lock().unwrap().load_chat(file_name, &mut self.messages.lock().unwrap())?;
+        self.history_manager.lock().unwrap().load_chat(file_name, &mut self.messages.lock().unwrap())?;
         self.set_has_updates();
         Ok(())
     }
 
     pub fn get_history_files(&self) -> Vec<String> {
-        self.history.lock().unwrap().get_history_files()
+        self.history_manager.lock().unwrap().get_history_files()
     }
 
     pub fn get_current_file(&self) -> Option<String> {
-        self.history.lock().unwrap().get_current_file()
+        self.history_manager.lock().unwrap().get_current_file()
     }
 
     pub fn delete_chat(&self, file_name: &str) -> Result<(), std::io::Error> {
-        self.history.lock().unwrap().delete_chat(file_name)?;
+        self.history_manager.lock().unwrap().delete_chat(file_name)?;
         self.set_has_updates();
         Ok(())
     }
 
     pub fn export_chat(&self, path: &std::path::Path) -> Result<(), std::io::Error> {
-        self.history.lock().unwrap().export_chat(path, &self.messages.lock().unwrap())
+        file_operations::export_chat(path, &self.messages.lock().unwrap())
     }
+    
 
     pub fn rename_current_chat(&self, new_name: &str) -> Result<(), std::io::Error> {
-        self.history.lock().unwrap().rename_current_chat(new_name)?;
+        self.history_manager.lock().unwrap().rename_current_chat(new_name)?;
         self.set_has_updates();
         Ok(())
     }
@@ -204,7 +207,7 @@ impl Chat {
     }
 
     pub fn load_most_recent_or_create_new(&self) -> Result<(), std::io::Error> {
-        let history = self.history.lock().unwrap();
+        let history = self.history_manager.lock().unwrap();
         let files = history.get_history_files();
         drop(history);  // Release the lock before calling other methods
 

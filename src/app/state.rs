@@ -1,4 +1,5 @@
 use crate::chat::Chat;
+use crate::chat::history_manager::ChatHistory;
 use crate::app::Icons;
 use crate::settings::Settings;
 use crate::ui::ChatbotUi;
@@ -7,8 +8,7 @@ use crate::ui::bottom_panel;
 use crate::ui::theme::Theme;
 use eframe::egui::{self, Ui, ScrollArea};
 use std::sync::Arc;
-use crate::chat::history::ChatHistory;
-
+use crate::chat::ui_rendering;
 pub struct ChatbotAppState {
     pub chat_history: ChatHistory,
     pub previous_model: Option<String>,
@@ -26,9 +26,17 @@ impl ChatbotAppState {
         self.chat_history.load_history();
     }
 
+
     pub fn render_chat_history(&mut self, ui: &mut egui::Ui, chat: &mut Chat, icons: &Icons, theme: &Theme) {
         ScrollArea::vertical().show(ui, |ui| {
-            self.chat_history.render_history(ui, chat, icons, theme);
+            ui_rendering::render_history(
+                ui,
+                chat,
+                icons,
+                theme,
+                &self.chat_history.get_history_files(),
+                chat.get_current_file().as_ref()
+            );
         });
     }
 
