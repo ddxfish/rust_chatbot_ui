@@ -51,3 +51,10 @@ llama-v3p1-405b-instruct: The Jazzler's band is a key part of their villainous p
 Which of these band names do you think fits the Jazzler's persona and style?
 <<<MESSAGE_SEPARATOR>>>
 
+User: test
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: It looks like you just wanted to test the waters! No worries, I'm still here and ready to chat about the Jazzler and their jazzy adventures. What's on your mind? Want to explore more ideas or just have some fun?
+<<<MESSAGE_SEPARATOR>>>
+
