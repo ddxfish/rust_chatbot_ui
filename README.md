@@ -4,12 +4,12 @@
 ![ChatGPT](https://img.shields.io/badge/chatGPT-74aa9c?style=for-the-badge&logo=openai&logoColor=white)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A versatile and user-friendly chatbot UI built with Rust, supporting multiple AI providers.
+The Rust Chatbot UI supports multiple AI providers including GPT, Claude, and Fireworks, with the ability to switch between models mid-conversation. It features an easy-to-use interface with customizable themes and comprehensive chat history management. The application allows for real-time model adaptation during chats and includes export functionality for saving conversations. Built in Rust, it offers efficient performance while maintaining context across different AI models and providers.
+
 ![image](https://github.com/user-attachments/assets/c9f79bab-606f-41f1-9650-ff1946a9b4ee)
 
 
 ## Features
-
 
 - **Multi-Provider Support**: Integrate with various AI providers including GPT, Claude, and Fireworks.
 - **Dynamic Model Switching**: Seamlessly change AI models mid-conversation without losing context.
