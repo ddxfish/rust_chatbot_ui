@@ -58,3 +58,10 @@ User: test
 llama-v3p1-405b-instruct: It looks like you just wanted to test the waters! No worries, I'm still here and ready to chat about the Jazzler and their jazzy adventures. What's on your mind? Want to explore more ideas or just have some fun?
 <<<MESSAGE_SEPARATOR>>>
 
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: Hello again! I'm glad you're back to chat about the Jazzler. What's new? Want to dive back into the world of jazz and villainy, or try something entirely different?
+<<<MESSAGE_SEPARATOR>>>
+

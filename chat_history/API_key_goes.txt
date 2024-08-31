@@ -1,0 +1,28 @@
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+Then select model: API key goes in Settings. Then select a provider and model.
+<<<MESSAGE_SEPARATOR>>>
+
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+llama-v3p1-405b-instruct: Hello! How can I assist you today?
+<<<MESSAGE_SEPARATOR>>>
+
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+claude-3-5-sonnet-20240620: Hello! It's nice to meet you. Is there anything in particular you'd like to chat about or any questions I can help you with today?
+<<<MESSAGE_SEPARATOR>>>
+
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+gpt-4: Hello! How can I help you today?
+<<<MESSAGE_SEPARATOR>>>
+
