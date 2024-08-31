@@ -3,6 +3,7 @@ use crate::app::Icons;
 use crate::ui::theme::{Theme, get_themes};
 use crate::providers::Provider;
 use std::sync::Arc;
+use keyring::Entry;
 
 pub struct Settings {
     pub show_settings: bool,
@@ -17,7 +18,7 @@ pub struct Settings {
 impl Settings {
     pub fn new() -> Self {
         let themes = get_themes();
-        Self {
+        let mut settings = Self {
             show_settings: false,
             fireworks_api_key: String::new(),
             claude_api_key: String::new(),
@@ -25,7 +26,34 @@ impl Settings {
             themes,
             current_theme_index: 0,
             api_keys_updated: false,
+        };
+        settings.load_api_keys();
+        settings
+    }
+
+    fn load_api_keys(&mut self) {
+        if let Ok(entry) = Entry::new("rusty_chatbot", "fireworks_api_key") {
+            self.fireworks_api_key = entry.get_password().unwrap_or_default();
         }
+        if let Ok(entry) = Entry::new("rusty_chatbot", "claude_api_key") {
+            self.claude_api_key = entry.get_password().unwrap_or_default();
+        }
+        if let Ok(entry) = Entry::new("rusty_chatbot", "gpt_api_key") {
+            self.gpt_api_key = entry.get_password().unwrap_or_default();
+        }
+    }
+
+    fn save_api_keys(&mut self) {
+        if let Ok(entry) = Entry::new("rusty_chatbot", "fireworks_api_key") {
+            let _ = entry.set_password(&self.fireworks_api_key);
+        }
+        if let Ok(entry) = Entry::new("rusty_chatbot", "claude_api_key") {
+            let _ = entry.set_password(&self.claude_api_key);
+        }
+        if let Ok(entry) = Entry::new("rusty_chatbot", "gpt_api_key") {
+            let _ = entry.set_password(&self.gpt_api_key);
+        }
+        self.api_keys_updated = true;
     }
 
     pub fn toggle_settings(&mut self) {
@@ -40,24 +68,22 @@ impl Settings {
                 .show(ctx, |ui| {
                     ui.horizontal(|ui| {
                         ui.label(RichText::new("Fireworks API Key:").strong());
-                        if ui.text_edit_singleline(&mut self.fireworks_api_key).changed() {
-                            self.api_keys_updated = true;
-                        }
+                        ui.text_edit_singleline(&mut self.fireworks_api_key);
                     });
 
                     ui.horizontal(|ui| {
                         ui.label(RichText::new("Claude API Key:").strong());
-                        if ui.text_edit_singleline(&mut self.claude_api_key).changed() {
-                            self.api_keys_updated = true;
-                        }
+                        ui.text_edit_singleline(&mut self.claude_api_key);
                     });
 
                     ui.horizontal(|ui| {
                         ui.label(RichText::new("GPT API Key:").strong());
-                        if ui.text_edit_singleline(&mut self.gpt_api_key).changed() {
-                            self.api_keys_updated = true;
-                        }
+                        ui.text_edit_singleline(&mut self.gpt_api_key);
                     });
+
+                    if ui.button("Save API Keys").clicked() {
+                        self.save_api_keys();
+                    }
 
                     ui.add_space(10.0);
 
