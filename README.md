@@ -23,8 +23,8 @@ A versatile and user-friendly chatbot UI built with Rust, supporting multiple AI
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/rusty-chatbot-ui.git
-   cd rusty-chatbot-ui
+   git clone 
+   cd rust-chatbot-ui
    ```
 
 2. Build the project:

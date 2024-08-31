@@ -32,25 +32,25 @@ impl Settings {
     }
 
     fn load_api_keys(&mut self) {
-        if let Ok(entry) = Entry::new("rusty_chatbot", "fireworks_api_key") {
+        if let Ok(entry) = Entry::new("rust_chatbot", "fireworks_api_key") {
             self.fireworks_api_key = entry.get_password().unwrap_or_default();
         }
-        if let Ok(entry) = Entry::new("rusty_chatbot", "claude_api_key") {
+        if let Ok(entry) = Entry::new("rust_chatbot", "claude_api_key") {
             self.claude_api_key = entry.get_password().unwrap_or_default();
         }
-        if let Ok(entry) = Entry::new("rusty_chatbot", "gpt_api_key") {
+        if let Ok(entry) = Entry::new("rust_chatbot", "gpt_api_key") {
             self.gpt_api_key = entry.get_password().unwrap_or_default();
         }
     }
 
     fn save_api_keys(&mut self) {
-        if let Ok(entry) = Entry::new("rusty_chatbot", "fireworks_api_key") {
+        if let Ok(entry) = Entry::new("rust_chatbot", "fireworks_api_key") {
             let _ = entry.set_password(&self.fireworks_api_key);
         }
-        if let Ok(entry) = Entry::new("rusty_chatbot", "claude_api_key") {
+        if let Ok(entry) = Entry::new("rust_chatbot", "claude_api_key") {
             let _ = entry.set_password(&self.claude_api_key);
         }
-        if let Ok(entry) = Entry::new("rusty_chatbot", "gpt_api_key") {
+        if let Ok(entry) = Entry::new("rust_chatbot", "gpt_api_key") {
             let _ = entry.set_password(&self.gpt_api_key);
         }
         self.api_keys_updated = true;
