@@ -1,14 +1,13 @@
 pub mod fireworks;
 pub mod claude;
 pub mod none;
+pub mod gpt;
 
 use std::fmt::Display;
 use serde_json::Value;
 use tokio::sync::mpsc;
 
 #[derive(Debug)]
-
-
 pub enum ProviderError {
     RequestError(String),
     ResponseError(String),
@@ -40,5 +39,6 @@ pub fn get_providers(api_keys: String) -> Vec<Box<dyn Provider + Send + Sync>> {
         Box::new(none::None::new()),
         Box::new(fireworks::Fireworks::new(keys.get(0).cloned().unwrap_or_default())),
         Box::new(claude::Claude::new(keys.get(1).cloned().unwrap_or_default())),
+        Box::new(gpt::GPT::new(keys.get(2).cloned().unwrap_or_default())),
     ]
 }
