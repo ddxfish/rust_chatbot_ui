@@ -120,10 +120,9 @@ impl eframe::App for ChatbotApp {
             ctx.set_visuals(self.theme.apply_to_visuals());
         }
 
-                // Only update the state when there's a change in the chat
-                if self.chat.has_updates() {
-                    self.state.update(&mut self.chat);
-                }
+        if self.chat.has_updates() {
+            self.state.update(&mut self.chat);
+        }
 
         eframe::egui::SidePanel::left("chat_history_panel")
             .resizable(true)
@@ -145,16 +144,16 @@ impl eframe::App for ChatbotApp {
                 });
             });
 
-            eframe::egui::CentralPanel::default().show(ctx, |ui| {
-                self.ui.render(ui, &mut self.chat, &mut self.settings, &self.icons, &self.providers, &self.theme);
+        eframe::egui::CentralPanel::default().show(ctx, |ui| {
+            self.ui.render(ui, &mut self.chat, &mut self.settings, &self.icons, &self.providers, &self.theme);
 
-                if let Some(previous_model) = self.state.previous_model.take() {
-                    if previous_model != self.ui.selected_model {
-                        self.switch_provider(self.ui.selected_model.clone());
-                    }
+            if let Some(previous_model) = self.state.previous_model.take() {
+                if previous_model != self.ui.selected_model {
+                    self.switch_provider(self.ui.selected_model.clone());
                 }
-                self.state.previous_model = Some(self.ui.selected_model.clone());
-                ctx.request_repaint();
-            });
+            }
+            self.state.previous_model = Some(self.ui.selected_model.clone());
+            ctx.request_repaint();
+        });
     }
 }

@@ -1,0 +1,7 @@
+User: test
+
+<<<MESSAGE_SEPARATOR>>>
+
+claude-3-5-sonnet-20240620: Hello! I'm here to help. What would you like to test or ask about? Feel free to ask any question or request assistance with any task you have in mind.
+<<<MESSAGE_SEPARATOR>>>
+

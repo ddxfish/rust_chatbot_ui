@@ -1,0 +1,21 @@
+User: hi
+
+<<<MESSAGE_SEPARATOR>>>
+
+gpt-4: Hello! How can I assist you today?
+<<<MESSAGE_SEPARATOR>>>
+
+User: what model are you"
+
+<<<MESSAGE_SEPARATOR>>>
+
+gpt-4: I am a language model created by OpenAI called GPT-3. How can I help you today?
+<<<MESSAGE_SEPARATOR>>>
+
+User: wow you sure are fast, friend!
+
+<<<MESSAGE_SEPARATOR>>>
+
+gpt-4: Thank you! I'm here to provide quick and helpful responses. Is there anything else you'd like to know or ask?
+<<<MESSAGE_SEPARATOR>>>
+
