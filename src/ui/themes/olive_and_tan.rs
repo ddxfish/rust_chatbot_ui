@@ -1,5 +1,5 @@
 use super::Theme;
-use egui::{Color32, FontId, FontFamily};
+use egui::Color32;
 
 pub fn get_olive_and_tan_theme() -> Theme {
     Theme {
@@ -14,18 +14,13 @@ pub fn get_olive_and_tan_theme() -> Theme {
         user_message_border: Color32::from_rgb(200, 190, 170),
         bot_message_bg: Color32::from_rgb(230, 238, 220),
         bot_message_border: Color32::from_rgb(150, 170, 130),
-        message_text_color: Color32::from_rgb(50, 50, 50),
         selected_chat_color: Color32::from_rgb(100, 120, 80),
         unselected_chat_color: Color32::from_rgb(200, 210, 190),
         input_text_color: Color32::from_rgb(50, 50, 50),
-        default_font: FontId::new(16.0, FontFamily::Proportional),
-        header_font: FontId::new(18.0, FontFamily::Proportional),
         settings_text_color: Color32::from_rgb(50, 50, 50),
         settings_button_text_color: Color32::from_rgb(240, 234, 214),
         settings_button_bg_color: Color32::from_rgb(100, 120, 80),
-        dropdown_bg_color: Color32::from_rgb(220, 230, 200),
         dropdown_text_color: Color32::from_rgb(50, 50, 50),
-        input_bg_color: Color32::from_rgb(250, 245, 230),
         new_chat_button_text_color: Color32::from_rgb(240, 234, 214),
         trash_button_bg_color: Color32::from_rgba_premultiplied(200, 100, 100, 100),
         button_text_color: Color32::from_rgb(240, 234, 214),
@@ -33,6 +28,9 @@ pub fn get_olive_and_tan_theme() -> Theme {
         model_provider_dropdown_text_color: Color32::from_rgb(50, 50, 50),
         model_provider_dropdown_bg_color: Color32::from_rgb(220, 230, 200),
         theme_dropdown_bg_color: Color32::from_rgb(220, 230, 200),
-        settings_window_title_bg_color: Color32::from_rgb(180, 190, 165),
+        bot_name_text_color: Color32::from_rgb(150, 170, 130),
+        user_name_text_color: Color32::from_rgb(200, 190, 170),
+        bot_text_color: Color32::from_rgb(150, 170, 130),
+        user_text_color: Color32::from_rgb(200, 190, 170),
     }
 }

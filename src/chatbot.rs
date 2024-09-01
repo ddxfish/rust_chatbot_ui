@@ -33,7 +33,7 @@ impl Chatbot {
     pub async fn generate_chat_name(&self, messages: &Vec<Message>) -> Result<String, ProviderError> {
         println!("Debug: Generating chat name for {} messages", messages.len());
         let prompt = format!(
-            "Based on the following conversation, generate a concise 3-word name for this chat. Use initcaps:\n\n{}",
+            "No intro text or confirmation, just give me a concise 3-word name for this chat. Your response should be 3 words max. If you don't have enough info, be a bit creative. Use initcaps:\n\n{}",
             messages.iter().map(|m| format!("{}: {}", if m.is_user() { "User" } else { "Assistant" }, m.content())).collect::<Vec<_>>().join("\n")
         );
 

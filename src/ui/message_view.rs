@@ -31,10 +31,10 @@ pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_load
 }
 
 fn render_message(ui: &mut Ui, is_user: bool, content: &str, model: Option<&str>, theme: &Theme) {
-    let (border_color, background_color) = if is_user {
-        (theme.user_message_border, theme.user_message_bg)
+    let (border_color, background_color, text_color, name_color) = if is_user {
+        (theme.user_message_border, theme.user_message_bg, theme.user_text_color, theme.user_name_text_color)
     } else {
-        (theme.bot_message_border, theme.bot_message_bg)
+        (theme.bot_message_border, theme.bot_message_bg, theme.bot_text_color, theme.bot_name_text_color)
     };
 
     let frame = Frame::none()
@@ -47,15 +47,14 @@ fn render_message(ui: &mut Ui, is_user: bool, content: &str, model: Option<&str>
     frame.show(ui, |ui| {
         ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
             let prefix = if is_user { 
-                RichText::new("You:").strong().size(18.0)
+                RichText::new("You:").strong().size(18.0).color(name_color)
             } else { 
-                RichText::new(format!("{}:", model.unwrap_or("Bot"))).strong().size(18.0)
+                RichText::new(format!("{}:", model.unwrap_or("Bot"))).strong().size(18.0).color(name_color)
             };
             ui.label(prefix);
 
             ui.add_space(5.0);
 
-            let text_color = if is_user { theme.user_message_border } else { theme.bot_message_border };
             let mut job = LayoutJob::default();
             job.append(
                 content,

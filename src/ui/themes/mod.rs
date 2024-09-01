@@ -3,7 +3,7 @@ mod light;
 mod olive_and_tan;
 mod dark_yellow;
 
-use egui::{Color32, Visuals, FontId, FontFamily};
+use egui::{Color32, Visuals};
 
 #[derive(Clone)]
 pub struct Theme {
@@ -18,18 +18,13 @@ pub struct Theme {
     pub user_message_border: Color32,
     pub bot_message_bg: Color32,
     pub bot_message_border: Color32,
-    pub message_text_color: Color32,
     pub selected_chat_color: Color32,
     pub unselected_chat_color: Color32,
     pub input_text_color: Color32,
-    pub default_font: FontId,
-    pub header_font: FontId,
     pub settings_text_color: Color32,
     pub settings_button_text_color: Color32,
     pub settings_button_bg_color: Color32,
-    pub dropdown_bg_color: Color32,
     pub dropdown_text_color: Color32,
-    pub input_bg_color: Color32,
     pub new_chat_button_text_color: Color32,
     pub trash_button_bg_color: Color32,
     pub button_text_color: Color32,
@@ -37,7 +32,10 @@ pub struct Theme {
     pub model_provider_dropdown_text_color: Color32,
     pub model_provider_dropdown_bg_color: Color32,
     pub theme_dropdown_bg_color: Color32,
-    pub settings_window_title_bg_color: Color32,
+    pub bot_name_text_color: Color32,
+    pub user_name_text_color: Color32,
+    pub bot_text_color: Color32,
+    pub user_text_color: Color32,
 }
 
 impl Theme {
