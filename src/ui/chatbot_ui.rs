@@ -1,4 +1,4 @@
-use egui::{Ui, ScrollArea, FontId, TextEdit, Button, Vec2, Image};
+use egui::{Ui, ScrollArea, FontId, TextEdit, Button, Vec2, Image, Layout, Align};
 use crate::chat::Chat;
 use crate::settings::Settings;
 use crate::app::Icons;
@@ -42,7 +42,7 @@ impl ChatbotUi {
             ui.vertical(|ui| {
                 let available_height = ui.available_height();
                 let input_height = 80.0;
-                let padding = 10.0;
+                let padding = 0.0;
                 let message_height = available_height - input_height - padding * 2.0;
 
                 ScrollArea::vertical()
@@ -53,35 +53,41 @@ impl ChatbotUi {
                         message_view::render_messages(ui, chat, &self.current_response, self.is_loading, theme);
                     });
 
-                ui.add_space(padding);
+                //ui.add_space(padding);
 
                 ui.horizontal(|ui| {
-                    let input_field = TextEdit::multiline(&mut self.input)
-                        .desired_width(ui.available_width() - 50.0)
-                        .desired_rows(3)
-                        .hint_text("Type your message here...")
-                        .font(FontId::proportional(16.0))
-                        .text_color(theme.input_text_color);
-                        //.background_color(theme.input_bg_color);
+                    ui.with_layout(Layout::left_to_right(Align::TOP).with_main_wrap(false), |ui| {
+                        let input_width = ui.available_width() - 50.0;
 
-                    let response = ui.add_sized([ui.available_width() - 50.0, input_height], input_field);
+                        ScrollArea::vertical()
+                            .max_height(input_height)
+                            .show(ui, |ui| {
+                                let input_field = TextEdit::multiline(&mut self.input)
+                                    .desired_width(input_width)
+                                    //.desired_rows(2)
+                                    .hint_text("Type your message here...")
+                                    .font(FontId::proportional(16.0))
+                                    .text_color(theme.input_text_color);
 
-                    ui.add_space(5.0);
+                                ui.add_sized([input_width, input_height], input_field);
+                            });
 
-                    let button_size = Vec2::new(40.0, input_height);
-                    if ui.add_sized(button_size, Button::image(Image::new(&icons.send).fit_to_exact_size(Vec2::new(24.0, 24.0))).fill(theme.button_bg_color)).clicked()
-                        || (ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift))
-                    {
-                        if !self.input.trim().is_empty() {
-                            println!("Debug: Processing input with model: {}", self.selected_model);
-                            chat.process_input(std::mem::take(&mut self.input), &self.selected_model);
-                            self.is_loading = true;
+                        //ui.add_space(5.0);
+
+                        let button_size = Vec2::new(40.0, input_height);
+                        if ui.add_sized(button_size, Button::image(Image::new(&icons.send).fit_to_exact_size(Vec2::new(24.0, 24.0))).fill(theme.button_bg_color)).clicked()
+                            || (ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift))
+                        {
+                            if !self.input.trim().is_empty() {
+                                println!("Debug: Processing input with model: {}", self.selected_model);
+                                chat.process_input(std::mem::take(&mut self.input), &self.selected_model);
+                                self.is_loading = true;
+                            }
                         }
-                        response.request_focus();
-                    }
+                    });
                 });
 
-                ui.add_space(padding);
+                //ui.add_space(padding);
             });
         });
 
