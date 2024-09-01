@@ -75,7 +75,6 @@ impl Settings {
             Window::new("Settings")
                 .collapsible(false)
                 .resizable(false)
-                //.title_bar_background_color(self.themes[self.current_theme_index].settings_window_title_bg_color)
                 .show(ctx, |ui| {
                     let theme = &self.themes[self.current_theme_index];
                     let mut keys = self.api_keys.lock().unwrap();
@@ -103,6 +102,20 @@ impl Settings {
 
                     ui.horizontal(|ui| {
                         ui.label(RichText::new("Theme:").strong().color(theme.settings_text_color));
+                        
+                        // Apply the visual styles to the ComboBox
+                        ui.visuals_mut().widgets.inactive.bg_fill = theme.theme_dropdown_bg_color;
+                        ui.visuals_mut().widgets.hovered.bg_fill = theme.theme_dropdown_bg_color;
+                        ui.visuals_mut().widgets.active.bg_fill = theme.theme_dropdown_bg_color;
+                        ui.visuals_mut().widgets.open.bg_fill = theme.theme_dropdown_bg_color;
+                        ui.visuals_mut().selection.bg_fill = theme.theme_dropdown_bg_color;
+                        ui.visuals_mut().widgets.noninteractive.bg_fill = theme.theme_dropdown_bg_color;
+                        ui.visuals_mut().widgets.inactive.weak_bg_fill = theme.theme_dropdown_bg_color;
+                        ui.visuals_mut().widgets.hovered.weak_bg_fill = theme.theme_dropdown_bg_color;
+                        ui.visuals_mut().widgets.active.weak_bg_fill = theme.theme_dropdown_bg_color;
+                        ui.visuals_mut().widgets.open.weak_bg_fill = theme.theme_dropdown_bg_color;
+                        ui.visuals_mut().widgets.noninteractive.weak_bg_fill = theme.theme_dropdown_bg_color;
+
                         egui::ComboBox::from_label("")
                             .selected_text(RichText::new(&self.themes[self.current_theme_index].name).color(theme.dropdown_text_color))
                             .show_ui(ui, |ui| {

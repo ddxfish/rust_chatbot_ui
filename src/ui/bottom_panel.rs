@@ -47,6 +47,14 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
         ui.visuals_mut().selection.bg_fill = theme.model_provider_dropdown_bg_color;
         ui.visuals_mut().widgets.noninteractive.bg_fill = theme.model_provider_dropdown_bg_color;
 
+        
+
+        ui.visuals_mut().widgets.inactive.weak_bg_fill = theme.model_provider_dropdown_bg_color;
+        ui.visuals_mut().widgets.hovered.weak_bg_fill = theme.model_provider_dropdown_bg_color;
+        ui.visuals_mut().widgets.active.weak_bg_fill = theme.model_provider_dropdown_bg_color;
+        ui.visuals_mut().widgets.open.weak_bg_fill = theme.model_provider_dropdown_bg_color;
+        ui.visuals_mut().widgets.noninteractive.weak_bg_fill = theme.model_provider_dropdown_bg_color;
+
         ComboBox::from_id_source("model_combo")
             .selected_text(RichText::new(chatbot_ui.selected_model.as_str()).color(theme.model_provider_dropdown_text_color))
             .width(dropdown_width)
