@@ -5,7 +5,7 @@ use crate::chat::Chat;
 use crate::ui::ChatbotUi;
 use crate::settings::Settings;
 use crate::providers::{self, Provider};
-use crate::ui::theme::Theme;
+use crate::ui::themes::Theme;
 use eframe;
 use std::sync::Arc;
 use eframe::egui::{self, FontData, FontDefinitions, FontFamily, Align, Layout};

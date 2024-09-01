@@ -1,6 +1,6 @@
 use eframe::egui::{self, Window, RichText};
 use crate::app::Icons;
-use crate::ui::theme::{Theme, get_themes};
+use crate::ui::themes::{Theme, get_themes};
 use crate::providers::Provider;
 use std::sync::{Arc, Mutex};
 use keyring::Entry;

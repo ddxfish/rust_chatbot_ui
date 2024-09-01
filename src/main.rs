@@ -7,7 +7,7 @@ mod settings;
 mod providers;
 use eframe::NativeOptions;
 use egui::{ViewportBuilder, IconData};
-use crate::ui::theme::Theme;
+use crate::ui::themes::Theme;
 use image::GenericImageView;
 
 fn load_icon() -> IconData {

@@ -3,7 +3,7 @@ use crate::chat::Chat;
 use crate::settings::Settings;
 use crate::providers::Provider;
 use crate::ui::ChatbotUi;
-use crate::ui::theme::Theme;
+use crate::ui::themes::Theme;
 use rfd::FileDialog;
 use std::path::Path;
 use std::sync::Arc;

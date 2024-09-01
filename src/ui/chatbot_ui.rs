@@ -4,7 +4,7 @@ use crate::settings::Settings;
 use crate::app::Icons;
 use super::message_view;
 use crate::providers::Provider;
-use crate::ui::theme::Theme;
+use crate::ui::themes::Theme;
 use std::sync::Arc;
 
 pub struct ChatbotUi {

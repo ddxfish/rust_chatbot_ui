@@ -1,6 +1,6 @@
 use crate::chat::Chat;
 use crate::app::Icons;
-use crate::ui::theme::Theme;
+use crate::ui::themes::Theme;
 use eframe::egui::{self, RichText, Button, Image, Vec2, Layout, Align};
 
 pub fn render_history(ui: &mut egui::Ui, chat: &mut Chat, icons: &Icons, theme: &Theme, history_files: &[String], current_file: Option<&String>) {

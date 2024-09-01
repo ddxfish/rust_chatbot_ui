@@ -1,6 +1,6 @@
 use egui::{Ui, ScrollArea, Align, FontId, TextFormat, text::LayoutJob, FontFamily, Frame, Stroke, Rounding, Label, Layout, RichText};
 use crate::chat::Chat;
-use crate::ui::theme::Theme;
+use crate::ui::themes::Theme;
 
 pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool, theme: &Theme) {
     let mut scroll_to_bottom = false;

@@ -5,7 +5,7 @@ use crate::settings::Settings;
 use crate::ui::ChatbotUi;
 use crate::providers::Provider;
 use crate::ui::bottom_panel;
-use crate::ui::theme::Theme;
+use crate::ui::themes::Theme;
 use eframe::egui::{self, Ui, ScrollArea};
 use std::sync::Arc;
 use crate::chat::ui_rendering;
