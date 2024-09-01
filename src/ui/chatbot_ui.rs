@@ -62,13 +62,14 @@ impl ChatbotUi {
                         .hint_text("Type your message here...")
                         .font(FontId::proportional(16.0))
                         .text_color(theme.input_text_color);
+                        //.background_color(theme.input_bg_color);
 
                     let response = ui.add_sized([ui.available_width() - 50.0, input_height], input_field);
 
                     ui.add_space(5.0);
 
                     let button_size = Vec2::new(40.0, input_height);
-                    if ui.add_sized(button_size, Button::image(Image::new(&icons.send).fit_to_exact_size(Vec2::new(24.0, 24.0)))).clicked()
+                    if ui.add_sized(button_size, Button::image(Image::new(&icons.send).fit_to_exact_size(Vec2::new(24.0, 24.0))).fill(theme.button_bg_color)).clicked()
                         || (ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift))
                     {
                         if !self.input.trim().is_empty() {

@@ -7,7 +7,7 @@ pub fn render_history(ui: &mut egui::Ui, chat: &mut Chat, icons: &Icons, theme: 
     ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
         ui.horizontal(|ui| {
             ui.add(Image::new(&icons.new_chat).fit_to_exact_size(Vec2::new(40.0, 40.0)));
-            if ui.button(RichText::new("New Chat").size(20.0)).clicked() {
+            if ui.add(Button::new(RichText::new("New Chat").size(20.0).color(theme.new_chat_button_text_color)).fill(theme.button_bg_color)).clicked() {
                 if let Err(e) = chat.create_new_chat() {
                     eprintln!("Failed to create new chat: {}", e);
                 }
@@ -34,7 +34,7 @@ pub fn render_history(ui: &mut egui::Ui, chat: &mut Chat, icons: &Icons, theme: 
                     }
 
                     ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                        if ui.add(Button::image(Image::new(&icons.trash).fit_to_exact_size(Vec2::new(10.0, 10.0)))).clicked() {
+                        if ui.add(Button::image(Image::new(&icons.trash).fit_to_exact_size(Vec2::new(10.0, 10.0))).fill(theme.trash_button_bg_color)).clicked() {
                             if let Err(e) = chat.delete_chat(file) {
                                 eprintln!("Failed to delete chat: {}", e);
                             }

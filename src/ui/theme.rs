@@ -19,6 +19,16 @@ pub struct Theme {
     pub input_text_color: Color32,
     pub default_font: FontId,
     pub header_font: FontId,
+    pub settings_text_color: Color32,
+    pub settings_button_text_color: Color32,
+    pub settings_button_bg_color: Color32,
+    pub dropdown_bg_color: Color32,
+    pub dropdown_text_color: Color32,
+    pub input_bg_color: Color32,
+    pub new_chat_button_text_color: Color32,
+    pub trash_button_bg_color: Color32,
+    pub button_text_color: Color32,
+    pub button_bg_color: Color32,
 }
 
 impl Theme {
@@ -33,7 +43,6 @@ impl Theme {
         visuals
     }
 }
-
 
 pub fn get_themes() -> Vec<Theme> {
     vec![
@@ -55,6 +64,16 @@ pub fn get_themes() -> Vec<Theme> {
             input_text_color: Color32::from_rgb(220, 220, 220),
             default_font: FontId::new(16.0, FontFamily::Proportional),
             header_font: FontId::new(18.0, FontFamily::Proportional),
+            settings_text_color: Color32::from_rgb(200, 200, 200),
+            settings_button_text_color: Color32::from_rgb(240, 240, 240),
+            settings_button_bg_color: Color32::from_rgb(60, 60, 60),
+            dropdown_bg_color: Color32::from_rgb(40, 40, 40),
+            dropdown_text_color: Color32::from_rgb(220, 220, 220),
+            input_bg_color: Color32::from_rgb(35, 35, 35),
+            new_chat_button_text_color: Color32::from_rgb(240, 240, 240),
+            trash_button_bg_color: Color32::from_rgba_premultiplied(255, 0, 0, 100),
+            button_text_color: Color32::from_rgb(240, 240, 240),
+            button_bg_color: Color32::from_rgb(60, 60, 60),
         },
         Theme {
             name: "Light".to_string(),
@@ -74,25 +93,45 @@ pub fn get_themes() -> Vec<Theme> {
             input_text_color: Color32::from_rgb(20, 20, 20),
             default_font: FontId::new(16.0, FontFamily::Proportional),
             header_font: FontId::new(18.0, FontFamily::Proportional),
+            settings_text_color: Color32::from_rgb(40, 40, 40),
+            settings_button_text_color: Color32::from_rgb(20, 20, 20),
+            settings_button_bg_color: Color32::from_rgb(200, 200, 200),
+            dropdown_bg_color: Color32::from_rgb(230, 230, 230),
+            dropdown_text_color: Color32::from_rgb(20, 20, 20),
+            input_bg_color: Color32::from_rgb(250, 250, 250),
+            new_chat_button_text_color: Color32::from_rgb(20, 20, 20),
+            trash_button_bg_color: Color32::from_rgba_premultiplied(255, 0, 0, 100),
+            button_text_color: Color32::from_rgb(20, 20, 20),
+            button_bg_color: Color32::from_rgb(200, 200, 200),
         },
         Theme {
             name: "Olive and Tan".to_string(),
-            panel_fill: Color32::from_rgb(67, 84, 58),  // Dark olive green for the sidebar
-            window_fill: Color32::from_rgb(240, 234, 214),  // Light tan for the main chat area
-            extreme_bg_color: Color32::from_rgb(55, 70, 48),  // Darker olive for extreme backgrounds
-            override_text_color: Color32::from_rgb(50, 50, 50),  // Dark text for readability
-            noninteractive_bg_fill: Color32::from_rgb(180, 190, 165),  // Lighter olive for non-interactive elements
-            inactive_bg_fill: Color32::from_rgb(120, 140, 100),  // Medium olive for inactive elements
-            user_message_bg: Color32::from_rgb(255, 243, 224),  // Very light tan for user messages
-            user_message_border: Color32::from_rgb(200, 190, 170),  // Darker tan for user message borders
-            bot_message_bg: Color32::from_rgb(230, 238, 220),  // Light olive for bot messages
-            bot_message_border: Color32::from_rgb(150, 170, 130),  // Medium olive for bot message borders
-            message_text_color: Color32::from_rgb(50, 50, 50),  // Dark text for messages
-            selected_chat_color: Color32::from_rgb(100, 120, 80),  // Darker olive for selected chat
-            unselected_chat_color: Color32::from_rgb(200, 210, 190),  // Light olive for unselected chats
-            input_text_color: Color32::from_rgb(50, 50, 50),  // Dark text for input
+            panel_fill: Color32::from_rgb(67, 84, 58),
+            window_fill: Color32::from_rgb(240, 234, 214),
+            extreme_bg_color: Color32::from_rgb(55, 70, 48),
+            override_text_color: Color32::from_rgb(50, 50, 50),
+            noninteractive_bg_fill: Color32::from_rgb(180, 190, 165),
+            inactive_bg_fill: Color32::from_rgb(120, 140, 100),
+            user_message_bg: Color32::from_rgb(255, 243, 224),
+            user_message_border: Color32::from_rgb(200, 190, 170),
+            bot_message_bg: Color32::from_rgb(230, 238, 220),
+            bot_message_border: Color32::from_rgb(150, 170, 130),
+            message_text_color: Color32::from_rgb(50, 50, 50),
+            selected_chat_color: Color32::from_rgb(100, 120, 80),
+            unselected_chat_color: Color32::from_rgb(200, 210, 190),
+            input_text_color: Color32::from_rgb(50, 50, 50),
             default_font: FontId::new(16.0, FontFamily::Proportional),
             header_font: FontId::new(18.0, FontFamily::Proportional),
+            settings_text_color: Color32::from_rgb(50, 50, 50),
+            settings_button_text_color: Color32::from_rgb(240, 234, 214),
+            settings_button_bg_color: Color32::from_rgb(100, 120, 80),
+            dropdown_bg_color: Color32::from_rgb(220, 230, 200),
+            dropdown_text_color: Color32::from_rgb(50, 50, 50),
+            input_bg_color: Color32::from_rgb(250, 245, 230),
+            new_chat_button_text_color: Color32::from_rgb(240, 234, 214),
+            trash_button_bg_color: Color32::from_rgba_premultiplied(200, 100, 100, 100),
+            button_text_color: Color32::from_rgb(240, 234, 214),
+            button_bg_color: Color32::from_rgb(100, 120, 80),
         },
         Theme {
             name: "Dark Yellow".to_string(),
@@ -112,6 +151,16 @@ pub fn get_themes() -> Vec<Theme> {
             input_text_color: Color32::from_rgb(255, 255, 200),
             default_font: FontId::new(16.0, FontFamily::Proportional),
             header_font: FontId::new(18.0, FontFamily::Proportional),
+            settings_text_color: Color32::from_rgb(255, 255, 200),
+            settings_button_text_color: Color32::from_rgb(64, 64, 0),
+            settings_button_bg_color: Color32::from_rgb(255, 255, 0),
+            dropdown_bg_color: Color32::from_rgb(112, 112, 0),
+            dropdown_text_color: Color32::from_rgb(255, 255, 200),
+            input_bg_color: Color32::from_rgb(80, 80, 0),
+            new_chat_button_text_color: Color32::from_rgb(64, 64, 0),
+            trash_button_bg_color: Color32::from_rgba_premultiplied(200, 0, 0, 100),
+            button_text_color: Color32::from_rgb(64, 64, 0),
+            button_bg_color: Color32::from_rgb(255, 255, 0),
         }
     ]
 }
