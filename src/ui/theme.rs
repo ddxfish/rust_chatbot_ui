@@ -29,6 +29,10 @@ pub struct Theme {
     pub trash_button_bg_color: Color32,
     pub button_text_color: Color32,
     pub button_bg_color: Color32,
+    pub model_provider_dropdown_text_color: Color32,
+    pub model_provider_dropdown_bg_color: Color32,
+    pub theme_dropdown_bg_color: Color32,
+    pub settings_window_title_bg_color: Color32,
 }
 
 impl Theme {
@@ -74,6 +78,10 @@ pub fn get_themes() -> Vec<Theme> {
             trash_button_bg_color: Color32::from_rgba_premultiplied(255, 0, 0, 100),
             button_text_color: Color32::from_rgb(240, 240, 240),
             button_bg_color: Color32::from_rgb(60, 60, 60),
+            model_provider_dropdown_text_color: Color32::from_rgb(220, 220, 220),
+            model_provider_dropdown_bg_color: Color32::from_rgb(40, 40, 40),
+            theme_dropdown_bg_color: Color32::from_rgb(40, 40, 40),
+            settings_window_title_bg_color: Color32::from_rgb(50, 50, 50),
         },
         Theme {
             name: "Light".to_string(),
@@ -103,6 +111,10 @@ pub fn get_themes() -> Vec<Theme> {
             trash_button_bg_color: Color32::from_rgba_premultiplied(255, 0, 0, 100),
             button_text_color: Color32::from_rgb(20, 20, 20),
             button_bg_color: Color32::from_rgb(200, 200, 200),
+            model_provider_dropdown_text_color: Color32::from_rgb(20, 20, 20),
+            model_provider_dropdown_bg_color: Color32::from_rgb(230, 230, 230),
+            theme_dropdown_bg_color: Color32::from_rgb(230, 230, 230),
+            settings_window_title_bg_color: Color32::from_rgb(210, 210, 210),
         },
         Theme {
             name: "Olive and Tan".to_string(),
@@ -132,6 +144,10 @@ pub fn get_themes() -> Vec<Theme> {
             trash_button_bg_color: Color32::from_rgba_premultiplied(200, 100, 100, 100),
             button_text_color: Color32::from_rgb(240, 234, 214),
             button_bg_color: Color32::from_rgb(100, 120, 80),
+            model_provider_dropdown_text_color: Color32::from_rgb(50, 50, 50),
+            model_provider_dropdown_bg_color: Color32::from_rgb(220, 230, 200),
+            theme_dropdown_bg_color: Color32::from_rgb(220, 230, 200),
+            settings_window_title_bg_color: Color32::from_rgb(180, 190, 165),
         },
         Theme {
             name: "Dark Yellow".to_string(),
@@ -161,6 +177,10 @@ pub fn get_themes() -> Vec<Theme> {
             trash_button_bg_color: Color32::from_rgba_premultiplied(200, 0, 0, 100),
             button_text_color: Color32::from_rgb(64, 64, 0),
             button_bg_color: Color32::from_rgb(255, 255, 0),
+            model_provider_dropdown_text_color: Color32::from_rgb(255, 255, 200),
+            model_provider_dropdown_bg_color: Color32::from_rgb(112, 112, 0),
+            theme_dropdown_bg_color: Color32::from_rgb(112, 112, 0),
+            settings_window_title_bg_color: Color32::from_rgb(96, 96, 0),
         }
     ]
 }

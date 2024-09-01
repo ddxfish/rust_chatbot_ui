@@ -75,6 +75,7 @@ impl Settings {
             Window::new("Settings")
                 .collapsible(false)
                 .resizable(false)
+                //.title_bar_background_color(self.themes[self.current_theme_index].settings_window_title_bg_color)
                 .show(ctx, |ui| {
                     let theme = &self.themes[self.current_theme_index];
                     let mut keys = self.api_keys.lock().unwrap();

@@ -1,4 +1,4 @@
-use egui::{Ui, ComboBox, Window, TextEdit, RichText, Layout, Align, Frame};
+use egui::{Ui, ComboBox, Window, TextEdit, RichText, Layout, Align, Frame, Color32};
 use crate::chat::Chat;
 use crate::settings::Settings;
 use crate::providers::Provider;
@@ -40,20 +40,27 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
 
         let dropdown_width = ui.available_width() * 0.99;
 
+        ui.visuals_mut().widgets.inactive.bg_fill = theme.model_provider_dropdown_bg_color;
+        ui.visuals_mut().widgets.hovered.bg_fill = theme.model_provider_dropdown_bg_color;
+        ui.visuals_mut().widgets.active.bg_fill = theme.model_provider_dropdown_bg_color;
+        ui.visuals_mut().widgets.open.bg_fill = theme.model_provider_dropdown_bg_color;
+        ui.visuals_mut().selection.bg_fill = theme.model_provider_dropdown_bg_color;
+        ui.visuals_mut().widgets.noninteractive.bg_fill = theme.model_provider_dropdown_bg_color;
+
         ComboBox::from_id_source("model_combo")
-            .selected_text(RichText::new(chatbot_ui.selected_model.as_str()).color(theme.dropdown_text_color))
+            .selected_text(RichText::new(chatbot_ui.selected_model.as_str()).color(theme.model_provider_dropdown_text_color))
             .width(dropdown_width)
             .show_ui(ui, |ui| {
                 if let Some(current_provider) = providers.iter().find(|p| p.name() == chatbot_ui.selected_provider) {
                     for model in current_provider.models() {
                         if model == "Other" {
-                            if ui.selectable_label(false, RichText::new("Other").color(theme.dropdown_text_color)).clicked() {
+                            if ui.selectable_label(false, RichText::new("Other").color(theme.model_provider_dropdown_text_color)).clicked() {
                                 unsafe {
                                     SHOW_CUSTOM_MODEL_POPUP = true;
                                     CUSTOM_MODEL_INPUT.clear();
                                 }
                             }
-                        } else if ui.selectable_value(&mut chatbot_ui.selected_model, model.to_string(), RichText::new(model).color(theme.dropdown_text_color)).clicked() {
+                        } else if ui.selectable_value(&mut chatbot_ui.selected_model, model.to_string(), RichText::new(model).color(theme.model_provider_dropdown_text_color)).clicked() {
                             chatbot_ui.selected_model = model.to_string();
                             chatbot_ui.model_changed = true;
                         }
@@ -64,11 +71,11 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
         ui.add_space(5.0);
 
         ComboBox::from_id_source("provider_combo")
-            .selected_text(RichText::new(chatbot_ui.selected_provider.as_str()).color(theme.dropdown_text_color))
+            .selected_text(RichText::new(chatbot_ui.selected_provider.as_str()).color(theme.model_provider_dropdown_text_color))
             .width(dropdown_width)
             .show_ui(ui, |ui| {
                 for provider in providers {
-                    if ui.selectable_label(chatbot_ui.selected_provider == provider.name(), RichText::new(provider.name()).color(theme.dropdown_text_color)).clicked() {
+                    if ui.selectable_label(chatbot_ui.selected_provider == provider.name(), RichText::new(provider.name()).color(theme.model_provider_dropdown_text_color)).clicked() {
                         chatbot_ui.selected_provider = provider.name().to_string();
                         chatbot_ui.selected_model = provider.models()[0].to_string();
                         chatbot_ui.model_changed = true;
