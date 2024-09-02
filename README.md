@@ -2,12 +2,13 @@
 
 ![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)
 ![ChatGPT](https://img.shields.io/badge/chatGPT-74aa9c?style=for-the-badge&logo=openai&logoColor=white)
+![Claude](https://img.shields.io/badge/Claude-7A13C1?style=for-the-badge&logo=anthropic&logoColor=white)
+![Meta](https://img.shields.io/badge/Meta_AI-0467DF?style=for-the-badge&logo=meta&logoColor=white)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 The Rust Chatbot UI supports multiple AI providers including GPT, Claude, and Fireworks, with the ability to switch between models mid-conversation. It features an easy-to-use interface with customizable themes and comprehensive chat history management. The application allows for real-time model adaptation during chats and includes export functionality for saving conversations. Built in Rust, it offers efficient performance while maintaining context across different AI models and providers.
 
 ![image](https://github.com/user-attachments/assets/c9f79bab-606f-41f1-9650-ff1946a9b4ee)
-
 
 ## Features
 
@@ -17,30 +18,23 @@ The Rust Chatbot UI supports multiple AI providers including GPT, Claude, and Fi
 - **Customizable Themes**: Personalize your chat environment with different visual themes.
 - **Chat History Management**: Efficiently organize and access your past conversations.
 - **Export Functionality**: Save and share your chat sessions with ease.
-- **Real-time Model Adaptation**: Adjust your AI model on-the-fly for optimal responses.
-- **Context Preservation**: Switch between AI providers while maintaining conversation flow.
+- **Stop Generation**: Ability to stop the model's response generation at any time.
+- **Secure API Key Storage**: API keys are securely stored in system credential managers, not in plain text files.
+- **AI-Generated Chat Names**: Automatically generate relevant names for your chat sessions using AI.
 
 ## Quick Start
 
-1. Clone the repository:
+1. Download the latest binary for your system (Windows or Linux) from the [Releases](https://github.com/ddxfish/rust_chatbot_ui/releases) page.
+
+2. If you prefer to build from source:
    ```
    git clone https://github.com/ddxfish/rust_chatbot_ui
    cd rust-chatbot-ui
-   ```
-
-2. Build the project:
-   ```
    cargo build --release
    ```
+   The executable will be in `target/release/rust_chatbot_ui`.
 
-3. Or just run the application:
-   ```
-   cargo run --release
-   ```
-
-4. Enter your API keys in the Settings panel.
-
-5. Start chatting!
+3. Run the application, enter your API keys in the Settings panel, and start chatting!
 
 ## Configuration
 
@@ -48,20 +42,17 @@ API keys for different providers can be entered in the Settings panel within the
 
 ## License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0. In simple terms:
 
-### Apache License 2.0 Summary:
+- You're free to use, modify, and distribute this software.
+- Please include a link to this GitHub project when you use or redistribute it.
+- The full license text can be found in the [LICENSE](LICENSE) file.
 
-- You can freely use, modify, distribute, and sell this software.
-- You must include the license and copyright notice with each distribution.
-- You must state significant changes made to the software.
-- You must include a copy of the Apache License 2.0 with your distribution.
-- You cannot use any trademarks owned by the licensor.
-- You cannot hold the licensor liable for damages.
-
-For the full license text, please see: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+For more details, see: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 ## Acknowledgments
 
 - [egui](https://github.com/emilk/egui) for the GUI framework
-- All the AI providers for their APIs
+- [Claude](https://www.anthropic.com) chatbot for assistance in development
+- [Fireworks.ai](https://fireworks.ai/) for AI services
+- [Rust programming language](https://www.rust-lang.org/) for enabling efficient and safe development
