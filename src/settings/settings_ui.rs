@@ -1,6 +1,7 @@
 use eframe::egui::{self, Window, RichText};
 use crate::app::Icons;
 use super::Settings;
+use super::settings_operations;
 
 pub fn render(settings: &mut Settings, ctx: &egui::Context, icons: &Icons) {
     if settings.show_settings {
@@ -26,12 +27,6 @@ pub fn render(settings: &mut Settings, ctx: &egui::Context, icons: &Icons) {
                     ui.label(RichText::new("GPT API Key:").strong().color(theme.settings_text_color));
                     ui.text_edit_singleline(&mut keys.gpt);
                 });
-
-                if ui.add(egui::Button::new(RichText::new("Save API Keys").color(theme.settings_button_text_color)).fill(theme.settings_button_bg_color)).clicked() {
-                    save_clicked = true;
-                }
-
-                ui.add_space(10.0);
 
                 ui.horizontal(|ui| {
                     ui.label(RichText::new("Theme:").strong().color(theme.settings_text_color));
@@ -59,13 +54,19 @@ pub fn render(settings: &mut Settings, ctx: &egui::Context, icons: &Icons) {
 
                 ui.add_space(10.0);
 
-                if ui.add(egui::Button::new(RichText::new("Close").color(theme.settings_button_text_color)).fill(theme.settings_button_bg_color)).clicked() {
-                    settings.show_settings = false;
-                }
+                ui.horizontal(|ui| {
+                    if ui.add(egui::Button::new(RichText::new("Save").color(theme.settings_button_text_color)).fill(theme.settings_button_bg_color)).clicked() {
+                        save_clicked = true;
+                    }
+                    if ui.add(egui::Button::new(RichText::new("Close").color(theme.settings_button_text_color)).fill(theme.settings_button_bg_color)).clicked() {
+                        settings.show_settings = false;
+                    }
+                });
             });
 
         if save_clicked {
-            super::save_api_keys(settings);
+            settings_operations::save_api_keys(settings);
+            settings_operations::save_theme(settings);
         }
     }
 }

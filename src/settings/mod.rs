@@ -35,6 +35,7 @@ impl Settings {
             api_keys_updated: false,
         };
         settings_operations::load_api_keys(&mut settings);
+        settings_operations::load_theme(&mut settings);
         settings
     }
 
@@ -61,4 +62,4 @@ impl Settings {
 }
 
 pub use settings_ui::render;
-pub use settings_operations::{load_api_keys, save_api_keys};
+pub use settings_operations::{load_api_keys, save_api_keys, save_theme, load_theme};
