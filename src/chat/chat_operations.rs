@@ -2,7 +2,7 @@ use super::chat_core::Chat;
 use super::file_operations;
 
 impl Chat {
-    pub fn check_ui_updates(&self) -> Option<String> {
+    pub fn check_ui_updates(&self) -> Option<(String, bool)> {
         self.ui_receiver.lock().unwrap().try_recv().ok()
     }
 

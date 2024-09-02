@@ -8,8 +8,12 @@ pub fn render_messages(ui: &mut Ui, chat: &Chat, current_response: &str, is_load
         .auto_shrink([false; 2])
         .stick_to_bottom(true)
         .show(ui, |ui| {
-            for message in chat.get_messages() {
+            let messages = chat.get_messages();
+            for (index, message) in messages.iter().enumerate() {
                 render_message(ui, message.is_user(), message.content(), message.model(), theme);
+                if index == messages.len() - 1 && !message.is_user() && !current_response.is_empty() {
+                    continue;
+                }
             }
 
             if !current_response.is_empty() {

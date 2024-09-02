@@ -3,7 +3,7 @@ use crate::chatbot::Chatbot;
 use crate::providers::Provider;
 use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
-use tokio::sync::{mpsc, oneshot};
+use tokio::sync::mpsc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use serde_json::json;
 use super::history_manager::ChatHistory;
@@ -15,8 +15,8 @@ pub struct Chat {
     pub provider: Arc<dyn Provider + Send + Sync>,
     pub runtime: Runtime,
     pub is_processing: Arc<AtomicBool>,
-    pub ui_sender: mpsc::UnboundedSender<String>,
-    pub ui_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
+    pub ui_sender: mpsc::UnboundedSender<(String, bool)>,
+    pub ui_receiver: Arc<Mutex<mpsc::UnboundedReceiver<(String, bool)>>>,
     pub history_manager: Arc<Mutex<ChatHistory>>,
     pub needs_naming: Arc<Mutex<bool>>,
     pub name_sender: mpsc::UnboundedSender<String>,
@@ -109,10 +109,13 @@ impl Chat {
                             break;
                         }
                         full_response.push_str(&chunk);
-                        if ui_sender.send(chunk).is_err() {
+                        if ui_sender.send((chunk, false)).is_err() {
                             break;
                         }
                     }
+
+                    // Send the complete message
+                    let _ = ui_sender.send((full_response, true));
 
                     if messages_clone.len() == 1 {
                         *needs_naming.lock().unwrap() = true;

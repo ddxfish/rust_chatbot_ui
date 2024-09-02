@@ -80,10 +80,12 @@ impl ChatbotUi {
                             if self.is_loading {
                                 chat.stop_processing();
                                 self.is_loading = false;
+                                self.current_response.clear();
                             } else if !self.input.trim().is_empty() {
                                 println!("Debug: Processing input with model: {}", self.selected_model);
                                 chat.process_input(std::mem::take(&mut self.input), &self.selected_model);
                                 self.is_loading = true;
+                                self.current_response.clear();
                             }
                         }
                     });
@@ -95,13 +97,16 @@ impl ChatbotUi {
 
         if chat.is_processing() {
             self.is_loading = true;
-        } else if !self.current_response.is_empty() {
-            chat.add_message(std::mem::take(&mut self.current_response), false);
-            self.is_loading = false;
         }
 
-        while let Some(chunk) = chat.check_ui_updates() {
-            self.current_response.push_str(&chunk);
+        while let Some((chunk, is_complete)) = chat.ui_receiver.lock().unwrap().try_recv().ok() {
+            if is_complete {
+                chat.add_message(chunk, false);
+                self.current_response.clear();
+                self.is_loading = false;
+            } else {
+                self.current_response.push_str(&chunk);
+            }
             ui.ctx().request_repaint();
         }
 
