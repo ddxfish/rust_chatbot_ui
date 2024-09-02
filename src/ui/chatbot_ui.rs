@@ -42,7 +42,7 @@ impl ChatbotUi {
         egui::CentralPanel::default().show_inside(ui, |ui| {
             ui.vertical(|ui| {
                 let available_height = ui.available_height();
-                let input_height = 80.0; // Increased from 80.0 to 100.0
+                let input_height = 80.0;
                 let padding = 0.0;
                 let message_height = available_height - input_height - padding * 2.0;
 
@@ -64,7 +64,7 @@ impl ChatbotUi {
                             .show(ui, |ui| {
                                 let input_field = TextEdit::multiline(&mut self.input)
                                     .desired_width(input_width)
-                                    .desired_rows(3) // Increased from 2 to 4
+                                    .desired_rows(3)
                                     .hint_text("Type your message here...")
                                     .font(FontId::proportional(16.0))
                                     .text_color(theme.input_text_color);
@@ -73,10 +73,14 @@ impl ChatbotUi {
                             });
 
                         let button_size = Vec2::new(40.0, input_height);
-                        if ui.add_sized(button_size, Button::image(Image::new(&icons.send).fit_to_exact_size(Vec2::new(24.0, 24.0))).fill(theme.button_bg_color)).clicked()
-                            || (ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift))
+                        let icon = if self.is_loading { &icons.stop } else { &icons.send };
+                        if ui.add_sized(button_size, Button::image(Image::new(icon).fit_to_exact_size(Vec2::new(24.0, 24.0))).fill(theme.button_bg_color)).clicked()
+                            || (!self.is_loading && ui.input(|i| i.key_pressed(egui::Key::Enter) && !i.modifiers.shift))
                         {
-                            if !self.input.trim().is_empty() {
+                            if self.is_loading {
+                                chat.stop_processing();
+                                self.is_loading = false;
+                            } else if !self.input.trim().is_empty() {
                                 println!("Debug: Processing input with model: {}", self.selected_model);
                                 chat.process_input(std::mem::take(&mut self.input), &self.selected_model);
                                 self.is_loading = true;
@@ -91,7 +95,8 @@ impl ChatbotUi {
 
         if chat.is_processing() {
             self.is_loading = true;
-        } else {
+        } else if !self.current_response.is_empty() {
+            chat.add_message(std::mem::take(&mut self.current_response), false);
             self.is_loading = false;
         }
 
@@ -105,11 +110,6 @@ impl ChatbotUi {
             self.is_loading = false;
             self.current_response.clear();
             ui.ctx().request_repaint();
-        }
-
-        if !chat.is_processing() && !self.current_response.is_empty() {
-            chat.add_message(std::mem::take(&mut self.current_response), false);
-            self.is_loading = false;
         }
 
         if let Some(new_name) = chat.check_name_updates() {
