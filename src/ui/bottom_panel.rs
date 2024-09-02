@@ -32,7 +32,7 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
             ui.add_space(10.0);
 
             if ui.add_sized([button_width, 30.0], egui::Button::new(RichText::new("Settings").size(14.0).color(theme.button_text_color)).fill(theme.button_bg_color)).clicked() {
-                settings.toggle_settings();
+                settings.show_settings = !settings.show_settings;
             }
         });
 

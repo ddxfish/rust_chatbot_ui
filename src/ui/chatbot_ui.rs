@@ -1,5 +1,6 @@
 use egui::{Ui, ScrollArea, FontId, TextEdit, Button, Vec2, Image, Layout, Align};
 use crate::chat::Chat;
+use crate::settings;
 use crate::settings::Settings;
 use crate::app::Icons;
 use super::message_view;
@@ -86,7 +87,7 @@ impl ChatbotUi {
             });
         });
 
-        settings.render(ui.ctx(), icons);
+        settings::render(settings, ui.ctx(), icons);
 
         if chat.is_processing() {
             self.is_loading = true;
