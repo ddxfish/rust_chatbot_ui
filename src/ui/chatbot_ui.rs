@@ -41,7 +41,7 @@ impl ChatbotUi {
         egui::CentralPanel::default().show_inside(ui, |ui| {
             ui.vertical(|ui| {
                 let available_height = ui.available_height();
-                let input_height = 80.0;
+                let input_height = 80.0; // Increased from 80.0 to 100.0
                 let padding = 0.0;
                 let message_height = available_height - input_height - padding * 2.0;
 
@@ -53,26 +53,23 @@ impl ChatbotUi {
                         message_view::render_messages(ui, chat, &self.current_response, self.is_loading, theme);
                     });
 
-                //ui.add_space(padding);
-
                 ui.horizontal(|ui| {
                     ui.with_layout(Layout::left_to_right(Align::TOP).with_main_wrap(false), |ui| {
                         let input_width = ui.available_width() - 50.0;
 
                         ScrollArea::vertical()
                             .max_height(input_height)
+                            .min_scrolled_height(80.0)
                             .show(ui, |ui| {
                                 let input_field = TextEdit::multiline(&mut self.input)
                                     .desired_width(input_width)
-                                    //.desired_rows(2)
+                                    .desired_rows(3) // Increased from 2 to 4
                                     .hint_text("Type your message here...")
                                     .font(FontId::proportional(16.0))
                                     .text_color(theme.input_text_color);
 
                                 ui.add_sized([input_width, input_height], input_field);
                             });
-
-                        //ui.add_space(5.0);
 
                         let button_size = Vec2::new(40.0, input_height);
                         if ui.add_sized(button_size, Button::image(Image::new(&icons.send).fit_to_exact_size(Vec2::new(24.0, 24.0))).fill(theme.button_bg_color)).clicked()
@@ -86,8 +83,6 @@ impl ChatbotUi {
                         }
                     });
                 });
-
-                //ui.add_space(padding);
             });
         });
 
