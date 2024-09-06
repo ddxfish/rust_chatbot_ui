@@ -11,6 +11,8 @@ pub struct Settings {
     themes: Vec<Theme>,
     current_theme_index: usize,
     pub api_keys_updated: bool,
+    pub ui_scale: f32,
+    pub temp_ui_scale: f32,
 }
 
 struct ApiKeys {
@@ -33,9 +35,13 @@ impl Settings {
             themes,
             current_theme_index: 0,
             api_keys_updated: false,
+            ui_scale: 1.0,
+            temp_ui_scale: 1.0,
         };
         settings_operations::load_api_keys(&mut settings);
         settings_operations::load_theme(&mut settings);
+        settings_operations::load_ui_scale(&mut settings);
+        settings.temp_ui_scale = settings.ui_scale;
         settings
     }
 
@@ -62,4 +68,4 @@ impl Settings {
 }
 
 pub use settings_ui::render;
-pub use settings_operations::{load_api_keys, save_api_keys, save_theme, load_theme};
+pub use settings_operations::{load_api_keys, save_api_keys, save_theme, load_theme, load_ui_scale, save_ui_scale};

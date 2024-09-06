@@ -1,4 +1,4 @@
-use eframe::egui::{self, Window, RichText};
+use eframe::egui::{self, Window, RichText, DragValue};
 use crate::app::Icons;
 use super::Settings;
 use super::settings_operations;
@@ -52,6 +52,12 @@ pub fn render(settings: &mut Settings, ctx: &egui::Context, icons: &Icons) {
                         });
                 });
 
+                ui.horizontal(|ui| {
+                    ui.label(RichText::new("UI Scale:").strong().color(theme.settings_text_color));
+                    ui.add(egui::Slider::new(&mut settings.temp_ui_scale, 0.5..=4.0).step_by(0.1));
+                    //ui.add(DragValue::new(&mut settings.temp_ui_scale).speed(0.1).clamp_range(0.5..=2.0));
+                });
+
                 ui.add_space(10.0);
 
                 ui.horizontal(|ui| {
@@ -60,6 +66,7 @@ pub fn render(settings: &mut Settings, ctx: &egui::Context, icons: &Icons) {
                     }
                     if ui.add(egui::Button::new(RichText::new("Close").color(theme.settings_button_text_color)).fill(theme.settings_button_bg_color)).clicked() {
                         settings.show_settings = false;
+                        settings.temp_ui_scale = settings.ui_scale;
                     }
                 });
             });
@@ -67,6 +74,8 @@ pub fn render(settings: &mut Settings, ctx: &egui::Context, icons: &Icons) {
         if save_clicked {
             settings_operations::save_api_keys(settings);
             settings_operations::save_theme(settings);
+            settings.ui_scale = settings.temp_ui_scale;
+            settings_operations::save_ui_scale(settings);
         }
     }
 }

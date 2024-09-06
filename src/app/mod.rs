@@ -39,7 +39,7 @@ impl ChatbotApp {
         let settings = Settings::new();
         let theme = settings.get_current_theme().clone();
         cc.egui_ctx.set_visuals(theme.apply_to_visuals());
-        cc.egui_ctx.set_pixels_per_point(1.0);
+        cc.egui_ctx.set_pixels_per_point(settings.ui_scale);
 
         let providers = Self::create_providers(&settings.get_api_keys());
         let initial_provider = settings.get_first_provider_with_key(&providers);
@@ -119,6 +119,8 @@ impl eframe::App for ChatbotApp {
             self.theme = current_theme;
             ctx.set_visuals(self.theme.apply_to_visuals());
         }
+
+        ctx.set_pixels_per_point(self.settings.ui_scale);
 
         if self.chat.has_updates() {
             self.state.update(&mut self.chat);
