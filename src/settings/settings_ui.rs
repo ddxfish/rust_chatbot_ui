@@ -54,8 +54,8 @@ pub fn render(settings: &mut Settings, ctx: &egui::Context, icons: &Icons) {
 
                 ui.horizontal(|ui| {
                     ui.label(RichText::new("UI Scale:").strong().color(theme.settings_text_color));
-                    ui.add(egui::Slider::new(&mut settings.temp_ui_scale, 0.5..=4.0).step_by(0.1));
-                    //ui.add(DragValue::new(&mut settings.temp_ui_scale).speed(0.1).clamp_range(0.5..=2.0));
+                    ui.add(egui::Slider::new(&mut settings.temp_ui_scale, 0.5..=4.0).step_by(0.05));
+                    //ui.add(DragValue::new(&mut settings.temp_ui_scale).speed(0.05).clamp_range(0.5..=4.0));
                 });
 
                 ui.add_space(10.0);
@@ -76,6 +76,7 @@ pub fn render(settings: &mut Settings, ctx: &egui::Context, icons: &Icons) {
             settings_operations::save_theme(settings);
             settings.ui_scale = settings.temp_ui_scale;
             settings_operations::save_ui_scale(settings);
+            ctx.set_pixels_per_point(settings.ui_scale);
         }
     }
 }

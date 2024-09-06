@@ -8,7 +8,8 @@ use crate::providers::{self, Provider};
 use crate::ui::themes::Theme;
 use eframe;
 use std::sync::Arc;
-use eframe::egui::{self, FontData, FontDefinitions, FontFamily, Align, Layout};
+use std::time::{Instant, Duration};
+use eframe::egui::{self, FontData, FontDefinitions, FontFamily, Align, Layout, Key, Modifiers};
 pub use icons::Icons;
 pub use state::ChatbotAppState;
 
@@ -20,6 +21,7 @@ pub struct ChatbotApp {
     icons: Icons,
     providers: Vec<Arc<dyn Provider + Send + Sync>>,
     theme: Theme,
+    last_scale_change: Instant,
 }
 
 fn load_custom_font(ctx: &eframe::egui::Context) {
@@ -36,9 +38,10 @@ fn load_custom_font(ctx: &eframe::egui::Context) {
 impl ChatbotApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         load_custom_font(&cc.egui_ctx);
-        let settings = Settings::new();
+        let mut settings = Settings::new();
         let theme = settings.get_current_theme().clone();
         cc.egui_ctx.set_visuals(theme.apply_to_visuals());
+        settings.ui_scale = cc.egui_ctx.pixels_per_point();
         cc.egui_ctx.set_pixels_per_point(settings.ui_scale);
 
         let providers = Self::create_providers(&settings.get_api_keys());
@@ -56,6 +59,7 @@ impl ChatbotApp {
             icons: Icons::new(&cc.egui_ctx),
             providers,
             theme,
+            last_scale_change: Instant::now() - Duration::from_secs(1),
         }
     }
 
@@ -105,6 +109,19 @@ impl ChatbotApp {
             eprintln!("Failed to create new chat: {}", e);
         }
     }
+
+    fn change_ui_scale(&mut self, ctx: &egui::Context, increase: bool) {
+        let now = Instant::now();
+        if now.duration_since(self.last_scale_change) > Duration::from_millis(200) {
+            if increase {
+                self.settings.ui_scale = (self.settings.ui_scale + 0.1).min(2.0);
+            } else {
+                self.settings.ui_scale = (self.settings.ui_scale - 0.1).max(0.5);
+            }
+            ctx.set_pixels_per_point(self.settings.ui_scale);
+            self.last_scale_change = now;
+        }
+    }
 }
 
 impl eframe::App for ChatbotApp {
@@ -120,7 +137,19 @@ impl eframe::App for ChatbotApp {
             ctx.set_visuals(self.theme.apply_to_visuals());
         }
 
-        ctx.set_pixels_per_point(self.settings.ui_scale);
+        if ctx.input(|i| i.key_pressed(Key::Minus) && i.modifiers.ctrl) {
+            self.change_ui_scale(ctx, false);
+        }
+
+        if ctx.input(|i| i.key_pressed(Key::Plus) && i.modifiers.ctrl) {
+            self.change_ui_scale(ctx, true);
+        }
+
+        let current_pixels_per_point = ctx.pixels_per_point();
+        if (current_pixels_per_point - self.settings.ui_scale).abs() > 0.001 {
+            self.settings.ui_scale = current_pixels_per_point;
+            ctx.set_pixels_per_point(self.settings.ui_scale);
+        }
 
         if self.chat.has_updates() {
             self.state.update(&mut self.chat);
