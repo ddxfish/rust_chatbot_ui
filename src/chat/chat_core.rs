@@ -82,7 +82,7 @@ impl Chat {
     }
 
     pub fn process_input(&mut self, input: String, model: &str) {
-        let input_with_newlines = input.replace("\\n", "\n");
+        let input_with_newlines = input.replace("\n", "\n").trim().to_string();
         self.add_message(input_with_newlines.clone(), true);
         self.is_processing.store(true, Ordering::SeqCst);
         self.stop_flag.store(false, Ordering::SeqCst);
@@ -93,13 +93,13 @@ impl Chat {
         let current_model = Arc::clone(&self.current_model);
         let error_sender = self.error_sender.clone();
         let stop_flag = Arc::clone(&self.stop_flag);
-
+    
         let mut messages_clone = self.messages.lock().unwrap().clone();
-
+    
         if model.starts_with("accounts/fireworks/models/") {
             messages_clone.insert(0, Message::new(format!("Model: {}", model), false, Some("system".to_string())));
         }
-
+    
         self.runtime.spawn(async move {
             match chatbot.stream_response(&messages_clone).await {
                 Ok(mut rx) => {

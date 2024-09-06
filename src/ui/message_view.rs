@@ -57,7 +57,7 @@ fn render_message(ui: &mut Ui, is_user: bool, content: &str, model: Option<&str>
             };
             ui.label(prefix);
 
-            ui.add_space(5.0);
+            //ui.add_space(5.0);
 
             let mut job = LayoutJob::default();
             job.append(
