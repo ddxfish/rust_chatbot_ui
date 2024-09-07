@@ -105,9 +105,9 @@ impl ChatbotApp {
         self.ui.selected_provider = self.providers[0].name().to_string();
         self.ui.selected_model = self.providers[0].models()[0].to_string();
         self.chat.update_provider(Arc::clone(&self.providers[0]));
-        if let Err(e) = self.chat.create_new_chat() {
-            eprintln!("Failed to create new chat: {}", e);
-        }
+        // if let Err(e) = self.chat.create_new_chat() {
+        //     eprintln!("Failed to create new chat: {}", e);
+        // }
     }
 
     fn change_ui_scale(&mut self, ctx: &egui::Context, increase: bool) {

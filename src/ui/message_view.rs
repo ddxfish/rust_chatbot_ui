@@ -6,6 +6,7 @@ use std::collections::HashMap;
 
 pub struct MessageView {
     cache: HashMap<usize, CachedMessage>,
+    current_theme: String,
 }
 
 struct CachedMessage {
@@ -19,10 +20,16 @@ impl MessageView {
     pub fn new() -> Self {
         Self {
             cache: HashMap::new(),
+            current_theme: String::new(),
         }
     }
 
     pub fn render_messages(&mut self, ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool, theme: &Theme) {
+        if self.current_theme != theme.name {
+            self.cache.clear();
+            self.current_theme = theme.name.clone();
+        }
+
         let mut scroll_to_bottom = false;
         ScrollArea::vertical()
             .auto_shrink([false; 2])
