@@ -110,7 +110,7 @@ fn render_message_frame(ui: &mut Ui, is_user: bool, layout_job: &LayoutJob, mode
         .inner_margin(10.0);
 
     frame.show(ui, |ui| {
-        ui.with_layout(Layout::top_down_justified(Align::LEFT), |ui| {
+        ui.with_layout(Layout::top_down(Align::LEFT), |ui| {
             let prefix = if is_user { 
                 RichText::new("You:").strong().size(18.0).color(name_color)
             } else { 
