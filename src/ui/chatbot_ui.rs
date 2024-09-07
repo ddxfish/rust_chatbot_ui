@@ -3,7 +3,7 @@ use crate::chat::Chat;
 use crate::settings;
 use crate::settings::Settings;
 use crate::app::Icons;
-use super::message_view;
+use super::MessageView;
 use crate::providers::Provider;
 use crate::ui::themes::Theme;
 use std::sync::Arc;
@@ -15,6 +15,7 @@ pub struct ChatbotUi {
     pub is_loading: bool,
     pub current_response: String,
     pub model_changed: bool,
+    message_view: MessageView,
 }
 
 impl ChatbotUi {
@@ -26,6 +27,7 @@ impl ChatbotUi {
             is_loading: false,
             current_response: String::new(),
             model_changed: false,
+            message_view: MessageView::new(),
         }
     }
 
@@ -51,7 +53,7 @@ impl ChatbotUi {
                     .stick_to_bottom(true)
                     .max_height(message_height)
                     .show(ui, |ui| {
-                        message_view::render_messages(ui, chat, &self.current_response, self.is_loading, theme);
+                        self.message_view.render_messages(ui, chat, &self.current_response, self.is_loading, theme);
                     });
 
                 ui.horizontal(|ui| {
@@ -99,7 +101,7 @@ impl ChatbotUi {
             self.is_loading = true;
         }
 
-        while let Some((chunk, is_complete)) = chat.ui_receiver.lock().unwrap().try_recv().ok() {
+        while let Some((chunk, is_complete)) = chat.check_ui_updates() {
             if is_complete {
                 chat.add_message(chunk, false);
                 self.current_response.clear();
@@ -122,7 +124,5 @@ impl ChatbotUi {
                 eprintln!("Error: Failed to rename chat: {}", e);
             }
         }
-
-        ui.ctx().request_repaint();
     }
 }
