@@ -45,13 +45,13 @@ impl ChatHistory {
         self.history_files.clone()
     }
 
-    pub fn create_new_chat(&mut self) -> Result<(), std::io::Error> {
+    pub fn create_new_chat(&mut self) -> Result<String, std::io::Error> {
         println!("Debug: Creating new chat");
         let file_name = create_new_chat_file(&self.directory)?;
         self.current_file = Some(file_name.clone());
         self.load_history();
         println!("Debug: Created new chat file: {}", file_name);
-        Ok(())
+        Ok(file_name)
     }
 
     pub fn append_message(&mut self, content: &str, is_user: bool, model: Option<&str>) -> Result<(), std::io::Error> {
@@ -72,7 +72,7 @@ impl ChatHistory {
         Ok(())
     }
 
-    pub fn delete_chat(&mut self, file_name: &str) -> Result<(), std::io::Error> {
+    pub fn delete_chat(&mut self, file_name: &str) -> Result<Option<String>, std::io::Error> {
         println!("Debug: Deleting chat file: {}", file_name);
         delete_chat_file(Path::new(&self.directory).join(file_name))?;
         self.load_history();
@@ -80,7 +80,12 @@ impl ChatHistory {
             self.current_file = None;
             println!("Debug: Cleared current file as it was deleted");
         }
-        Ok(())
+        if self.history_files.is_empty() {
+            let new_file = self.create_new_chat()?;
+            Ok(Some(new_file))
+        } else {
+            Ok(None)
+        }
     }
 
     pub fn get_current_file(&self) -> Option<String> {

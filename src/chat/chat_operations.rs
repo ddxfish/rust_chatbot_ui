@@ -17,7 +17,8 @@ impl Chat {
     pub fn create_new_chat(&self) -> Result<(), std::io::Error> {
         self.messages.lock().unwrap().clear();
         *self.needs_naming.lock().unwrap() = true;
-        self.history_manager.lock().unwrap().create_new_chat()?;
+        let new_file = self.history_manager.lock().unwrap().create_new_chat()?;
+        self.load_chat(&new_file)?;
         self.set_has_updates();
         Ok(())
     }
@@ -38,7 +39,16 @@ impl Chat {
     }
 
     pub fn delete_chat(&self, file_name: &str) -> Result<(), std::io::Error> {
-        self.history_manager.lock().unwrap().delete_chat(file_name)?;
+        let mut history_manager = self.history_manager.lock().unwrap();
+        if let Some(new_file) = history_manager.delete_chat(file_name)? {
+            drop(history_manager);
+            self.load_chat(&new_file)?;
+        } else if history_manager.get_current_file().is_none() {
+            if let Some(first_file) = history_manager.get_history_files().first() {
+                drop(history_manager);
+                self.load_chat(first_file)?;
+            }
+        }
         self.set_has_updates();
         Ok(())
     }
