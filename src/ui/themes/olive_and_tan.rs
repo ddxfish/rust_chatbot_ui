@@ -20,6 +20,7 @@ pub fn get_olive_and_tan_theme() -> Theme {
         settings_text_color: Color32::from_rgb(50, 50, 50),
         settings_button_text_color: Color32::from_rgb(240, 234, 214),
         settings_button_bg_color: Color32::from_rgb(100, 120, 80),
+        settings_title_color: Color32::from_rgb(255, 255, 255),
         dropdown_text_color: Color32::from_rgb(50, 50, 50),
         new_chat_button_text_color: Color32::from_rgb(240, 234, 214),
         trash_button_bg_color: Color32::from_rgba_premultiplied(200, 100, 100, 100),

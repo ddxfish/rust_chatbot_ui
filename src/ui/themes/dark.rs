@@ -20,6 +20,7 @@ pub fn get_dark_theme() -> Theme {
         settings_text_color: Color32::from_rgb(200, 200, 200),
         settings_button_text_color: Color32::from_rgb(240, 240, 240),
         settings_button_bg_color: Color32::from_rgb(60, 60, 60),
+        settings_title_color: Color32::from_rgb(255, 255, 255),
         dropdown_text_color: Color32::from_rgb(220, 220, 220),
         new_chat_button_text_color: Color32::from_rgb(240, 240, 240),
         trash_button_bg_color: Color32::from_rgba_premultiplied(255, 0, 0, 100),

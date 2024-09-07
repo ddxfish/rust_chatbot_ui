@@ -184,7 +184,6 @@ impl eframe::App for ChatbotApp {
                 }
             }
             self.state.previous_model = Some(self.ui.selected_model.clone());
-            ctx.request_repaint();
         });
     }
 }

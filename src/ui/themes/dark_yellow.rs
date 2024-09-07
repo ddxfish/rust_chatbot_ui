@@ -20,6 +20,7 @@ pub fn get_dark_yellow_theme() -> Theme {
         settings_text_color: Color32::from_rgb(255, 255, 200),
         settings_button_text_color: Color32::from_rgb(64, 64, 0),
         settings_button_bg_color: Color32::from_rgb(255, 255, 0),
+        settings_title_color: Color32::from_rgb(255, 255, 255),
         dropdown_text_color: Color32::from_rgb(255, 255, 200),
         new_chat_button_text_color: Color32::from_rgb(64, 64, 0),
         trash_button_bg_color: Color32::from_rgba_premultiplied(200, 0, 0, 100),

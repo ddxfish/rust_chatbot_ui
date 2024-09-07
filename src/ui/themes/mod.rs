@@ -24,6 +24,7 @@ pub struct Theme {
     pub settings_text_color: Color32,
     pub settings_button_text_color: Color32,
     pub settings_button_bg_color: Color32,
+    pub settings_title_color: Color32,
     pub dropdown_text_color: Color32,
     pub new_chat_button_text_color: Color32,
     pub trash_button_bg_color: Color32,

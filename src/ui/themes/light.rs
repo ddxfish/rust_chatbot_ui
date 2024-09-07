@@ -20,6 +20,7 @@ pub fn get_light_theme() -> Theme {
         settings_text_color: Color32::from_rgb(40, 40, 40),
         settings_button_text_color: Color32::from_rgb(20, 20, 20),
         settings_button_bg_color: Color32::from_rgb(200, 200, 200),
+        settings_title_color: Color32::from_rgb(255, 255, 255),
         dropdown_text_color: Color32::from_rgb(20, 20, 20),
         new_chat_button_text_color: Color32::from_rgb(20, 20, 20),
         trash_button_bg_color: Color32::from_rgba_premultiplied(255, 0, 0, 100),

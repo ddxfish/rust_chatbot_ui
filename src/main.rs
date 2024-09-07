@@ -29,6 +29,7 @@ fn main() -> Result<(), eframe::Error> {
         viewport: ViewportBuilder::default()
             .with_inner_size([850.0, 600.0])
             .with_icon(icon),
+        vsync: true,
         ..Default::default()
     };
 

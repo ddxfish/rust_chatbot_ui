@@ -6,7 +6,7 @@ use super::settings_operations;
 pub fn render(settings: &mut Settings, ctx: &egui::Context, icons: &Icons) {
     if settings.show_settings {
         let mut save_clicked = false;
-        Window::new("Settings")
+        Window::new(RichText::new("Settings").color(settings.get_current_theme().settings_title_color))
             .collapsible(false)
             .resizable(false)
             .show(ctx, |ui| {
