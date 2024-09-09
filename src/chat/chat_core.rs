@@ -8,6 +8,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use serde_json::json;
 use super::history_manager::ChatHistory;
 use super::file_operations;
+use super::chat_name_generation;
 
 pub struct Chat {
     pub messages: Arc<Mutex<Vec<Message>>>,
@@ -145,17 +146,7 @@ impl Chat {
         let name_sender = self.name_sender.clone();
         let needs_naming = Arc::clone(&self.needs_naming);
 
-        self.runtime.spawn(async move {
-            let current_messages = messages.lock().unwrap().clone();
-            match chatbot.generate_chat_name(&current_messages).await {
-                Ok(name) => {
-                    if name_sender.send(name).is_err() {
-                        eprintln!("Error: Failed to send generated chat name");
-                    }
-                }
-                Err(e) => eprintln!("Error: Failed to generate chat name: {}", e),
-            }
-            *needs_naming.lock().unwrap() = false;
-        });
+        chat_name_generation::generate_chat_name(chatbot, messages, name_sender, &self.runtime);
+        *needs_naming.lock().unwrap() = false;
     }
 }
