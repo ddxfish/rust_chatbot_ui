@@ -9,6 +9,7 @@ use crate::ui::themes::Theme;
 use eframe::egui::{self, Ui, ScrollArea};
 use std::sync::Arc;
 use crate::chat::ui_rendering;
+
 pub struct ChatbotAppState {
     pub chat_history: ChatHistory,
     pub previous_model: Option<String>,
@@ -25,7 +26,6 @@ impl ChatbotAppState {
     pub fn update(&mut self, chat: &mut Chat) {
         self.chat_history.load_history();
     }
-
 
     pub fn render_chat_history(&mut self, ui: &mut egui::Ui, chat: &mut Chat, icons: &Icons, theme: &Theme) {
         ScrollArea::vertical().show(ui, |ui| {
