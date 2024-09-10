@@ -1,4 +1,4 @@
-use egui::{Ui, ComboBox, Window, TextEdit, RichText, Layout, Align, Frame, Color32};
+use egui::{Ui, ComboBox, Window, RichText, Layout, Align};
 use crate::chat::Chat;
 use crate::settings::Settings;
 use crate::providers::Provider;
