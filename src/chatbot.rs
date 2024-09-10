@@ -68,16 +68,3 @@ impl Chatbot {
         }
     }
 }
-
-pub fn limit_to_three_words(s: &str) -> String {
-    let mut words = s.split_whitespace();
-    let word1 = words.next().unwrap_or("");
-    let word2 = words.next().unwrap_or("");
-    let word3 = words.next().unwrap_or("");
-
-    if word3.is_empty() {
-        format!("{} {}", word1, word2).trim().to_string()
-    } else {
-        format!("{} {} {}", word1, word2, word3)
-    }
-}
