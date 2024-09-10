@@ -7,7 +7,7 @@ mod icons;
 use crate::chat::Chat;
 use crate::ui::ChatbotUi;
 use crate::settings::Settings;
-use crate::providers::{self, Provider};
+use crate::providers::{self, ProviderTrait};
 use eframe;
 use std::sync::Arc;
 use std::time::Instant;
@@ -20,7 +20,7 @@ pub struct ChatbotApp {
     ui: ChatbotUi,
     settings: Settings,
     icons: Icons,
-    providers: Vec<Arc<dyn Provider + Send + Sync>>,
+    providers: Vec<Arc<dyn ProviderTrait + Send + Sync>>,
     theme: crate::ui::themes::Theme,
     last_scale_change: Instant,
 }
@@ -30,10 +30,10 @@ impl ChatbotApp {
         app_initialization::initialize_app(cc)
     }
 
-    fn create_providers(api_keys: &str) -> Vec<Arc<dyn Provider + Send + Sync>> {
+    fn create_providers(api_keys: &str) -> Vec<Arc<dyn ProviderTrait + Send + Sync>> {
         providers::get_providers(api_keys.to_string())
             .into_iter()
-            .map(|p| Arc::from(p) as Arc<dyn Provider + Send + Sync>)
+            .map(|p| Arc::from(p) as Arc<dyn ProviderTrait + Send + Sync>)
             .collect()
     }
 

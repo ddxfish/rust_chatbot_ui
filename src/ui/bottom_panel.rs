@@ -1,14 +1,14 @@
 use egui::{Ui, ComboBox, Window, RichText, Layout, Align};
 use crate::chat::Chat;
 use crate::settings::Settings;
-use crate::providers::Provider;
+use crate::providers::ProviderTrait;
 use crate::ui::ChatbotUi;
 use crate::ui::themes::Theme;
 use rfd::FileDialog;
 use std::path::Path;
 use std::sync::Arc;
 
-pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui: &mut ChatbotUi, providers: &[Arc<dyn Provider + Send + Sync>], theme: &Theme) {
+pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui: &mut ChatbotUi, providers: &[Arc<dyn ProviderTrait + Send + Sync>], theme: &Theme) {
     static mut SHOW_CUSTOM_MODEL_POPUP: bool = false;
     static mut CUSTOM_MODEL_INPUT: String = String::new();
 

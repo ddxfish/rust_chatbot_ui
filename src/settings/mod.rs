@@ -2,7 +2,7 @@ mod settings_ui;
 mod settings_operations;
 
 use crate::ui::themes::{Theme, get_themes};
-use crate::providers::Provider;
+use crate::providers::ProviderTrait;
 use std::sync::{Arc, Mutex};
 
 pub struct Settings {
@@ -54,7 +54,7 @@ impl Settings {
         &self.themes[self.current_theme_index]
     }
 
-    pub fn get_first_provider_with_key(&self, providers: &[Arc<dyn Provider + Send + Sync>]) -> Arc<dyn Provider + Send + Sync> {
+    pub fn get_first_provider_with_key(&self, providers: &[Arc<dyn ProviderTrait + Send + Sync>]) -> Arc<dyn ProviderTrait + Send + Sync> {
         let keys = self.api_keys.lock().unwrap();
         if !keys.fireworks.is_empty() {
             return Arc::clone(&providers[1]);

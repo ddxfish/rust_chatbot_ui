@@ -1,4 +1,4 @@
-use super::{Provider, ProviderError};
+use super::{ProviderError, ProviderTrait};
 use std::fmt;
 use serde_json::Value;
 use tokio::sync::mpsc;
@@ -11,8 +11,7 @@ impl None {
     }
 }
 
-#[async_trait::async_trait]
-impl Provider for None {
+impl ProviderTrait for None {
     fn name(&self) -> &'static str {
         "Select a provider"
     }
@@ -21,7 +20,7 @@ impl Provider for None {
         vec!["Then select model"]
     }
 
-    async fn stream_response(&self, _messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
+    fn stream_response(&self, _messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
         let (tx, rx) = mpsc::channel(1);
         tokio::spawn(async move {
             let _ = tx.send("API key goes in Settings. Then select a provider and model.".to_string()).await;

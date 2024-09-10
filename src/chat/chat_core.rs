@@ -1,6 +1,6 @@
 use crate::message::Message;
 use crate::chatbot::Chatbot;
-use crate::providers::Provider;
+use crate::providers::ProviderTrait;
 use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
@@ -11,7 +11,7 @@ use super::chat_name_generation;
 pub struct Chat {
     pub messages: Arc<Mutex<Vec<Message>>>,
     pub chatbot: Arc<Chatbot>,
-    pub provider: Arc<dyn Provider + Send + Sync>,
+    pub provider: Arc<dyn ProviderTrait + Send + Sync>,
     pub runtime: Runtime,
     pub is_processing: Arc<AtomicBool>,
     pub ui_sender: mpsc::UnboundedSender<(String, bool)>,
@@ -28,7 +28,7 @@ pub struct Chat {
 }
 
 impl Chat {
-    pub fn new(initial_provider: Arc<dyn Provider + Send + Sync>) -> Self {
+    pub fn new(initial_provider: Arc<dyn ProviderTrait + Send + Sync>) -> Self {
         let (ui_sender, ui_receiver) = mpsc::unbounded_channel();
         let (name_sender, name_receiver) = mpsc::unbounded_channel();
         let (error_sender, error_receiver) = mpsc::unbounded_channel();
@@ -53,7 +53,7 @@ impl Chat {
         }
     }
 
-    pub fn update_provider(&mut self, new_provider: Arc<dyn Provider + Send + Sync>) {
+    pub fn update_provider(&mut self, new_provider: Arc<dyn ProviderTrait + Send + Sync>) {
         self.provider = new_provider;
         self.set_has_updates();
     }
@@ -100,7 +100,7 @@ impl Chat {
         }
     
         self.runtime.spawn(async move {
-            match chatbot.stream_response(&messages_clone).await {
+            match chatbot.stream_response(&messages_clone) {
                 Ok(mut rx) => {
                     let mut full_response = String::new();
                     while let Some(chunk) = rx.recv().await {

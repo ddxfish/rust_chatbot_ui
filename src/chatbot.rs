@@ -1,16 +1,16 @@
 use crate::message::Message;
-use crate::providers::{Provider, ProviderError};
+use crate::providers::{ProviderTrait, ProviderError};
 use serde_json::json;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 
 pub struct Chatbot {
-    provider: Arc<dyn Provider + Send + Sync>,
+    provider: Arc<dyn ProviderTrait + Send + Sync>,
     current_model: String,
 }
 
 impl Chatbot {
-    pub fn new(provider: Arc<dyn Provider + Send + Sync>) -> Self {
+    pub fn new(provider: Arc<dyn ProviderTrait + Send + Sync>) -> Self {
         let initial_model = provider.models()[0].to_string();
         Self { 
             provider,
@@ -18,7 +18,7 @@ impl Chatbot {
         }
     }
 
-    pub async fn stream_response(&self, messages: &Vec<Message>) -> Result<mpsc::Receiver<String>, ProviderError> {
+    pub fn stream_response(&self, messages: &Vec<Message>) -> Result<mpsc::Receiver<String>, ProviderError> {
         println!("Debug: Streaming response for {} messages", messages.len());
         let formatted_messages = messages.iter().map(|m| {
             json!({
@@ -27,10 +27,10 @@ impl Chatbot {
             })
         }).collect::<Vec<_>>();
 
-        self.provider.stream_response(formatted_messages).await
+        self.provider.stream_response(formatted_messages)
     }
 
-    pub async fn generate_chat_name(&self, messages: &Vec<Message>) -> Result<String, ProviderError> {
+    pub fn generate_chat_name(&self, messages: &Vec<Message>) -> Result<mpsc::Receiver<String>, ProviderError> {
         println!("Debug: Generating chat name for {} messages", messages.len());
         let prompt = format!(
             "No intro text or confirmation, just give me a concise 3-word name for this chat. Your response should be 3 words max. If you don't have enough info, be a bit creative. Use initcaps:\n\n{}",
@@ -42,28 +42,14 @@ impl Chatbot {
             "content": prompt
         })];
 
-        let mut rx = self.provider.stream_response(formatted_message).await?;
-        let mut name = String::new();
-
-        println!("Debug: Waiting for chat name response");
-        while let Some(chunk) = rx.recv().await {
-            println!("Debug: Received name chunk: {}", chunk);
-            name.push_str(&chunk);
-        }
-
-        let processed_name = name.trim();
-        let final_name = limit_to_three_words(&processed_name);
-
-        println!("Debug: Generated chat name: {}", final_name);
-
-        Ok(final_name)
+        self.provider.stream_response(formatted_message)
     }
 
     pub fn get_current_model(&self) -> String {
         self.current_model.clone()
     }
 
-    pub fn switch_model(&mut self, providers: &Vec<Arc<dyn Provider + Send + Sync>>, model: String) {
+    pub fn switch_model(&mut self, providers: &Vec<Arc<dyn ProviderTrait + Send + Sync>>, model: String) {
         if let Some(new_provider) = providers.iter().find(|p| p.models().contains(&model.as_str())) {
             self.provider = Arc::clone(new_provider);
             self.current_model = model;
@@ -83,7 +69,7 @@ impl Chatbot {
     }
 }
 
-fn limit_to_three_words(s: &str) -> String {
+pub fn limit_to_three_words(s: &str) -> String {
     let mut words = s.split_whitespace();
     let word1 = words.next().unwrap_or("");
     let word2 = words.next().unwrap_or("");

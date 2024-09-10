@@ -2,10 +2,10 @@ pub mod fireworks;
 pub mod claude;
 pub mod none;
 pub mod gpt;
+pub mod base_provider;
 
 use std::fmt::Display;
-use serde_json::Value;
-use tokio::sync::mpsc;
+
 
 #[derive(Debug)]
 pub enum ProviderError {
@@ -26,14 +26,9 @@ impl Display for ProviderError {
     }
 }
 
-#[async_trait::async_trait]
-pub trait Provider: Display {
-    fn name(&self) -> &'static str;
-    fn models(&self) -> Vec<&'static str>;
-    async fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError>;
-}
+pub use base_provider::{BaseProvider, ProviderTrait};
 
-pub fn get_providers(api_keys: String) -> Vec<Box<dyn Provider + Send + Sync>> {
+pub fn get_providers(api_keys: String) -> Vec<Box<dyn ProviderTrait + Send + Sync>> {
     let keys: Vec<String> = api_keys.split(',').map(String::from).collect();
     vec![
         Box::new(none::None::new()),
