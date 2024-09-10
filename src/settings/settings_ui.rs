@@ -1,9 +1,9 @@
-use eframe::egui::{self, Window, RichText, DragValue};
+use eframe::egui::{self, Window, RichText};
 use crate::app::Icons;
 use super::Settings;
 use super::settings_operations;
 
-pub fn render(settings: &mut Settings, ctx: &egui::Context, icons: &Icons) {
+pub fn render(settings: &mut Settings, ctx: &egui::Context, _icons: &Icons) {
     if settings.show_settings {
         let mut save_clicked = false;
         Window::new(RichText::new("Settings").color(settings.get_current_theme().settings_title_color))

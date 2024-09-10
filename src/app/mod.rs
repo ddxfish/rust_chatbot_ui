@@ -10,8 +10,7 @@ use crate::settings::Settings;
 use crate::providers::{self, Provider};
 use eframe;
 use std::sync::Arc;
-use std::time::{Instant, Duration};
-use eframe::egui::{self, FontData, FontDefinitions, FontFamily, Align, Layout, Key, Modifiers};
+use std::time::Instant;
 pub use icons::Icons;
 pub use app_state::ChatbotAppState;
 
@@ -40,14 +39,6 @@ impl ChatbotApp {
 
     fn switch_provider(&mut self, model: String) {
         app_updates::switch_provider(self, model);
-    }
-
-    fn reload_providers(&mut self) {
-        app_updates::reload_providers(self);
-    }
-
-    fn change_ui_scale(&mut self, ctx: &egui::Context, increase: bool) {
-        app_updates::change_ui_scale(self, ctx, increase);
     }
 }
 

@@ -30,10 +30,6 @@ impl Chat {
         Ok(())
     }
 
-    pub fn get_history_files(&self) -> Vec<String> {
-        self.history_manager.lock().unwrap().get_history_files()
-    }
-
     pub fn get_current_file(&self) -> Option<String> {
         self.history_manager.lock().unwrap().get_current_file()
     }

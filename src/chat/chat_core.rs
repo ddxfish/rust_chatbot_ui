@@ -5,9 +5,7 @@ use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
 use std::sync::atomic::{AtomicBool, Ordering};
-use serde_json::json;
 use super::history_manager::ChatHistory;
-use super::file_operations;
 use super::chat_name_generation;
 
 pub struct Chat {

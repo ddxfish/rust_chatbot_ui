@@ -68,4 +68,3 @@ impl Settings {
 }
 
 pub use settings_ui::render;
-pub use settings_operations::{load_api_keys, save_api_keys, save_theme, load_theme, load_ui_scale, save_ui_scale};

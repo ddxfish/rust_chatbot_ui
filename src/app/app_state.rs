@@ -23,7 +23,7 @@ impl ChatbotAppState {
         }
     }
 
-    pub fn update(&mut self, chat: &mut Chat) {
+    pub fn update(&mut self, _chat: &mut Chat) {
         self.chat_history.load_history();
     }
 

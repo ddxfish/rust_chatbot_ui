@@ -1,7 +1,5 @@
 use keyring::Entry;
 use super::Settings;
-use std::fs::File;
-use std::io::{Read, Write};
 use std::path::Path;
 use std::collections::HashMap;
 
@@ -77,7 +75,7 @@ fn get_ini_value(section: &str, key: &str) -> Option<String> {
 
 fn set_ini_value(section: &str, key: &str, value: &str) {
     let path = Path::new(SETTINGS_FILE);
-    let mut content = if path.exists() {
+    let content = if path.exists() {
         std::fs::read_to_string(path).unwrap_or_default()
     } else {
         String::new()

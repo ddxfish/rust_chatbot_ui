@@ -1,7 +1,6 @@
 use crate::message::Message;
 use std::path::Path;
 use super::file_operations::{load_messages_from_file, append_message_to_file, create_new_chat_file, delete_chat_file, rename_chat_file};
-use super::ui_rendering::format_file_name;
 
 pub struct ChatHistory {
     history_files: Vec<String>,

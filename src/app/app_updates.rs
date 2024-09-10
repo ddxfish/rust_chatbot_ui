@@ -1,5 +1,5 @@
 use crate::app::ChatbotApp;
-use eframe::egui::{self, Key, Modifiers};
+use eframe::egui::{self, Key};
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -37,7 +37,7 @@ pub fn update(app: &mut ChatbotApp, ctx: &egui::Context) {
 }
 
 pub fn switch_provider(app: &mut ChatbotApp, model: String) {
-    let (provider, is_custom) = if model.starts_with("accounts/fireworks/models/") {
+    let (provider, _is_custom) = if model.starts_with("accounts/fireworks/models/") {
         (app.providers.iter().find(|p| p.name() == "Fireworks"), true)
     } else {
         (app.providers.iter().find(|p| p.models().contains(&model.as_str())), false)

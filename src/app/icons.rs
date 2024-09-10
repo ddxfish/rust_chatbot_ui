@@ -3,7 +3,6 @@ use eframe::egui::{self, TextureHandle};
 pub struct Icons {
     pub send: TextureHandle,
     pub stop: TextureHandle,
-    pub close: TextureHandle,
     pub new_chat: TextureHandle,
     pub trash: TextureHandle,
 }
@@ -13,7 +12,6 @@ impl Icons {
         Self {
             send: load_icon_texture(ctx, "send", include_bytes!("../../assets/paper-plane-regular-white.png")),
             stop: load_icon_texture(ctx, "stop", include_bytes!("../../assets/stop_icon.png")),
-            close: load_icon_texture(ctx, "close", include_bytes!("../../assets/close_icon.png")),
             new_chat: load_icon_texture(ctx, "new_chat", include_bytes!("../../assets/app_icon.png")),
             trash: load_icon_texture(ctx, "trash", include_bytes!("../../assets/trash_icon.png")),
         }

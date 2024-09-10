@@ -2,7 +2,6 @@ use crate::app::{ChatbotApp, ChatbotAppState, Icons};
 use crate::chat::Chat;
 use crate::ui::ChatbotUi;
 use crate::settings::Settings;
-use crate::ui::themes::Theme;
 use eframe;
 use std::sync::Arc;
 use eframe::egui::{FontData, FontDefinitions, FontFamily};
@@ -19,7 +18,7 @@ pub fn initialize_app(cc: &eframe::CreationContext<'_>) -> ChatbotApp {
     let initial_provider = settings.get_first_provider_with_key(&providers);
     let initial_model = initial_provider.models()[0].to_string();
 
-    let mut chat = Chat::new(Arc::clone(&initial_provider));
+    let chat = Chat::new(Arc::clone(&initial_provider));
     chat.load_most_recent_or_create_new().unwrap_or_else(|e| eprintln!("Failed to load or create chat: {}", e));
 
     ChatbotApp {
