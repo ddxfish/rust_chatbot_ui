@@ -42,7 +42,7 @@ impl ProviderTrait for Fireworks {
         let json_body = json!({
             "model": model,
             "max_tokens": 16384,
-            "top_p": 1,
+            "top_p": 0.9,
             "top_k": 40,
             "presence_penalty": 0,
             "frequency_penalty": 0,
