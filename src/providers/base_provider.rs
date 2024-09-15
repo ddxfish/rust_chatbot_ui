@@ -20,7 +20,9 @@ impl BaseProvider {
 
     pub async fn stream_response(&self, url: &str, json_body: Value, error_prefix: &str) -> Result<mpsc::Receiver<String>, ProviderError> {
         let (tx, rx) = mpsc::channel(1024);
-
+        
+        println!("Debug: Accessing URL: {}", url);
+        
         let response = self.client
             .post(url)
             .header("Authorization", format!("Bearer {}", self.api_key))

@@ -2,16 +2,18 @@ use super::{ProviderError, ProviderTrait, BaseProvider};
 use serde_json::{json, Value};
 use tokio::sync::mpsc;
 use std::fmt;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 pub struct Fireworks {
     base: Arc<BaseProvider>,
+    current_model: Arc<Mutex<String>>,
 }
 
 impl Fireworks {
     pub fn new(api_key: String) -> Self {
         Self {
             base: Arc::new(BaseProvider::new(api_key)),
+            current_model: Arc::new(Mutex::new("accounts/fireworks/models/llama-v3p1-70b-instruct".to_string())),
         }
     }
 }
@@ -31,14 +33,7 @@ impl ProviderTrait for Fireworks {
     }
 
     fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
-        let (model, api_messages) = if messages.first().and_then(|m| m["role"].as_str()) == Some("system") &&
-                                       messages.first().and_then(|m| m["content"].as_str()).map_or(false, |c| c.starts_with("Model: ")) {
-            let custom_model = messages[0]["content"].as_str().unwrap().strip_prefix("Model: ").unwrap();
-            (format!("accounts/fireworks/models/{}", custom_model), messages[1..].to_vec())
-        } else {
-            ("accounts/fireworks/models/llama-v3p1-70b-instruct".to_string(), messages)
-        };
-
+        let model = self.current_model.lock().unwrap().clone();
         let json_body = json!({
             "model": model,
             "max_tokens": 16384,
@@ -47,9 +42,10 @@ impl ProviderTrait for Fireworks {
             "presence_penalty": 0,
             "frequency_penalty": 0,
             "temperature": 0.6,
-            "messages": api_messages,
+            "messages": messages,
             "stream": true
         });
+        println!("Debug: Fireworks model response: {:?}", json_body["model"]);
 
         let (tx, rx) = mpsc::channel(1024);
         let base = self.base.clone();
@@ -75,8 +71,15 @@ impl ProviderTrait for Fireworks {
 
         Ok(rx)
     }
+
     fn set_current_model(&self, model: String) {
-        println!("Debug: Fireworks model set to {}", model);
+        let full_model_name = if !model.starts_with("accounts/fireworks/models/") {
+            format!("accounts/fireworks/models/{}", model)
+        } else {
+            model
+        };
+        *self.current_model.lock().unwrap() = full_model_name.clone();
+        println!("Debug: Fireworks model set to {}", full_model_name);
     }
 }
 

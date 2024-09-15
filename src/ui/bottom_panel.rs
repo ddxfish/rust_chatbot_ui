@@ -56,25 +56,26 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
         ui.visuals_mut().widgets.noninteractive.weak_bg_fill = theme.model_provider_dropdown_bg_color;
 
         ComboBox::from_id_source("model_combo")
-            .selected_text(RichText::new(chatbot_ui.selected_model.as_str()).color(theme.model_provider_dropdown_text_color))
-            .width(dropdown_width)
-            .show_ui(ui, |ui| {
-                if let Some(current_provider) = providers.iter().find(|p| p.name() == chatbot_ui.selected_provider) {
-                    for model in current_provider.models() {
-                        if model == "Other" {
-                            if ui.selectable_label(false, RichText::new("Other").color(theme.model_provider_dropdown_text_color)).clicked() {
-                                unsafe {
-                                    SHOW_CUSTOM_MODEL_POPUP = true;
-                                    CUSTOM_MODEL_INPUT.clear();
-                                }
+        .selected_text(RichText::new(chatbot_ui.selected_model.as_str()).color(theme.model_provider_dropdown_text_color))
+        .width(dropdown_width)
+        .show_ui(ui, |ui| {
+            if let Some(current_provider) = providers.iter().find(|p| p.name() == chatbot_ui.selected_provider) {
+                for model in current_provider.models() {
+                    if (model == "Other" && chatbot_ui.selected_provider == "GPT") || 
+                       (model == "Other" && chatbot_ui.selected_provider == "Fireworks") {
+                        if ui.selectable_label(false, RichText::new("Other").color(theme.model_provider_dropdown_text_color)).clicked() {
+                            unsafe {
+                                SHOW_CUSTOM_MODEL_POPUP = true;
+                                CUSTOM_MODEL_INPUT.clear();
                             }
-                        } else if ui.selectable_value(&mut chatbot_ui.selected_model, model.to_string(), RichText::new(model).color(theme.model_provider_dropdown_text_color)).clicked() {
-                            chatbot_ui.selected_model = model.to_string();
-                            chatbot_ui.model_changed = true;
                         }
+                    } else if ui.selectable_value(&mut chatbot_ui.selected_model, model.to_string(), RichText::new(model).color(theme.model_provider_dropdown_text_color)).clicked() {
+                        chatbot_ui.selected_model = model.to_string();
+                        chatbot_ui.model_changed = true;
                     }
                 }
-            });
+            }
+        });
 
         ui.add_space(5.0);
 
@@ -107,7 +108,11 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
                             SHOW_CUSTOM_MODEL_POPUP = false;
                         }
                         if ui.add(egui::Button::new(RichText::new("OK").color(theme.settings_button_text_color)).fill(theme.settings_button_bg_color)).clicked() {
-                            chatbot_ui.selected_model = format!("accounts/fireworks/models/{}", CUSTOM_MODEL_INPUT.clone());
+                            chatbot_ui.selected_model = if chatbot_ui.selected_provider == "Fireworks" {
+                                format!("accounts/fireworks/models/{}", CUSTOM_MODEL_INPUT.clone())
+                            } else {
+                                CUSTOM_MODEL_INPUT.clone()
+                            };
                             chatbot_ui.model_changed = true;
                             SHOW_CUSTOM_MODEL_POPUP = false;
                         }

@@ -3,7 +3,8 @@ use serde_json::{json, Value};
 use tokio::sync::mpsc;
 use std::fmt;
 use std::sync::{Arc, Mutex};
-use futures_util::StreamExt;  // Add this import
+use futures_util::StreamExt;
+
 pub struct Claude {
     base: Arc<BaseProvider>,
     current_model: Arc<Mutex<String>>,
@@ -32,8 +33,9 @@ impl ProviderTrait for Claude {
     }
 
     fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
+        let model = self.current_model.lock().unwrap().clone();
         let json_body = json!({
-            "model": "claude-3-5-sonnet-20240620",
+            "model": model,
             "messages": messages,
             "max_tokens": 1024,
             "stream": true
@@ -60,6 +62,8 @@ impl ProviderTrait for Claude {
 
                     let mut stream = response.bytes_stream();
                     let mut buffer = String::new();
+                    
+                    println!("Debug: Claude API response: {:?}", json_body["model"]);
 
                     while let Some(item) = stream.next().await {
                         match item {
@@ -103,6 +107,7 @@ impl ProviderTrait for Claude {
 
         Ok(rx)
     }
+
     fn set_current_model(&self, model: String) {
         *self.current_model.lock().unwrap() = model;
         println!("Debug: Claude model set to {}", *self.current_model.lock().unwrap());

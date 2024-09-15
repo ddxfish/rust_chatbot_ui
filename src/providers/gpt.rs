@@ -31,6 +31,7 @@ impl ProviderTrait for GPT {
             "gpt-4-32k",
             "gpt-3.5-turbo",
             "gpt-3.5-turbo-16k",
+            "Other",
         ]
     }
 
@@ -41,6 +42,7 @@ impl ProviderTrait for GPT {
             "messages": messages,
             "stream": true
         });
+        println!("Debug: GPT model response: {:?}", json_body["model"]);
 
         let (tx, rx) = mpsc::channel(1024);
         let base = self.base.clone();
