@@ -75,6 +75,9 @@ impl ProviderTrait for Fireworks {
 
         Ok(rx)
     }
+    fn set_current_model(&self, model: String) {
+        println!("Debug: Fireworks model set to {}", model);
+    }
 }
 
 impl fmt::Display for Fireworks {

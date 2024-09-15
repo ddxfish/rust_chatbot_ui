@@ -2,16 +2,18 @@ use super::{ProviderError, ProviderTrait, BaseProvider};
 use serde_json::{json, Value};
 use tokio::sync::mpsc;
 use std::fmt;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 pub struct GPT {
     base: Arc<BaseProvider>,
+    current_model: Arc<Mutex<String>>,
 }
 
 impl GPT {
     pub fn new(api_key: String) -> Self {
         Self {
             base: Arc::new(BaseProvider::new(api_key)),
+            current_model: Arc::new(Mutex::new("gpt-3.5-turbo".to_string())),
         }
     }
 }
@@ -23,6 +25,8 @@ impl ProviderTrait for GPT {
 
     fn models(&self) -> Vec<&'static str> {
         vec![
+            "o1-preview",
+            "o1-mini",
             "gpt-4",
             "gpt-4-32k",
             "gpt-3.5-turbo",
@@ -31,8 +35,9 @@ impl ProviderTrait for GPT {
     }
 
     fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
+        let model = self.current_model.lock().unwrap().clone();
         let json_body = json!({
-            "model": "gpt-3.5-turbo",
+            "model": model,
             "messages": messages,
             "stream": true
         });
@@ -60,6 +65,10 @@ impl ProviderTrait for GPT {
         });
 
         Ok(rx)
+    }
+
+    fn set_current_model(&self, model: String) {
+        *self.current_model.lock().unwrap() = model;
     }
 }
 

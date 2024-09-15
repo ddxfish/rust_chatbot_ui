@@ -80,7 +80,7 @@ impl Chat {
         self.is_processing.load(Ordering::SeqCst)
     }
 
-    pub fn process_input(&mut self, input: String, model: &str) {
+    pub fn process_input(&self, input: String, model: String) {
         let input_with_newlines = input.replace("\n", "\n").trim().to_string();
         self.add_message(input_with_newlines.clone(), true);
         self.is_processing.store(true, Ordering::SeqCst);
@@ -92,14 +92,12 @@ impl Chat {
         let current_model = Arc::clone(&self.current_model);
         let error_sender = self.error_sender.clone();
         let stop_flag = Arc::clone(&self.stop_flag);
-    
-        let mut messages_clone = self.messages.lock().unwrap().clone();
-    
-        if model.starts_with("accounts/fireworks/models/") {
-            messages_clone.insert(0, Message::new(format!("Model: {}", model), false, Some("system".to_string())));
-        }
+        let provider = Arc::clone(&self.provider);
+        let messages = Arc::clone(&self.messages);
     
         self.runtime.spawn(async move {
+            provider.set_current_model(model.clone());
+            let messages_clone = messages.lock().unwrap().clone();
             match chatbot.stream_response(&messages_clone) {
                 Ok(mut rx) => {
                     let mut full_response = String::new();
@@ -113,14 +111,12 @@ impl Chat {
                         }
                     }
 
-                    // Send the complete message
                     let _ = ui_sender.send((full_response, true));
 
                     if messages_clone.len() == 1 {
                         *needs_naming.lock().unwrap() = true;
                     }
 
-                    let model = chatbot.get_current_model();
                     *current_model.lock().unwrap() = model;
                 }
                 Err(e) => {

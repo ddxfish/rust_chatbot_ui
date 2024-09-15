@@ -35,6 +35,7 @@ impl ChatbotUi {
         if self.model_changed {
             if let Some(provider) = providers.iter().find(|p| p.name() == self.selected_provider) {
                 chat.update_provider(Arc::clone(provider));
+                provider.set_current_model(self.selected_model.clone());
                 chat.set_current_model(&self.selected_model);
                 println!("Debug: Provider updated to {} with model {}", self.selected_provider, self.selected_model);
             }
@@ -85,7 +86,7 @@ impl ChatbotUi {
                                 self.current_response.clear();
                             } else if !self.input.trim().is_empty() {
                                 println!("Debug: Processing input with model: {}", self.selected_model);
-                                chat.process_input(std::mem::take(&mut self.input), &self.selected_model);
+                                chat.process_input(std::mem::take(&mut self.input), self.selected_model.to_string());
                                 self.is_loading = true;
                                 self.current_response.clear();
                             }

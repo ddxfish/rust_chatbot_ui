@@ -27,6 +27,9 @@ impl ProviderTrait for None {
         });
         Ok(rx)
     }
+    fn set_current_model(&self, _model: String) {
+        // Do nothing for None provider
+    }
 }
 
 impl fmt::Display for None {

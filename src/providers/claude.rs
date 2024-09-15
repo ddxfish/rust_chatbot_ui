@@ -2,16 +2,18 @@ use super::{ProviderError, ProviderTrait, BaseProvider};
 use serde_json::{json, Value};
 use tokio::sync::mpsc;
 use std::fmt;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use futures_util::StreamExt;  // Add this import
 pub struct Claude {
     base: Arc<BaseProvider>,
+    current_model: Arc<Mutex<String>>,
 }
 
 impl Claude {
     pub fn new(api_key: String) -> Self {
         Self {
             base: Arc::new(BaseProvider::new(api_key)),
+            current_model: Arc::new(Mutex::new("claude-3-5-sonnet-20240620".to_string())),
         }
     }
 }
@@ -100,6 +102,10 @@ impl ProviderTrait for Claude {
         });
 
         Ok(rx)
+    }
+    fn set_current_model(&self, model: String) {
+        *self.current_model.lock().unwrap() = model;
+        println!("Debug: Claude model set to {}", *self.current_model.lock().unwrap());
     }
 }
 
