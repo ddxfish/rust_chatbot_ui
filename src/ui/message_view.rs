@@ -3,10 +3,12 @@ use crate::chat::Chat;
 use crate::ui::themes::Theme;
 use crate::message::Message;
 use std::collections::HashMap;
+use crate::ui::syntax_highlighter::SyntaxHighlighter;
 
 pub struct MessageView {
     cache: HashMap<usize, CachedMessage>,
     current_theme: String,
+    syntax_highlighter: SyntaxHighlighter,
 }
 
 struct CachedMessage {
@@ -21,6 +23,7 @@ impl MessageView {
         Self {
             cache: HashMap::new(),
             current_theme: String::new(),
+            syntax_highlighter: SyntaxHighlighter::new(),
         }
     }
 
@@ -62,44 +65,35 @@ impl MessageView {
     }
 
     fn render_message(&mut self, ui: &mut Ui, index: usize, message: &Message, theme: &Theme) {
-        let cached = self.cache.entry(index).or_insert_with(|| {
-            CachedMessage {
+        let needs_update = if let Some(cached) = self.cache.get(&index) {
+            cached.content != message.content() || cached.is_user != message.is_user() || cached.model.as_deref() != message.model()
+        } else {
+            true
+        };
+
+        if needs_update {
+            let layout_job = self.create_layout_job(message, theme);
+            self.cache.insert(index, CachedMessage {
                 content: message.content().to_string(),
                 is_user: message.is_user(),
                 model: message.model().map(String::from),
-                layout_job: create_layout_job(message, theme),
-            }
-        });
-
-        if cached.content != message.content() || cached.is_user != message.is_user() || cached.model.as_deref() != message.model() {
-            cached.content = message.content().to_string();
-            cached.is_user = message.is_user();
-            cached.model = message.model().map(String::from);
-            cached.layout_job = create_layout_job(message, theme);
+                layout_job,
+            });
         }
 
-        render_message_frame(ui, message.is_user(), &cached.layout_job, message.model(), theme);
+        let cached = self.cache.get(&index).unwrap();
+        render_message_frame(ui, cached.is_user, &cached.layout_job, cached.model.as_deref(), theme);
     }
 
     fn render_current_response(&self, ui: &mut Ui, content: &str, model: String, theme: &Theme) {
         let message = Message::new(content.to_string(), false, Some(model));
-        let layout_job = create_layout_job(&message, theme);
+        let layout_job = self.create_layout_job(&message, theme);
         render_message_frame(ui, false, &layout_job, message.model(), theme);
     }
-}
 
-fn create_layout_job(message: &Message, theme: &Theme) -> LayoutJob {
-    let mut job = LayoutJob::default();
-    job.append(
-        message.content(),
-        0.0,
-        TextFormat {
-            font_id: FontId::new(16.0, FontFamily::Proportional),
-            color: if message.is_user() { theme.user_text_color } else { theme.bot_text_color },
-            ..Default::default()
-        },
-    );
-    job
+    fn create_layout_job(&self, message: &Message, theme: &Theme) -> LayoutJob {
+        self.syntax_highlighter.highlight_message(message, theme)
+    }
 }
 
 fn render_message_frame(ui: &mut Ui, is_user: bool, layout_job: &LayoutJob, model: Option<&str>, theme: &Theme) {
