@@ -2,6 +2,7 @@ use super::{ProviderError, ProviderTrait};
 use std::fmt;
 use serde_json::Value;
 use tokio::sync::mpsc;
+use crate::app::ProfileType;
 
 pub struct None;
 
@@ -22,12 +23,17 @@ impl ProviderTrait for None {
 
     fn stream_response(&self, _messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
         let (tx, rx) = mpsc::channel(1);
-        tokio::spawn(async move {
+        tokio::task::spawn(async move {
             let _ = tx.send("API key goes in Settings. Then select a provider and model.".to_string()).await;
         });
         Ok(rx)
     }
+
     fn set_current_model(&self, _model: String) {
+        // Do nothing for None provider
+    }
+
+    fn update_profile(&self, _profile: ProfileType) {
         // Do nothing for None provider
     }
 }

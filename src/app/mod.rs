@@ -14,6 +14,13 @@ use std::time::Instant;
 pub use icons::Icons;
 pub use app_state::ChatbotAppState;
 
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum ProfileType {
+    Coder,
+    Normal,
+    Creative,
+}
+
 pub struct ChatbotApp {
     state: ChatbotAppState,
     chat: Chat,
@@ -23,6 +30,7 @@ pub struct ChatbotApp {
     providers: Vec<Arc<dyn ProviderTrait + Send + Sync>>,
     theme: crate::ui::themes::Theme,
     last_scale_change: Instant,
+    current_profile: ProfileType,
 }
 
 impl ChatbotApp {

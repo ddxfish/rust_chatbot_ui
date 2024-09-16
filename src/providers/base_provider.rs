@@ -1,4 +1,5 @@
 use crate::providers::ProviderError;
+use crate::app::ProfileType;
 use reqwest::Client;
 use serde_json::Value;
 use tokio::sync::mpsc;
@@ -8,6 +9,10 @@ use futures_util::StreamExt;
 pub struct BaseProvider {
     pub client: Client,
     pub api_key: String,
+    pub top_p: f32,
+    pub top_k: u32,
+    pub repetition_penalty: f32,
+    pub creativity: f32,
 }
 
 impl BaseProvider {
@@ -15,69 +20,46 @@ impl BaseProvider {
         Self {
             client: Client::new(),
             api_key,
+            top_p: 0.9,
+            top_k: 40,
+            repetition_penalty: 1.0,
+            creativity: 0.5,
         }
     }
 
-    pub async fn stream_response(&self, url: &str, json_body: Value, error_prefix: &str) -> Result<mpsc::Receiver<String>, ProviderError> {
-        let (tx, rx) = mpsc::channel(1024);
-        
-        println!("Debug: Accessing URL: {}", url);
-        
-        let response = self.client
-            .post(url)
-            .header("Authorization", format!("Bearer {}", self.api_key))
-            .header("Content-Type", "application/json")
-            .json(&json_body)
-            .send()
-            .await
-            .map_err(|e| ProviderError::RequestError(format!("{}: {}", error_prefix, e)))?;
-
-        if !response.status().is_success() {
-            let error_body = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
-            return Err(ProviderError::ResponseError(format!("{}: {}", error_prefix, error_body)));
+    pub fn update_profile(&mut self, profile: ProfileType) {
+        match profile {
+            ProfileType::Coder => {
+                self.top_p = 0.7;
+                self.top_k = 20;
+                self.repetition_penalty = 1.2;
+                self.creativity = 0.3;
+            },
+            ProfileType::Normal => {
+                self.top_p = 0.9;
+                self.top_k = 40;
+                self.repetition_penalty = 1.0;
+                self.creativity = 0.5;
+            },
+            ProfileType::Creative => {
+                self.top_p = 1.0;
+                self.top_k = 60;
+                self.repetition_penalty = 0.8;
+                self.creativity = 0.8;
+            },
         }
+    }
 
-        let mut stream = response.bytes_stream();
-        
-        tokio::spawn(async move {
-            let mut buffer = String::new();
+    pub fn get_client(&self) -> Client {
+        self.client.clone()
+    }
 
-            while let Some(item) = stream.next().await {
-                match item {
-                    Ok(chunk) => {
-                        if let Ok(text) = String::from_utf8(chunk.to_vec()) {
-                            buffer.push_str(&text);
+    pub fn get_api_key(&self) -> String {
+        self.api_key.clone()
+    }
 
-                            while let Some(pos) = buffer.find('\n') {
-                                let line = buffer[..pos].to_string();
-                                buffer = buffer[pos + 1..].to_string();
-
-                                if line.starts_with("data: ") {
-                                    let data = &line[6..];
-                                    if data == "[DONE]" {
-                                        return;
-                                    }
-
-                                    if let Ok(json) = serde_json::from_str::<Value>(data) {
-                                        if let Some(content) = json["choices"][0]["delta"]["content"].as_str() {
-                                            if tx.send(content.to_string()).await.is_err() {
-                                                return;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    Err(e) => {
-                        let _ = tx.send(format!("Error: Failed to receive response - {}", e)).await;
-                        return;
-                    }
-                }
-            }
-        });
-
-        Ok(rx)
+    pub fn get_parameters(&self) -> (f32, u32, f32, f32) {
+        (self.top_p, self.top_k, self.repetition_penalty, self.creativity)
     }
 }
 
@@ -86,4 +68,5 @@ pub trait ProviderTrait: fmt::Display + Send + Sync {
     fn models(&self) -> Vec<&'static str>;
     fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError>;
     fn set_current_model(&self, model: String);
+    fn update_profile(&self, profile: ProfileType);
 }

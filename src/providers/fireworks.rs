@@ -3,16 +3,18 @@ use serde_json::{json, Value};
 use tokio::sync::mpsc;
 use std::fmt;
 use std::sync::{Arc, Mutex};
+use crate::app::ProfileType;
+use futures_util::StreamExt;
 
 pub struct Fireworks {
-    base: Arc<BaseProvider>,
+    base: Arc<Mutex<BaseProvider>>,
     current_model: Arc<Mutex<String>>,
 }
 
 impl Fireworks {
     pub fn new(api_key: String) -> Self {
         Self {
-            base: Arc::new(BaseProvider::new(api_key)),
+            base: Arc::new(Mutex::new(BaseProvider::new(api_key))),
             current_model: Arc::new(Mutex::new("accounts/fireworks/models/llama-v3p1-70b-instruct".to_string())),
         }
     }
@@ -34,37 +36,75 @@ impl ProviderTrait for Fireworks {
 
     fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
         let model = self.current_model.lock().unwrap().clone();
+        let (top_p, top_k, repetition_penalty, creativity) = self.base.lock().unwrap().get_parameters();
+        let client = self.base.lock().unwrap().get_client();
+        let api_key = self.base.lock().unwrap().get_api_key();
+
         let json_body = json!({
             "model": model,
             "max_tokens": 16384,
-            "top_p": 0.9,
-            "top_k": 40,
+            "top_p": top_p,
+            "top_k": top_k,
             "presence_penalty": 0,
-            "frequency_penalty": 0,
-            "temperature": 0.6,
+            "frequency_penalty": repetition_penalty,
+            "temperature": creativity,
             "messages": messages,
             "stream": true
         });
-        println!("Debug: Fireworks model response: {:?}", json_body["model"]);
 
         let (tx, rx) = mpsc::channel(1024);
-        let base = self.base.clone();
         
-        tokio::spawn(async move {
-            match base.stream_response(
-                "https://api.fireworks.ai/inference/v1/chat/completions",
-                json_body,
-                "Error sending request to Fireworks API"
-            ).await {
-                Ok(mut stream) => {
-                    while let Some(chunk) = stream.recv().await {
-                        if tx.send(chunk).await.is_err() {
-                            break;
+        tokio::task::spawn(async move {
+            let url = "https://api.fireworks.ai/inference/v1/chat/completions";
+            let error_prefix = "Error sending request to Fireworks API";
+
+            let response = client
+                .post(url)
+                .header("Authorization", format!("Bearer {}", api_key))
+                .header("Content-Type", "application/json")
+                .json(&json_body)
+                .send()
+                .await;
+
+            match response {
+                Ok(response) => {
+                    if !response.status().is_success() {
+                        let error_body = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+                        let _ = tx.send(format!("{}: {}", error_prefix, error_body)).await;
+                        return;
+                    }
+
+                    let mut stream = response.bytes_stream();
+                    while let Some(item) = stream.next().await {
+                        match item {
+                            Ok(chunk) => {
+                                if let Ok(text) = String::from_utf8(chunk.to_vec()) {
+                                    for line in text.lines() {
+                                        if line.starts_with("data: ") {
+                                            let data = &line[6..];
+                                            if data == "[DONE]" {
+                                                return;
+                                            }
+                                            if let Ok(json) = serde_json::from_str::<Value>(data) {
+                                                if let Some(content) = json["choices"][0]["delta"]["content"].as_str() {
+                                                    if tx.send(content.to_string()).await.is_err() {
+                                                        return;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Err(e) => {
+                                let _ = tx.send(format!("Error: Failed to receive response - {}", e)).await;
+                                return;
+                            }
                         }
                     }
                 }
                 Err(e) => {
-                    let _ = tx.send(format!("Error: {}", e)).await;
+                    let _ = tx.send(format!("{}: {}", error_prefix, e)).await;
                 }
             }
         });
@@ -79,7 +119,10 @@ impl ProviderTrait for Fireworks {
             model
         };
         *self.current_model.lock().unwrap() = full_model_name.clone();
-        println!("Debug: Fireworks model set to {}", full_model_name);
+    }
+
+    fn update_profile(&self, profile: ProfileType) {
+        self.base.lock().unwrap().update_profile(profile);
     }
 }
 

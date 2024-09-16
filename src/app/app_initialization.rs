@@ -2,6 +2,7 @@ use crate::app::{ChatbotApp, ChatbotAppState, Icons};
 use crate::chat::Chat;
 use crate::ui::ChatbotUi;
 use crate::settings::Settings;
+use crate::app::ProfileType;
 use eframe;
 use std::sync::Arc;
 use eframe::egui::{FontData, FontDefinitions, FontFamily};
@@ -30,6 +31,7 @@ pub fn initialize_app(cc: &eframe::CreationContext<'_>) -> ChatbotApp {
         providers,
         theme,
         last_scale_change: std::time::Instant::now() - std::time::Duration::from_secs(1),
+        current_profile: ProfileType::Normal,
     }
 }
 

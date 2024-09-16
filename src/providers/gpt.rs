@@ -3,16 +3,18 @@ use serde_json::{json, Value};
 use tokio::sync::mpsc;
 use std::fmt;
 use std::sync::{Arc, Mutex};
+use crate::app::ProfileType;
+use futures_util::StreamExt;
 
 pub struct GPT {
-    base: Arc<BaseProvider>,
+    base: Arc<Mutex<BaseProvider>>,
     current_model: Arc<Mutex<String>>,
 }
 
 impl GPT {
     pub fn new(api_key: String) -> Self {
         Self {
-            base: Arc::new(BaseProvider::new(api_key)),
+            base: Arc::new(Mutex::new(BaseProvider::new(api_key))),
             current_model: Arc::new(Mutex::new("gpt-3.5-turbo".to_string())),
         }
     }
@@ -25,42 +27,79 @@ impl ProviderTrait for GPT {
 
     fn models(&self) -> Vec<&'static str> {
         vec![
-            "gpt-4o",
+            "gpt-4-1106-preview",
             "gpt-4",
             "gpt-3.5-turbo",
-            "o1-preview",
-            "o1-mini",
+            "gpt-3.5-turbo-16k",
             "Other",
         ]
     }
 
     fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
         let model = self.current_model.lock().unwrap().clone();
+        let (top_p, _, repetition_penalty, creativity) = self.base.lock().unwrap().get_parameters();
+        let client = self.base.lock().unwrap().get_client();
+        let api_key = self.base.lock().unwrap().get_api_key();
+
         let json_body = json!({
             "model": model,
             "messages": messages,
-            "stream": true
+            "stream": true,
+            "temperature": creativity,
+            "top_p": top_p,
+            "frequency_penalty": repetition_penalty,
         });
-        println!("Debug: GPT model response: {:?}", json_body["model"]);
 
         let (tx, rx) = mpsc::channel(1024);
-        let base = self.base.clone();
         
-        tokio::spawn(async move {
-            match base.stream_response(
-                "https://api.openai.com/v1/chat/completions",
-                json_body,
-                "Error sending request to GPT API"
-            ).await {
-                Ok(mut stream) => {
-                    while let Some(chunk) = stream.recv().await {
-                        if tx.send(chunk).await.is_err() {
-                            break;
+        tokio::task::spawn(async move {
+            let response = client
+                .post("https://api.openai.com/v1/chat/completions")
+                .header("Authorization", format!("Bearer {}", api_key))
+                .header("Content-Type", "application/json")
+                .json(&json_body)
+                .send()
+                .await;
+
+            match response {
+                Ok(response) => {
+                    if !response.status().is_success() {
+                        let error_body = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+                        let _ = tx.send(format!("Error: GPT API returned error - {}", error_body)).await;
+                        return;
+                    }
+
+                    let mut stream = response.bytes_stream();
+                    while let Some(item) = stream.next().await {
+                        match item {
+                            Ok(chunk) => {
+                                if let Ok(text) = String::from_utf8(chunk.to_vec()) {
+                                    for line in text.lines() {
+                                        if line.starts_with("data: ") {
+                                            let data = &line[6..];
+                                            if data == "[DONE]" {
+                                                return;
+                                            }
+                                            if let Ok(json) = serde_json::from_str::<Value>(data) {
+                                                if let Some(content) = json["choices"][0]["delta"]["content"].as_str() {
+                                                    if tx.send(content.to_string()).await.is_err() {
+                                                        return;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Err(e) => {
+                                let _ = tx.send(format!("Error: Failed to receive response - {}", e)).await;
+                                return;
+                            }
                         }
                     }
                 }
                 Err(e) => {
-                    let _ = tx.send(format!("Error: {}", e)).await;
+                    let _ = tx.send(format!("Error: Failed to send request to GPT API - {}", e)).await;
                 }
             }
         });
@@ -70,6 +109,10 @@ impl ProviderTrait for GPT {
 
     fn set_current_model(&self, model: String) {
         *self.current_model.lock().unwrap() = model;
+    }
+
+    fn update_profile(&self, profile: ProfileType) {
+        self.base.lock().unwrap().update_profile(profile);
     }
 }
 

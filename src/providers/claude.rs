@@ -4,16 +4,17 @@ use tokio::sync::mpsc;
 use std::fmt;
 use std::sync::{Arc, Mutex};
 use futures_util::StreamExt;
+use crate::app::ProfileType;
 
 pub struct Claude {
-    base: Arc<BaseProvider>,
+    base: Arc<Mutex<BaseProvider>>,
     current_model: Arc<Mutex<String>>,
 }
 
 impl Claude {
     pub fn new(api_key: String) -> Self {
         Self {
-            base: Arc::new(BaseProvider::new(api_key)),
+            base: Arc::new(Mutex::new(BaseProvider::new(api_key))),
             current_model: Arc::new(Mutex::new("claude-3-5-sonnet-20240620".to_string())),
         }
     }
@@ -35,25 +36,32 @@ impl ProviderTrait for Claude {
 
     fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
         let model = self.current_model.lock().unwrap().clone();
+        let (top_p, _, _, creativity) = self.base.lock().unwrap().get_parameters();
+        let client = self.base.lock().unwrap().get_client();
+        let api_key = self.base.lock().unwrap().get_api_key();
+
         let json_body = json!({
             "model": model,
             "messages": messages,
             "max_tokens": 1024,
-            "stream": true
+            "stream": true,
+            "temperature": creativity,
+            "top_p": top_p,
         });
 
         let (tx, rx) = mpsc::channel(1024);
-        let base = self.base.clone();
         
-        tokio::spawn(async move {
-            match base.client
+        tokio::task::spawn(async move {
+            let response = client
                 .post("https://api.anthropic.com/v1/messages")
-                .header("x-api-key", &base.api_key)
+                .header("x-api-key", api_key)
                 .header("anthropic-version", "2023-06-01")
                 .header("content-type", "application/json")
                 .json(&json_body)
                 .send()
-                .await {
+                .await;
+
+            match response {
                 Ok(response) => {
                     if !response.status().is_success() {
                         let error_body = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
@@ -64,8 +72,6 @@ impl ProviderTrait for Claude {
                     let mut stream = response.bytes_stream();
                     let mut buffer = String::new();
                     
-                    println!("Debug: Claude API response: {:?}", json_body["model"]);
-
                     while let Some(item) = stream.next().await {
                         match item {
                             Ok(chunk) => {
@@ -111,7 +117,10 @@ impl ProviderTrait for Claude {
 
     fn set_current_model(&self, model: String) {
         *self.current_model.lock().unwrap() = model;
-        println!("Debug: Claude model set to {}", *self.current_model.lock().unwrap());
+    }
+
+    fn update_profile(&self, profile: ProfileType) {
+        self.base.lock().unwrap().update_profile(profile);
     }
 }
 

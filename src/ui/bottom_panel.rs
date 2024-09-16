@@ -4,11 +4,12 @@ use crate::settings::Settings;
 use crate::providers::ProviderTrait;
 use crate::ui::ChatbotUi;
 use crate::ui::themes::Theme;
+use crate::app::ProfileType;
 use rfd::FileDialog;
 use std::path::Path;
 use std::sync::Arc;
 
-pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui: &mut ChatbotUi, providers: &[Arc<dyn ProviderTrait + Send + Sync>], theme: &Theme) {
+pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui: &mut ChatbotUi, providers: &[Arc<dyn ProviderTrait + Send + Sync>], theme: &Theme, current_profile: &mut ProfileType) {
     static mut SHOW_CUSTOM_MODEL_POPUP: bool = false;
     static mut CUSTOM_MODEL_INPUT: String = String::new();
 
@@ -40,14 +41,34 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
 
         let dropdown_width = ui.available_width() * 0.99;
 
+        ui.horizontal(|ui| {
+            let profile_frame = egui::Frame::none()
+                .fill(theme.model_provider_dropdown_bg_color)
+                .rounding(5.0)
+                .stroke(egui::Stroke::new(1.0, theme.model_provider_dropdown_text_color));
+
+            profile_frame.show(ui, |ui| {
+                ui.horizontal(|ui| {
+                    for profile in [ProfileType::Coder, ProfileType::Normal, ProfileType::Creative].iter() {
+                        if ui.selectable_label(*current_profile == *profile, format!("{:?}", profile)).clicked() {
+                            *current_profile = *profile;
+                            if let Some(provider) = providers.iter().find(|p| p.name() == chatbot_ui.selected_provider) {
+                                provider.update_profile(*current_profile);
+                            }
+                        }
+                    }
+                });
+            });
+        });
+
+        ui.add_space(5.0);
+
         ui.visuals_mut().widgets.inactive.bg_fill = theme.model_provider_dropdown_bg_color;
         ui.visuals_mut().widgets.hovered.bg_fill = theme.model_provider_dropdown_bg_color;
         ui.visuals_mut().widgets.active.bg_fill = theme.model_provider_dropdown_bg_color;
         ui.visuals_mut().widgets.open.bg_fill = theme.model_provider_dropdown_bg_color;
         ui.visuals_mut().selection.bg_fill = theme.model_provider_dropdown_bg_color;
         ui.visuals_mut().widgets.noninteractive.bg_fill = theme.model_provider_dropdown_bg_color;
-
-        
 
         ui.visuals_mut().widgets.inactive.weak_bg_fill = theme.model_provider_dropdown_bg_color;
         ui.visuals_mut().widgets.hovered.weak_bg_fill = theme.model_provider_dropdown_bg_color;

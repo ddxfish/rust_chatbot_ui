@@ -1,6 +1,7 @@
 use crate::chat::Chat;
 use crate::chat::history_manager::ChatHistory;
 use crate::app::Icons;
+use crate::app::ProfileType;
 use crate::settings::Settings;
 use crate::ui::ChatbotUi;
 use crate::providers::ProviderTrait;
@@ -42,7 +43,7 @@ impl ChatbotAppState {
 
     pub fn render_bottom_left_section(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui: &mut ChatbotUi, providers: &[Arc<dyn ProviderTrait + Send + Sync>], theme: &Theme) {
         ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
-            bottom_panel::render(ui, chat, settings, chatbot_ui, providers, theme);
+            bottom_panel::render(ui, chat, settings, chatbot_ui, providers, theme, &mut ProfileType::Normal);
         });
     }
 }
