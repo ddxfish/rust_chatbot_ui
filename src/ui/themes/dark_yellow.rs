@@ -33,5 +33,8 @@ pub fn get_dark_yellow_theme() -> Theme {
         user_name_text_color: Color32::from_rgb(255, 255, 200),
         bot_text_color: Color32::from_rgb(204, 204, 0),
         user_text_color: Color32::from_rgb(255, 255, 0),
+        code_block_bg: Color32::from_rgb(60, 60, 0),
+        code_block_border: Color32::from_rgb(100, 100, 0),
+        code_block_language_color: Color32::from_rgb(180, 180, 0),
     }
 }

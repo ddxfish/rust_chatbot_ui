@@ -3,7 +3,7 @@ use crate::chat::Chat;
 use crate::ui::themes::Theme;
 use crate::message::Message;
 use std::collections::HashMap;
-use crate::ui::syntax_highlighter::SyntaxHighlighter;
+use crate::ui::syntax_highlighter::{SyntaxHighlighter, HighlightedBlock};
 
 pub struct MessageView {
     cache: HashMap<usize, CachedMessage>,
@@ -15,7 +15,7 @@ struct CachedMessage {
     content: String,
     is_user: bool,
     model: Option<String>,
-    layout_job: LayoutJob,
+    highlighted_blocks: Vec<HighlightedBlock>,
 }
 
 impl MessageView {
@@ -72,31 +72,27 @@ impl MessageView {
         };
 
         if needs_update {
-            let layout_job = self.create_layout_job(message, theme);
+            let highlighted_blocks = self.syntax_highlighter.highlight_message(message, theme);
             self.cache.insert(index, CachedMessage {
                 content: message.content().to_string(),
                 is_user: message.is_user(),
                 model: message.model().map(String::from),
-                layout_job,
+                highlighted_blocks,
             });
         }
 
         let cached = self.cache.get(&index).unwrap();
-        render_message_frame(ui, cached.is_user, &cached.layout_job, cached.model.as_deref(), theme);
+        render_message_frame(ui, cached.is_user, &cached.highlighted_blocks, cached.model.as_deref(), theme);
     }
 
     fn render_current_response(&self, ui: &mut Ui, content: &str, model: String, theme: &Theme) {
         let message = Message::new(content.to_string(), false, Some(model));
-        let layout_job = self.create_layout_job(&message, theme);
-        render_message_frame(ui, false, &layout_job, message.model(), theme);
-    }
-
-    fn create_layout_job(&self, message: &Message, theme: &Theme) -> LayoutJob {
-        self.syntax_highlighter.highlight_message(message, theme)
+        let highlighted_blocks = self.syntax_highlighter.highlight_message(&message, theme);
+        render_message_frame(ui, false, &highlighted_blocks, message.model(), theme);
     }
 }
 
-fn render_message_frame(ui: &mut Ui, is_user: bool, layout_job: &LayoutJob, model: Option<&str>, theme: &Theme) {
+fn render_message_frame(ui: &mut Ui, is_user: bool, highlighted_blocks: &[HighlightedBlock], model: Option<&str>, theme: &Theme) {
     let (border_color, background_color, name_color) = if is_user {
         (theme.user_message_border, theme.user_message_bg, theme.user_name_text_color)
     } else {
@@ -119,7 +115,31 @@ fn render_message_frame(ui: &mut Ui, is_user: bool, layout_job: &LayoutJob, mode
             };
             ui.label(prefix);
 
-            ui.add(Label::new(layout_job.clone()).wrap());
+            for block in highlighted_blocks {
+                match block {
+                    HighlightedBlock::Text(job) => {
+                        ui.add(Label::new(job.clone()).wrap());
+                    },
+                    HighlightedBlock::Code { language, job } => {
+                        ui.add_space(5.0);
+                        let code_frame = Frame::none()
+                            .fill(theme.code_block_bg)
+                            .stroke(Stroke::new(1.0, theme.code_block_border))
+                            .rounding(Rounding::same(5.0))
+                            .outer_margin(0.0)
+                            .inner_margin(18.0);
+
+                        code_frame.show(ui, |ui| {
+                            ui.set_max_width(ui.available_width() * 0.99);
+                            if !language.is_empty() {
+                                ui.label(RichText::new(language).small().color(theme.code_block_language_color));
+                            }
+                            ui.add(Label::new(job.clone()).wrap());
+                        });
+                        ui.add_space(5.0);
+                    }
+                }
+            }
         });
     });
 

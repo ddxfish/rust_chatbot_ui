@@ -33,5 +33,8 @@ pub fn get_dark_theme() -> Theme {
         user_name_text_color: Color32::from_rgb(0, 122, 255),
         bot_text_color: Color32::from_rgb(128, 0, 128),
         user_text_color: Color32::from_rgb(0, 122, 255),
+        code_block_bg: Color32::from_rgb(40, 44, 52),  // A dark background for code
+        code_block_border: Color32::from_rgb(70, 70, 70),  // A slightly lighter border
+        code_block_language_color: Color32::from_rgb(150, 150, 150),
     }
 }

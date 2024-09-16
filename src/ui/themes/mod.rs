@@ -37,6 +37,10 @@ pub struct Theme {
     pub user_name_text_color: Color32,
     pub bot_text_color: Color32,
     pub user_text_color: Color32,
+    // New fields for code block styling
+    pub code_block_bg: Color32,
+    pub code_block_border: Color32,
+    pub code_block_language_color: Color32,
 }
 
 impl Theme {

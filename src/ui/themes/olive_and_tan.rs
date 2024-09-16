@@ -33,5 +33,8 @@ pub fn get_olive_and_tan_theme() -> Theme {
         user_name_text_color: Color32::from_rgb(80, 70, 60),
         bot_text_color: Color32::from_rgb(70, 90, 60),
         user_text_color: Color32::from_rgb(130, 120, 110),
+        code_block_bg: Color32::from_rgb(220, 210, 190),  // Darker tan color
+        code_block_border: Color32::from_rgb(160, 150, 130),  // Darker border
+        code_block_language_color: Color32::from_rgb(80, 70, 60),
     }
 }
