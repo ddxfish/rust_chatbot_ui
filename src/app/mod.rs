@@ -48,6 +48,14 @@ impl ChatbotApp {
     fn switch_provider(&mut self, model: String) {
         app_updates::switch_provider(self, model);
     }
+
+    pub fn update_profile(&mut self, profile: ProfileType) {
+        self.current_profile = profile;
+        if let Some(provider) = self.providers.iter().find(|p| p.name() == self.ui.selected_provider) {
+            provider.update_profile(profile);
+        }
+        self.chat.update_profile(profile);
+    }
 }
 
 impl eframe::App for ChatbotApp {

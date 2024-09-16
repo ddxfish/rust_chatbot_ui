@@ -23,7 +23,7 @@ pub fn render(app: &mut ChatbotApp, ctx: &egui::Context) {
         });
 
     CentralPanel::default().show(ctx, |ui| {
-        app.ui.render(ui, &mut app.chat, &mut app.settings, &app.icons, &app.providers, &app.theme);
+        app.ui.render(ui, &mut app.chat, &mut app.settings, &app.icons, &app.providers, &app.theme , &mut app.current_profile);
 
         if let Some(previous_model) = app.state.previous_model.take() {
             if previous_model != app.ui.selected_model {

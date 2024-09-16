@@ -7,6 +7,7 @@ use tokio::sync::mpsc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use super::history_manager::ChatHistory;
 use super::chat_name_generation;
+use crate::app::ProfileType;
 
 pub struct Chat {
     pub messages: Arc<Mutex<Vec<Message>>>,
@@ -25,6 +26,7 @@ pub struct Chat {
     pub error_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
     pub has_updates: Arc<Mutex<bool>>,
     pub stop_flag: Arc<AtomicBool>,
+    pub current_profile: ProfileType,
 }
 
 impl Chat {
@@ -50,6 +52,7 @@ impl Chat {
             error_receiver: Arc::new(Mutex::new(error_receiver)),
             has_updates: Arc::new(Mutex::new(true)),
             stop_flag: Arc::new(AtomicBool::new(false)),
+            current_profile: ProfileType::Normal,
         }
     }
 
@@ -142,5 +145,9 @@ impl Chat {
 
         chat_name_generation::generate_chat_name(chatbot, messages, name_sender, &self.runtime);
         *needs_naming.lock().unwrap() = false;
+    }
+
+    pub fn update_profile(&self, profile: ProfileType) {
+        self.provider.update_profile(profile);
     }
 }

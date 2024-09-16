@@ -55,6 +55,7 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
                             if let Some(provider) = providers.iter().find(|p| p.name() == chatbot_ui.selected_provider) {
                                 provider.update_profile(*current_profile);
                             }
+                            chat.update_profile(*current_profile);
                         }
                     }
                 });
