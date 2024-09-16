@@ -72,7 +72,11 @@ impl MessageView {
         };
 
         if needs_update {
-            let highlighted_blocks = self.syntax_highlighter.highlight_message(message, theme);
+            let highlighted_blocks = self.syntax_highlighter.highlight_message(
+                message, 
+                theme, 
+                matches!(theme.name.as_str(), "Light" | "Olive and Tan")
+            );
             self.cache.insert(index, CachedMessage {
                 content: message.content().to_string(),
                 is_user: message.is_user(),
@@ -87,7 +91,11 @@ impl MessageView {
 
     fn render_current_response(&self, ui: &mut Ui, content: &str, model: String, theme: &Theme) {
         let message = Message::new(content.to_string(), false, Some(model));
-        let highlighted_blocks = self.syntax_highlighter.highlight_message(&message, theme);
+        let highlighted_blocks = self.syntax_highlighter.highlight_message(
+            &message, 
+            theme, 
+            matches!(theme.name.as_str(), "Light" | "Olive and Tan")
+        );
         render_message_frame(ui, false, &highlighted_blocks, message.model(), theme);
     }
 }

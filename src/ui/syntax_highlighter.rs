@@ -28,8 +28,7 @@ impl SyntaxHighlighter {
         }
     }
 
-    pub fn highlight_message(&self, message: &Message, theme: &Theme) -> Vec<HighlightedBlock> {
-        let mut blocks = Vec::new();
+    pub fn highlight_message(&self, message: &Message, theme: &Theme, use_light_syntax: bool) -> Vec<HighlightedBlock> {        let mut blocks = Vec::new();
         let re = Regex::new(r"```(\w+)?\n([\s\S]*?)\n```").unwrap();
         let mut last_end = 0;
 
@@ -55,7 +54,12 @@ impl SyntaxHighlighter {
             let code = cap.get(2).unwrap().as_str();
             let mut job = LayoutJob::default();
             let syntax = self.ss.find_syntax_by_token(lang).unwrap_or_else(|| self.ss.find_syntax_plain_text());
-            let mut h = HighlightLines::new(syntax, &self.ts.themes["base16-ocean.dark"]);
+            let syntax_theme = if use_light_syntax {
+                &self.ts.themes["base16-ocean.light"]
+            } else {
+                &self.ts.themes["base16-ocean.dark"]
+            };
+            let mut h = HighlightLines::new(syntax, syntax_theme);
 
             for line in LinesWithEndings::from(code) {
                 let ranges: Vec<(Style, &str)> = h.highlight_line(line, &self.ss).unwrap();

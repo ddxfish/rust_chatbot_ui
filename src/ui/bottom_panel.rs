@@ -62,7 +62,8 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
             if let Some(current_provider) = providers.iter().find(|p| p.name() == chatbot_ui.selected_provider) {
                 for model in current_provider.models() {
                     if (model == "Other" && chatbot_ui.selected_provider == "GPT") || 
-                       (model == "Other" && chatbot_ui.selected_provider == "Fireworks") {
+                       (model == "Other" && chatbot_ui.selected_provider == "Fireworks") ||
+                       (model == "Other" && chatbot_ui.selected_provider == "Claude") {
                         if ui.selectable_label(false, RichText::new("Other").color(theme.model_provider_dropdown_text_color)).clicked() {
                             unsafe {
                                 SHOW_CUSTOM_MODEL_POPUP = true;
