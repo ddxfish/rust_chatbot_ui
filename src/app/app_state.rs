@@ -14,6 +14,7 @@ use crate::chat::ui_rendering;
 pub struct ChatbotAppState {
     pub chat_history: ChatHistory,
     pub previous_model: Option<String>,
+    pub current_profile: ProfileType,
 }
 
 impl ChatbotAppState {
@@ -21,6 +22,7 @@ impl ChatbotAppState {
         Self {
             chat_history: ChatHistory::new("chat_history"),
             previous_model: None,
+            current_profile: ProfileType::Normal,
         }
     }
 
@@ -43,7 +45,7 @@ impl ChatbotAppState {
 
     pub fn render_bottom_left_section(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui: &mut ChatbotUi, providers: &[Arc<dyn ProviderTrait + Send + Sync>], theme: &Theme) {
         ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
-            bottom_panel::render(ui, chat, settings, chatbot_ui, providers, theme, &mut ProfileType::Normal);
+            bottom_panel::render(ui, chat, settings, chatbot_ui, providers, theme, &mut self.current_profile);
         });
     }
 }

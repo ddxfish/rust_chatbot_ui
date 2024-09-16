@@ -37,7 +37,7 @@ impl ProviderTrait for GPT {
 
     fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
         let model = self.current_model.lock().unwrap().clone();
-        let (top_p, _, repetition_penalty, creativity) = self.base.lock().unwrap().get_parameters();
+        let (top_p, top_k, repetition_penalty, creativity) = self.base.lock().unwrap().get_parameters();
         let client = self.base.lock().unwrap().get_client();
         let api_key = self.base.lock().unwrap().get_api_key();
 
@@ -47,10 +47,14 @@ impl ProviderTrait for GPT {
             "stream": true,
             "temperature": creativity,
             "top_p": top_p,
+            "top_k": top_k,
             "frequency_penalty": repetition_penalty,
         });
 
         let (tx, rx) = mpsc::channel(1024);
+        
+        // Debug line for model parameters
+        println!("Debug: Model parameters - top_p: {}, top_k: {}, repetition_penalty: {}, creativity: {}", top_p, top_k, repetition_penalty, creativity);
         
         tokio::task::spawn(async move {
             let response = client
@@ -113,6 +117,9 @@ impl ProviderTrait for GPT {
 
     fn update_profile(&self, profile: ProfileType) {
         self.base.lock().unwrap().update_profile(profile);
+    }
+    fn get_parameters(&self) -> (f32, u32, f32, f32) {
+        self.base.lock().unwrap().get_parameters()
     }
 }
 

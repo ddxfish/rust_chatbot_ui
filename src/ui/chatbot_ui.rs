@@ -8,6 +8,7 @@ use crate::providers::ProviderTrait;
 use crate::ui::themes::Theme;
 use std::sync::Arc;
 use crate::app::ProfileType;
+use crate::app::ChatbotAppState;
 
 pub struct ChatbotUi {
     pub input: String,
@@ -32,7 +33,7 @@ impl ChatbotUi {
         }
     }
 
-    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons, providers: &[Arc<dyn ProviderTrait + Send + Sync>], theme: &Theme, current_profile: &mut ProfileType) {
+    pub fn render(&mut self, ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, icons: &Icons, providers: &[Arc<dyn ProviderTrait + Send + Sync>], theme: &Theme, current_profile: &mut ProfileType, app_state: &mut ChatbotAppState) {
         if self.model_changed {
             if let Some(provider) = providers.iter().find(|p| p.name() == self.selected_provider) {
                 chat.update_provider(Arc::clone(provider));
@@ -127,6 +128,5 @@ impl ChatbotUi {
             }
         }
 
-        crate::ui::bottom_panel::render(ui, chat, settings, self, providers, theme, current_profile);
     }
 }

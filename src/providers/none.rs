@@ -36,6 +36,9 @@ impl ProviderTrait for None {
     fn update_profile(&self, _profile: ProfileType) {
         // Do nothing for None provider
     }
+    fn get_parameters(&self) -> (f32, u32, f32, f32) {
+        (1.0, 1, 1.0, 1.0)
+    }
 }
 
 impl fmt::Display for None {

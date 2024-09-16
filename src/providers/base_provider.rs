@@ -31,21 +31,21 @@ impl BaseProvider {
         match profile {
             ProfileType::Coder => {
                 self.top_p = 0.7;
-                self.top_k = 20;
-                self.repetition_penalty = 1.2;
-                self.creativity = 0.3;
+                self.top_k = 40;
+                self.repetition_penalty = 0.9;
+                self.creativity = 0.6;
             },
             ProfileType::Normal => {
                 self.top_p = 0.9;
-                self.top_k = 40;
-                self.repetition_penalty = 1.0;
-                self.creativity = 0.5;
+                self.top_k = 50;
+                self.repetition_penalty = 0.9;
+                self.creativity = 0.8;
             },
             ProfileType::Creative => {
-                self.top_p = 1.0;
-                self.top_k = 60;
-                self.repetition_penalty = 0.8;
-                self.creativity = 0.8;
+                self.top_p = 0.95;
+                self.top_k = 100;
+                self.repetition_penalty = 1.1;
+                self.creativity = 1.0;
             },
         }
     }
@@ -69,4 +69,5 @@ pub trait ProviderTrait: fmt::Display + Send + Sync {
     fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError>;
     fn set_current_model(&self, model: String);
     fn update_profile(&self, profile: ProfileType);
+    fn get_parameters(&self) -> (f32, u32, f32, f32);
 }

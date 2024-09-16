@@ -51,7 +51,8 @@ impl ProviderTrait for Fireworks {
             "messages": messages,
             "stream": true
         });
-
+        // Debug line for model parameters
+        println!("Debug: Model parameters - top_p: {}, top_k: {}, repetition_penalty: {}, creativity: {}", top_p, top_k, repetition_penalty, creativity);
         let (tx, rx) = mpsc::channel(1024);
         
         tokio::task::spawn(async move {
@@ -123,6 +124,9 @@ impl ProviderTrait for Fireworks {
 
     fn update_profile(&self, profile: ProfileType) {
         self.base.lock().unwrap().update_profile(profile);
+    }
+    fn get_parameters(&self) -> (f32, u32, f32, f32) {
+        self.base.lock().unwrap().get_parameters()
     }
 }
 

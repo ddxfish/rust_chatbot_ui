@@ -36,18 +36,22 @@ impl ProviderTrait for Claude {
 
     fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {
         let model = self.current_model.lock().unwrap().clone();
-        let (top_p, _, _, creativity) = self.base.lock().unwrap().get_parameters();
+        let (top_p, top_k, repetition_penalty, creativity) = self.base.lock().unwrap().get_parameters();
         let client = self.base.lock().unwrap().get_client();
         let api_key = self.base.lock().unwrap().get_api_key();
 
         let json_body = json!({
             "model": model,
             "messages": messages,
-            "max_tokens": 1024,
+            "max_tokens": 12384,
             "stream": true,
             "temperature": creativity,
             "top_p": top_p,
+            "top_k": top_k,
         });
+
+        // Debug line for model parameters
+        println!("Debug: Model parameters - top_p: {}, top_k: {}, repetition_penalty: {}, creativity: {}", top_p, top_k, repetition_penalty, creativity);
 
         let (tx, rx) = mpsc::channel(1024);
         
@@ -121,6 +125,9 @@ impl ProviderTrait for Claude {
 
     fn update_profile(&self, profile: ProfileType) {
         self.base.lock().unwrap().update_profile(profile);
+    }
+    fn get_parameters(&self) -> (f32, u32, f32, f32) {
+        self.base.lock().unwrap().get_parameters()
     }
 }
 
