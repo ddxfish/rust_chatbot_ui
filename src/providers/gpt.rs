@@ -52,7 +52,6 @@ impl ProviderTrait for GPT {
 
         let (tx, rx) = mpsc::channel(1024);
         
-        // Debug line for model parameters
         println!("Debug: Model parameters - top_p: {}, top_k: {}, repetition_penalty: {}, creativity: {}", top_p, top_k, repetition_penalty, creativity);
         
         tokio::task::spawn(async move {
@@ -73,21 +72,26 @@ impl ProviderTrait for GPT {
                     }
 
                     let mut stream = response.bytes_stream();
+                    let mut buffer = String::new();
+
                     while let Some(item) = stream.next().await {
                         match item {
                             Ok(chunk) => {
-                                if let Ok(text) = String::from_utf8(chunk.to_vec()) {
-                                    for line in text.lines() {
-                                        if line.starts_with("data: ") {
-                                            let data = &line[6..];
-                                            if data == "[DONE]" {
-                                                return;
-                                            }
-                                            if let Ok(json) = serde_json::from_str::<Value>(data) {
-                                                if let Some(content) = json["choices"][0]["delta"]["content"].as_str() {
-                                                    if tx.send(content.to_string()).await.is_err() {
-                                                        return;
-                                                    }
+                                buffer.push_str(&String::from_utf8_lossy(&chunk));
+
+                                while let Some(newline_pos) = buffer.find('\n') {
+                                    let line = buffer[..newline_pos].trim().to_string();
+                                    buffer = buffer[newline_pos + 1..].to_string();
+
+                                    if line.starts_with("data: ") {
+                                        let data = &line["data: ".len()..];
+                                        if data == "[DONE]" {
+                                            return;
+                                        }
+                                        if let Ok(json) = serde_json::from_str::<Value>(data) {
+                                            if let Some(content) = json["choices"][0]["delta"]["content"].as_str() {
+                                                if tx.send(content.to_string()).await.is_err() {
+                                                    return;
                                                 }
                                             }
                                         }
@@ -117,6 +121,7 @@ impl ProviderTrait for GPT {
     fn update_profile(&self, profile: ProfileType) {
         self.base.lock().unwrap().update_profile(profile);
     }
+
     fn get_parameters(&self) -> (f32, u32, f32, f32) {
         self.base.lock().unwrap().get_parameters()
     }

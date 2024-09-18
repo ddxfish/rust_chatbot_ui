@@ -21,30 +21,30 @@ impl BaseProvider {
             client: Client::new(),
             api_key,
             top_p: 0.9,
-            top_k: 40,
-            repetition_penalty: 1.0,
-            creativity: 0.5,
+            top_k: 50,
+            repetition_penalty: 0.4,
+            creativity: 0.8,
         }
     }
 
     pub fn update_profile(&mut self, profile: ProfileType) {
         match profile {
             ProfileType::Coder => {
-                self.top_p = 0.7;
+                self.top_p = 0.9;
                 self.top_k = 40;
-                self.repetition_penalty = 0.9;
-                self.creativity = 0.6;
+                self.repetition_penalty = 0.1;
+                self.creativity = 0.4;
             },
             ProfileType::Normal => {
                 self.top_p = 0.9;
                 self.top_k = 50;
-                self.repetition_penalty = 0.9;
+                self.repetition_penalty = 0.4;
                 self.creativity = 0.8;
             },
             ProfileType::Creative => {
                 self.top_p = 0.95;
                 self.top_k = 100;
-                self.repetition_penalty = 1.1;
+                self.repetition_penalty = 0.8;
                 self.creativity = 1.0;
             },
         }
