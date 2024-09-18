@@ -8,6 +8,7 @@ mod providers;
 use eframe::NativeOptions;
 use egui::{ViewportBuilder, IconData};
 
+
 fn load_icon() -> IconData {
     let image = image::load_from_memory(include_bytes!("../assets/app_icon.png"))
         .expect("Failed to load icon")

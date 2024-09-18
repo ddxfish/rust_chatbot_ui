@@ -47,7 +47,6 @@ impl ProviderTrait for GPT {
             "stream": true,
             "temperature": creativity,
             "top_p": top_p,
-            "top_k": top_k,
             "frequency_penalty": repetition_penalty,
         });
 
