@@ -63,6 +63,10 @@ impl MessageView {
         let message = Message::new(content.to_string(), false, Some(model));
         self.render_message(ui, &message, theme, true);
     }
+
+    pub fn clear_syntax_cache(&self) {
+        self.syntax_highlighter.clear_cache();
+    }
 }
 
 fn render_message_frame(ui: &mut Ui, is_user: bool, highlighted_blocks: &[HighlightedBlock], model: Option<&str>, theme: &Theme) {

@@ -6,12 +6,16 @@ use syntect::easy::HighlightLines;
 use syntect::highlighting::{ThemeSet, Style};
 use syntect::parsing::SyntaxSet;
 use syntect::util::LinesWithEndings;
+use std::collections::HashMap;
+use std::sync::Mutex;
 
 pub struct SyntaxHighlighter {
     ss: SyntaxSet,
     ts: ThemeSet,
+    cache: Mutex<HashMap<String, Vec<HighlightedBlock>>>,
 }
 
+#[derive(Clone)]
 pub enum HighlightedBlock {
     Text(LayoutJob),
     Code {
@@ -25,10 +29,24 @@ impl SyntaxHighlighter {
         Self {
             ss: SyntaxSet::load_defaults_newlines(),
             ts: ThemeSet::load_defaults(),
+            cache: Mutex::new(HashMap::new()),
         }
     }
 
     pub fn highlight_message(&self, content: &str, is_user: bool, theme: &Theme, use_light_syntax: bool, is_streaming: bool) -> Vec<HighlightedBlock> {
+        let cache_key = format!("{}-{}-{}-{}", content, is_user, theme.name, use_light_syntax);
+        let mut cache = self.cache.lock().unwrap();
+
+        if let Some(cached_blocks) = cache.get(&cache_key) {
+            return cached_blocks.clone();
+        }
+
+        let blocks = self.generate_highlighted_blocks(content, is_user, theme, use_light_syntax, is_streaming);
+        cache.insert(cache_key, blocks.clone());
+        blocks
+    }
+
+    fn generate_highlighted_blocks(&self, content: &str, is_user: bool, theme: &Theme, use_light_syntax: bool, is_streaming: bool) -> Vec<HighlightedBlock> {
         let mut blocks = Vec::new();
         let re = Regex::new(r"```(\w+)?").unwrap();
         let mut last_end = 0;
@@ -111,5 +129,9 @@ impl SyntaxHighlighter {
             language: language.to_string(),
             job,
         }
+    }
+
+    pub fn clear_cache(&self) {
+        self.cache.lock().unwrap().clear();
     }
 }

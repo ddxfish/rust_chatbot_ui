@@ -8,6 +8,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use super::history_manager::ChatHistory;
 use super::chat_name_generation;
 use crate::app::ProfileType;
+use crate::ui::MessageView;
 
 pub struct Chat {
     pub messages: Arc<Mutex<Vec<Message>>>,
@@ -28,6 +29,7 @@ pub struct Chat {
     pub stop_flag: Arc<AtomicBool>,
     pub current_profile: ProfileType,
     pub current_response: Arc<Mutex<String>>,
+    pub message_view: Arc<Mutex<MessageView>>,
 }
 
 impl Chat {
@@ -55,25 +57,16 @@ impl Chat {
             stop_flag: Arc::new(AtomicBool::new(false)),
             current_profile: ProfileType::Normal,
             current_response: Arc::new(Mutex::new(String::new())),
+            message_view: Arc::new(Mutex::new(MessageView::new())),
         }
+    }
+
+    pub fn clear_syntax_cache(&self) {
+        self.message_view.lock().unwrap().clear_syntax_cache();
     }
 
     pub fn update_provider(&mut self, new_provider: Arc<dyn ProviderTrait + Send + Sync>) {
         self.provider = new_provider;
-        self.set_has_updates();
-    }
-
-    pub fn add_message(&self, content: String, is_user: bool) {
-        let model = if is_user { None } else { Some(self.get_current_model()) };
-        let message = Message::new(content.clone(), is_user, model.clone());
-        self.messages.lock().unwrap().push(message);
-        if let Err(e) = self.history_manager.lock().unwrap().append_message(&content, is_user, model.as_deref()) {
-            eprintln!("Failed to append message to history: {}", e);
-        }
-
-        if !is_user && *self.needs_naming.lock().unwrap() {
-            self.generate_chat_name();
-        }
         self.set_has_updates();
     }
 
@@ -142,7 +135,7 @@ impl Chat {
         self.is_processing.store(false, Ordering::SeqCst);
     }
 
-    fn generate_chat_name(&self) {
+    pub fn generate_chat_name(&self) {
         let chatbot = Arc::clone(&self.chatbot);
         let messages = Arc::clone(&self.messages);
         let name_sender = self.name_sender.clone();
