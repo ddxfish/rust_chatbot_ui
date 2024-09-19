@@ -7,16 +7,18 @@ use crate::ui::syntax_highlighter::{SyntaxHighlighter, HighlightedBlock};
 
 pub struct MessageView {
     syntax_highlighter: SyntaxHighlighter,
+    message_cache: HashMap<String, Vec<HighlightedBlock>>,
 }
 
 impl MessageView {
     pub fn new() -> Self {
         Self {
             syntax_highlighter: SyntaxHighlighter::new(),
+            message_cache: HashMap::new(),
         }
     }
 
-    pub fn render_messages(&self, ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool, theme: &Theme) {
+    pub fn render_messages(&mut self, ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool, theme: &Theme) {
         let mut scroll_to_bottom = false;
         ScrollArea::vertical()
             .auto_shrink([false; 2])
@@ -24,7 +26,16 @@ impl MessageView {
             .show(ui, |ui| {
                 let messages = chat.get_messages();
                 for (index, message) in messages.iter().enumerate() {
-                    self.render_message(ui, message, theme, false);
+                    let cache_key = format!("{}-{}", message.content(), message.is_user());
+                    let highlighted_blocks = self.message_cache.entry(cache_key.clone())
+                        .or_insert_with(|| self.syntax_highlighter.highlight_message(
+                            message.content(),
+                            message.is_user(),
+                            theme,
+                            matches!(theme.name.as_str(), "Light" | "Olive and Tan"),
+                            false
+                        ));
+                    render_message_frame(ui, message.is_user(), highlighted_blocks, message.model(), theme);
                     if index == messages.len() - 1 && !message.is_user() && !current_response.is_empty() {
                         continue;
                     }
@@ -48,24 +59,21 @@ impl MessageView {
         }
     }
 
-    fn render_message(&self, ui: &mut Ui, message: &Message, theme: &Theme, is_streaming: bool) {
+    fn render_current_response(&self, ui: &mut Ui, content: &str, model: String, theme: &Theme) {
+        let message = Message::new(content.to_string(), false, Some(model));
         let highlighted_blocks = self.syntax_highlighter.highlight_message(
             message.content(),
             message.is_user(),
             theme,
             matches!(theme.name.as_str(), "Light" | "Olive and Tan"),
-            is_streaming
+            true
         );
         render_message_frame(ui, message.is_user(), &highlighted_blocks, message.model(), theme);
     }
 
-    fn render_current_response(&self, ui: &mut Ui, content: &str, model: String, theme: &Theme) {
-        let message = Message::new(content.to_string(), false, Some(model));
-        self.render_message(ui, &message, theme, true);
-    }
-
-    pub fn clear_syntax_cache(&self) {
+    pub fn clear_syntax_cache(&mut self) {
         self.syntax_highlighter.clear_cache();
+        self.message_cache.clear();
     }
 }
 

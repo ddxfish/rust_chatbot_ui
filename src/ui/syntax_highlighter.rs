@@ -9,10 +9,13 @@ use syntect::util::LinesWithEndings;
 use std::collections::HashMap;
 use std::sync::Mutex;
 
+const MAX_CACHE_SIZE: usize = 1000;
+
 pub struct SyntaxHighlighter {
     ss: SyntaxSet,
     ts: ThemeSet,
-    cache: Mutex<HashMap<String, Vec<HighlightedBlock>>>,
+    cache: Mutex<HashMap<String, (Vec<HighlightedBlock>, usize)>>,
+    cache_counter: Mutex<usize>,
 }
 
 #[derive(Clone)]
@@ -30,19 +33,31 @@ impl SyntaxHighlighter {
             ss: SyntaxSet::load_defaults_newlines(),
             ts: ThemeSet::load_defaults(),
             cache: Mutex::new(HashMap::new()),
+            cache_counter: Mutex::new(0),
         }
     }
 
     pub fn highlight_message(&self, content: &str, is_user: bool, theme: &Theme, use_light_syntax: bool, is_streaming: bool) -> Vec<HighlightedBlock> {
-        let cache_key = format!("{}-{}-{}-{}", content, is_user, theme.name, use_light_syntax);
+        let cache_key = format!("{}-{}-{}-{}-{}", content, is_user, theme.name, use_light_syntax, is_streaming);
         let mut cache = self.cache.lock().unwrap();
+        let mut counter = self.cache_counter.lock().unwrap();
 
-        if let Some(cached_blocks) = cache.get(&cache_key) {
-            return cached_blocks.clone();
+        if let Some((blocks, _)) = cache.get(&cache_key) {
+            return blocks.clone();
         }
 
         let blocks = self.generate_highlighted_blocks(content, is_user, theme, use_light_syntax, is_streaming);
-        cache.insert(cache_key, blocks.clone());
+        
+        *counter += 1;
+        cache.insert(cache_key, (blocks.clone(), *counter));
+
+        if cache.len() > MAX_CACHE_SIZE {
+            let oldest = cache.iter().min_by_key(|(_, (_, count))| count).map(|(k, _)| k.clone());
+            if let Some(oldest_key) = oldest {
+                cache.remove(&oldest_key);
+            }
+        }
+
         blocks
     }
 
@@ -133,5 +148,6 @@ impl SyntaxHighlighter {
 
     pub fn clear_cache(&self) {
         self.cache.lock().unwrap().clear();
+        *self.cache_counter.lock().unwrap() = 0;
     }
 }
