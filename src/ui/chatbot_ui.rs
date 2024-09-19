@@ -44,11 +44,14 @@ impl ChatbotUi {
             self.model_changed = false;
         }
 
+        // Log the current UI scale factor
+        //println!("Debug: Current UI scale factor: {}", ui.ctx().pixels_per_point());
+
         egui::CentralPanel::default().show_inside(ui, |ui| {
             ui.vertical(|ui| {
                 let available_height = ui.available_height();
                 let input_height = 80.0;
-                let padding = 0.0;
+                let padding = 10.0;
                 let message_height = available_height - input_height - padding * 2.0;
 
                 ScrollArea::vertical()
@@ -58,6 +61,8 @@ impl ChatbotUi {
                     .show(ui, |ui| {
                         self.message_view.render_messages(ui, chat, &self.current_response, self.is_loading, theme);
                     });
+
+                ui.add_space(padding);
 
                 ui.horizontal(|ui| {
                     ui.with_layout(Layout::left_to_right(Align::TOP).with_main_wrap(false), |ui| {
@@ -127,6 +132,5 @@ impl ChatbotUi {
                 eprintln!("Error: Failed to rename chat: {}", e);
             }
         }
-
     }
 }
