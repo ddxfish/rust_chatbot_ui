@@ -30,7 +30,7 @@ impl BaseProvider {
     pub fn update_profile(&mut self, profile: ProfileType) {
         match profile {
             ProfileType::Coder => {
-                self.top_p = 0.9;
+                self.top_p = 0.85;
                 self.top_k = 40;
                 self.repetition_penalty = 0.1;
                 self.creativity = 0.4;
@@ -38,13 +38,13 @@ impl BaseProvider {
             ProfileType::Normal => {
                 self.top_p = 0.9;
                 self.top_k = 50;
-                self.repetition_penalty = 0.4;
+                self.repetition_penalty = 0.2;
                 self.creativity = 0.8;
             },
             ProfileType::Creative => {
                 self.top_p = 0.95;
-                self.top_k = 100;
-                self.repetition_penalty = 0.8;
+                self.top_k = 90;
+                self.repetition_penalty = 0.5;
                 self.creativity = 1.0;
             },
         }

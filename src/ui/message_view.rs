@@ -6,33 +6,17 @@ use std::collections::HashMap;
 use crate::ui::syntax_highlighter::{SyntaxHighlighter, HighlightedBlock};
 
 pub struct MessageView {
-    cache: HashMap<usize, CachedMessage>,
-    current_theme: String,
     syntax_highlighter: SyntaxHighlighter,
-}
-
-struct CachedMessage {
-    content: String,
-    is_user: bool,
-    model: Option<String>,
-    highlighted_blocks: Vec<HighlightedBlock>,
 }
 
 impl MessageView {
     pub fn new() -> Self {
         Self {
-            cache: HashMap::new(),
-            current_theme: String::new(),
             syntax_highlighter: SyntaxHighlighter::new(),
         }
     }
 
-    pub fn render_messages(&mut self, ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool, theme: &Theme) {
-        if self.current_theme != theme.name {
-            self.cache.clear();
-            self.current_theme = theme.name.clone();
-        }
-
+    pub fn render_messages(&self, ui: &mut Ui, chat: &Chat, current_response: &str, is_loading: bool, theme: &Theme) {
         let mut scroll_to_bottom = false;
         ScrollArea::vertical()
             .auto_shrink([false; 2])
@@ -40,7 +24,7 @@ impl MessageView {
             .show(ui, |ui| {
                 let messages = chat.get_messages();
                 for (index, message) in messages.iter().enumerate() {
-                    self.render_message(ui, index, message, theme);
+                    self.render_message(ui, message, theme, false);
                     if index == messages.len() - 1 && !message.is_user() && !current_response.is_empty() {
                         continue;
                     }
@@ -64,39 +48,20 @@ impl MessageView {
         }
     }
 
-    fn render_message(&mut self, ui: &mut Ui, index: usize, message: &Message, theme: &Theme) {
-        let needs_update = if let Some(cached) = self.cache.get(&index) {
-            cached.content != message.content() || cached.is_user != message.is_user() || cached.model.as_deref() != message.model()
-        } else {
-            true
-        };
-
-        if needs_update {
-            let highlighted_blocks = self.syntax_highlighter.highlight_message(
-                message, 
-                theme, 
-                matches!(theme.name.as_str(), "Light" | "Olive and Tan")
-            );
-            self.cache.insert(index, CachedMessage {
-                content: message.content().to_string(),
-                is_user: message.is_user(),
-                model: message.model().map(String::from),
-                highlighted_blocks,
-            });
-        }
-
-        let cached = self.cache.get(&index).unwrap();
-        render_message_frame(ui, cached.is_user, &cached.highlighted_blocks, cached.model.as_deref(), theme);
+    fn render_message(&self, ui: &mut Ui, message: &Message, theme: &Theme, is_streaming: bool) {
+        let highlighted_blocks = self.syntax_highlighter.highlight_message(
+            message.content(),
+            message.is_user(),
+            theme,
+            matches!(theme.name.as_str(), "Light" | "Olive and Tan"),
+            is_streaming
+        );
+        render_message_frame(ui, message.is_user(), &highlighted_blocks, message.model(), theme);
     }
 
     fn render_current_response(&self, ui: &mut Ui, content: &str, model: String, theme: &Theme) {
         let message = Message::new(content.to_string(), false, Some(model));
-        let highlighted_blocks = self.syntax_highlighter.highlight_message(
-            &message, 
-            theme, 
-            matches!(theme.name.as_str(), "Light" | "Olive and Tan")
-        );
-        render_message_frame(ui, false, &highlighted_blocks, message.model(), theme);
+        self.render_message(ui, &message, theme, true);
     }
 }
 

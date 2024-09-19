@@ -27,6 +27,7 @@ pub struct Chat {
     pub has_updates: Arc<Mutex<bool>>,
     pub stop_flag: Arc<AtomicBool>,
     pub current_profile: ProfileType,
+    pub current_response: Arc<Mutex<String>>,
 }
 
 impl Chat {
@@ -53,6 +54,7 @@ impl Chat {
             has_updates: Arc::new(Mutex::new(true)),
             stop_flag: Arc::new(AtomicBool::new(false)),
             current_profile: ProfileType::Normal,
+            current_response: Arc::new(Mutex::new(String::new())),
         }
     }
 
@@ -97,6 +99,7 @@ impl Chat {
         let stop_flag = Arc::clone(&self.stop_flag);
         let provider = Arc::clone(&self.provider);
         let messages = Arc::clone(&self.messages);
+        let current_response = Arc::clone(&self.current_response);
     
         self.runtime.spawn(async move {
             provider.set_current_model(model.clone());
@@ -109,12 +112,14 @@ impl Chat {
                             break;
                         }
                         full_response.push_str(&chunk);
+                        *current_response.lock().unwrap() = full_response.clone();
                         if ui_sender.send((chunk, false)).is_err() {
                             break;
                         }
                     }
 
-                    let _ = ui_sender.send((full_response, true));
+                    let _ = ui_sender.send((full_response.clone(), true));
+                    *current_response.lock().unwrap() = String::new();
 
                     if messages_clone.len() == 1 {
                         *needs_naming.lock().unwrap() = true;
@@ -149,5 +154,9 @@ impl Chat {
 
     pub fn update_profile(&self, profile: ProfileType) {
         self.provider.update_profile(profile);
+    }
+
+    pub fn get_current_response(&self) -> String {
+        self.current_response.lock().unwrap().clone()
     }
 }
