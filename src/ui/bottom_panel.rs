@@ -60,6 +60,9 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
                         chatbot_ui.model_changed = true;
                     }
                 }
+                if ui.selectable_value(&mut chatbot_ui.selected_model, "Other".to_string(), RichText::new("Other").color(theme.model_provider_dropdown_text_color)).clicked() {
+                    chatbot_ui.show_custom_model_popup = true;
+                }
             }
         });
 
@@ -80,7 +83,6 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
 
         ui.add_space(5.0);
 
-        // Profile selector moved up and width adjusted
         ui.horizontal(|ui| {
             let profile_frame = egui::Frame::none()
                 .fill(theme.model_provider_dropdown_bg_color)
@@ -102,17 +104,17 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
                 });
             });
         });
-
-
-
-
-
-
-
-
-
-
-
-
     });
+
+    if chatbot_ui.show_custom_model_popup {
+        egui::Window::new("Custom Model")
+            .show(ui.ctx(), |ui| {
+                ui.text_edit_singleline(&mut chatbot_ui.custom_model_name);
+                if ui.button("Confirm").clicked() {
+                    chatbot_ui.selected_model = chatbot_ui.custom_model_name.clone();
+                    chatbot_ui.show_custom_model_popup = false;
+                    chatbot_ui.model_changed = true;
+                }
+            });
+    }
 }

@@ -10,7 +10,7 @@ pub fn get_dark_theme() -> Theme {
         override_text_color: Color32::from_rgb(210, 210, 210),
         noninteractive_bg_fill: Color32::from_gray(30),
         inactive_bg_fill: Color32::from_gray(30),
-        user_message_bg: Color32::from_rgb(45, 45, 45),
+        user_message_bg: Color32::from_rgb(30, 30, 30),
         user_message_border: Color32::from_rgb(0, 122, 255),
         bot_message_bg: Color32::from_rgb(30, 30, 30),
         bot_message_border: Color32::from_rgb(128, 0, 128),
@@ -31,8 +31,8 @@ pub fn get_dark_theme() -> Theme {
         theme_dropdown_bg_color: Color32::from_rgb(40, 40, 40),
         bot_name_text_color: Color32::from_rgb(128, 0, 128),
         user_name_text_color: Color32::from_rgb(0, 122, 255),
-        bot_text_color: Color32::from_rgb(128, 0, 128),
-        user_text_color: Color32::from_rgb(0, 122, 255),
+        bot_text_color: Color32::from_rgb(192, 192, 192),
+        user_text_color: Color32::from_rgb(192, 192, 192),
         code_block_bg: Color32::from_rgb(40, 44, 52),  // A dark background for code
         code_block_border: Color32::from_rgb(70, 70, 70),  // A slightly lighter border
         code_block_language_color: Color32::from_rgb(150, 150, 150),

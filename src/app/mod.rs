@@ -13,6 +13,7 @@ use std::sync::Arc;
 use std::time::Instant;
 pub use icons::Icons;
 pub use app_state::ChatbotAppState;
+use egui::Color32;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum ProfileType {
@@ -31,11 +32,19 @@ pub struct ChatbotApp {
     theme: crate::ui::themes::Theme,
     last_scale_change: Instant,
     current_profile: ProfileType,
+    pub bot_text_color: Color32,
+    pub user_text_color: Color32,
 }
 
 impl ChatbotApp {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        app_initialization::initialize_app(cc)
+        let mut app = app_initialization::initialize_app(cc);
+        
+        // Initialize text colors from the current theme
+        app.bot_text_color = app.theme.bot_text_color;
+        app.user_text_color = app.theme.user_text_color;
+
+        app
     }
 
     fn create_providers(api_keys: &str) -> Vec<Arc<dyn ProviderTrait + Send + Sync>> {

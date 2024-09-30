@@ -50,7 +50,11 @@ impl Chatbot {
     }
 
     pub fn switch_model(&mut self, providers: &Vec<Arc<dyn ProviderTrait + Send + Sync>>, model: String) {
-        if let Some(new_provider) = providers.iter().find(|p| p.models().contains(&model.as_str())) {
+        if model == "Other" {
+            // For "Other", we keep the current provider but update the model name
+            self.current_model = model;
+            println!("Debug: Switched to custom model: {}", self.current_model);
+        } else if let Some(new_provider) = providers.iter().find(|p| p.models().contains(&model.as_str())) {
             self.provider = Arc::clone(new_provider);
             self.current_model = model;
             println!("Debug: Switched to model: {}", self.current_model);
@@ -61,10 +65,10 @@ impl Chatbot {
                 self.current_model = model;
                 println!("Debug: Switched to custom Fireworks model: {}", self.current_model);
             } else {
-                panic!("Fireworks provider not found for custom model: {}", model);
+                eprintln!("Fireworks provider not found for custom model: {}", model);
             }
         } else {
-            panic!("Model not found: {}", model);
+            eprintln!("Model not found: {}", model);
         }
     }
 }

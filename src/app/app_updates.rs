@@ -11,8 +11,16 @@ pub fn update(app: &mut ChatbotApp, ctx: &egui::Context) {
 
     let current_theme = app.settings.get_current_theme().clone();
     if app.theme.name != current_theme.name {
-        app.theme = current_theme;
+        app.theme = current_theme.clone();
         ctx.set_visuals(app.theme.apply_to_visuals());
+        
+        // Update bot and human text colors
+        app.bot_text_color = app.theme.bot_text_color;
+        app.user_text_color = app.theme.user_text_color;
+        
+        // Force a redraw of the chat messages
+        app.chat.clear_syntax_cache();
+        app.chat.set_has_updates();
     }
 
     if ctx.input(|i| i.key_pressed(Key::Minus) && i.modifiers.ctrl) {
@@ -37,7 +45,9 @@ pub fn update(app: &mut ChatbotApp, ctx: &egui::Context) {
 }
 
 pub fn switch_provider(app: &mut ChatbotApp, model: String) {
-    let (provider, _is_custom) = if model.starts_with("accounts/fireworks/models/") {
+    let (provider, is_custom) = if model == "Other" {
+        (app.providers.iter().find(|p| p.name() == app.ui.selected_provider), true)
+    } else if model.starts_with("accounts/fireworks/models/") {
         (app.providers.iter().find(|p| p.name() == "Fireworks"), true)
     } else {
         (app.providers.iter().find(|p| p.models().contains(&model.as_str())), false)
@@ -48,14 +58,19 @@ pub fn switch_provider(app: &mut ChatbotApp, model: String) {
 
         app.chat.update_provider(Arc::clone(current_provider));
 
-        let model_clone = model.clone();
+        let model_to_use = if is_custom {
+            app.ui.custom_model_name.clone()
+        } else {
+            model.clone()
+        };
+
         let providers_clone = app.providers.clone();
         if let Some(chatbot) = Arc::get_mut(&mut app.chat.chatbot) {
-            chatbot.switch_model(&providers_clone, model_clone);
+            chatbot.switch_model(&providers_clone, model_to_use.clone());
         }
 
         if let Ok(mut current_model) = app.chat.current_model.lock() {
-            *current_model = model;
+            *current_model = model_to_use;
         }
 
         println!("Provider and model updated successfully");

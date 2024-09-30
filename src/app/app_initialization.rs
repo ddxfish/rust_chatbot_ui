@@ -29,9 +29,11 @@ pub fn initialize_app(cc: &eframe::CreationContext<'_>) -> ChatbotApp {
         settings,
         icons: Icons::new(&cc.egui_ctx),
         providers,
-        theme,
+        theme: theme.clone(),
         last_scale_change: std::time::Instant::now() - std::time::Duration::from_secs(1),
         current_profile: ProfileType::Normal,
+        bot_text_color: theme.bot_text_color,
+        user_text_color: theme.user_text_color,
     }
 }
 

@@ -18,6 +18,8 @@ pub struct ChatbotUi {
     pub current_response: String,
     pub model_changed: bool,
     message_view: MessageView,
+    pub custom_model_name: String,
+    pub show_custom_model_popup: bool,
 }
 
 impl ChatbotUi {
@@ -30,6 +32,8 @@ impl ChatbotUi {
             current_response: String::new(),
             model_changed: false,
             message_view: MessageView::new(),
+            custom_model_name: String::new(),
+            show_custom_model_popup: false,
         }
     }
 
@@ -37,15 +41,17 @@ impl ChatbotUi {
         if self.model_changed {
             if let Some(provider) = providers.iter().find(|p| p.name() == self.selected_provider) {
                 chat.update_provider(Arc::clone(provider));
-                provider.set_current_model(self.selected_model.clone());
-                chat.set_current_model(&self.selected_model);
-                println!("Debug: Provider updated to {} with model {}", self.selected_provider, self.selected_model);
+                let model_to_use = if self.selected_model == "Other" {
+                    self.custom_model_name.clone()
+                } else {
+                    self.selected_model.clone()
+                };
+                provider.set_current_model(model_to_use.clone());
+                chat.set_current_model(&model_to_use);
+                println!("Debug: Provider updated to {} with model {}", self.selected_provider, model_to_use);
             }
             self.model_changed = false;
         }
-
-        // Log the current UI scale factor
-        //println!("Debug: Current UI scale factor: {}", ui.ctx().pixels_per_point());
 
         egui::CentralPanel::default().show_inside(ui, |ui| {
             ui.vertical(|ui| {
@@ -93,7 +99,12 @@ impl ChatbotUi {
                                 self.current_response.clear();
                             } else if !self.input.trim().is_empty() {
                                 println!("Debug: Processing input with model: {}", self.selected_model);
-                                chat.process_input(std::mem::take(&mut self.input), self.selected_model.to_string());
+                                let model_to_use = if self.selected_model == "Other" {
+                                    self.custom_model_name.clone()
+                                } else {
+                                    self.selected_model.clone()
+                                };
+                                chat.process_input(std::mem::take(&mut self.input), model_to_use);
                                 self.is_loading = true;
                                 self.current_response.clear();
                             }
