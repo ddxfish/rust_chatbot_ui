@@ -119,4 +119,8 @@ impl MessageView {
         self.syntax_highlighter.clear_cache();
         self.message_cache.clear();
     }
+    pub fn clear_cache(&mut self) {
+        self.message_cache.clear();
+        self.syntax_highlighter.clear_cache();  // If SyntaxHighlighter has its own cache
+    }
 }

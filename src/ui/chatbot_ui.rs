@@ -144,4 +144,7 @@ impl ChatbotUi {
             }
         }
     }
+    pub fn clear_message_cache(&mut self) {
+        self.message_view.clear_cache();
+    }
 }

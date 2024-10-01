@@ -18,10 +18,15 @@ pub fn update(app: &mut ChatbotApp, ctx: &egui::Context) {
         app.bot_text_color = app.theme.bot_text_color;
         app.user_text_color = app.theme.user_text_color;
         
-        // Force a redraw of the chat messages
+        // Clear the message cache
+        app.ui.clear_message_cache();  // Add this line
         app.chat.clear_syntax_cache();
+        
+        // Force a redraw
         app.chat.set_has_updates();
+        ctx.request_repaint();
     }
+
 
     if ctx.input(|i| i.key_pressed(Key::Minus) && i.modifiers.ctrl) {
         change_ui_scale(app, ctx, false);
