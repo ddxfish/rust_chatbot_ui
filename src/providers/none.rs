@@ -17,8 +17,8 @@ impl ProviderTrait for None {
         "Select a provider"
     }
 
-    fn models(&self) -> Vec<&'static str> {
-        vec!["Then select model"]
+    fn models(&self) -> Vec<(&'static str, usize)> {
+        vec![("Then select model", 0)]
     }
 
     fn stream_response(&self, _messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError> {

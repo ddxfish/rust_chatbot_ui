@@ -25,12 +25,13 @@ impl ProviderTrait for Fireworks {
         "Fireworks"
     }
 
-    fn models(&self) -> Vec<&'static str> {
+    fn models(&self) -> Vec<(&'static str, usize)> {
         vec![
-            "llama-v3p1-405b-instruct",
-            "llama-v3p1-70b-instruct",
-            "llama-v3p1-8b-instruct",
-            "llama-v3p2-11b-vision-instruct",
+            ("llama-v3p1-405b-instruct", 16384),
+            ("llama-v3p1-70b-instruct", 16384),
+            ("llama-v3p1-8b-instruct", 16384),
+            ("llama-v3p2-11b-vision-instruct", 16384),
+            ("llama-v3p2-3b-instruct", 16384)
         ]
     }
 
@@ -40,9 +41,15 @@ impl ProviderTrait for Fireworks {
         let client = self.base.lock().unwrap().get_client();
         let api_key = self.base.lock().unwrap().get_api_key();
 
+        let max_tokens = self.models()
+            .iter()
+            .find(|&&(name, _)| name == model.strip_prefix("accounts/fireworks/models/").unwrap_or(&model))
+            .map(|&(_, tokens)| tokens)
+            .unwrap_or(8192);
+
         let json_body = json!({
             "model": model,
-            "max_tokens": 16384,
+            "max_tokens": max_tokens,
             "top_p": top_p,
             "top_k": top_k,
             "presence_penalty": 0,

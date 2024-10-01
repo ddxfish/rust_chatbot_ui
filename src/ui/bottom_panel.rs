@@ -55,8 +55,8 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
         .show_ui(ui, |ui| {
             if let Some(current_provider) = providers.iter().find(|p| p.name() == chatbot_ui.selected_provider) {
                 for model in current_provider.models() {
-                    if ui.selectable_value(&mut chatbot_ui.selected_model, model.to_string(), RichText::new(model).color(theme.model_provider_dropdown_text_color)).clicked() {
-                        chatbot_ui.selected_model = model.to_string();
+                    if ui.selectable_value(&mut chatbot_ui.selected_model, model.0.to_string(), RichText::new(model.0).color(theme.model_provider_dropdown_text_color)).clicked() {
+                        chatbot_ui.selected_model = model.0.to_string();
                         chatbot_ui.model_changed = true;
                     }
                 }
@@ -75,7 +75,7 @@ pub fn render(ui: &mut Ui, chat: &mut Chat, settings: &mut Settings, chatbot_ui:
             for provider in providers {
                 if ui.selectable_label(chatbot_ui.selected_provider == provider.name(), RichText::new(provider.name()).color(theme.model_provider_dropdown_text_color)).clicked() {
                     chatbot_ui.selected_provider = provider.name().to_string();
-                    chatbot_ui.selected_model = provider.models()[0].to_string();
+                    chatbot_ui.selected_model = provider.models()[0].0.to_string();
                     chatbot_ui.model_changed = true;
                 }
             }

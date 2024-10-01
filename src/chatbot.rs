@@ -11,7 +11,7 @@ pub struct Chatbot {
 
 impl Chatbot {
     pub fn new(provider: Arc<dyn ProviderTrait + Send + Sync>) -> Self {
-        let initial_model = provider.models()[0].to_string();
+        let initial_model = provider.models()[0].0.to_string();
         Self { 
             provider,
             current_model: initial_model,
@@ -50,7 +50,7 @@ impl Chatbot {
             // For "Other", we keep the current provider but update the model name
             self.current_model = model;
             println!("Debug: Switched to custom model: {}", self.current_model);
-        } else if let Some(new_provider) = providers.iter().find(|p| p.models().contains(&model.as_str())) {
+        } else if let Some(new_provider) = providers.iter().find(|p| p.models().iter().any(|&(model_name, _)| model_name == model.as_str())) {
             self.provider = Arc::clone(new_provider);
             self.current_model = model;
             println!("Debug: Switched to model: {}", self.current_model);

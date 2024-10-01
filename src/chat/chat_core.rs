@@ -37,7 +37,7 @@ impl Chat {
         let (ui_sender, ui_receiver) = mpsc::unbounded_channel();
         let (name_sender, name_receiver) = mpsc::unbounded_channel();
         let (error_sender, error_receiver) = mpsc::unbounded_channel();
-        let initial_model = initial_provider.models()[0].to_string();
+        let initial_model = initial_provider.models()[0].0.to_string();
         Self {
             messages: Arc::new(Mutex::new(Vec::new())),
             chatbot: Arc::new(Chatbot::new(Arc::clone(&initial_provider))),

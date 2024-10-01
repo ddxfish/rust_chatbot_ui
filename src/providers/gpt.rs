@@ -25,15 +25,15 @@ impl ProviderTrait for GPT {
         "GPT"
     }
 
-    fn models(&self) -> Vec<&'static str> {
+    fn models(&self) -> Vec<(&'static str, usize)> {
         vec![
-            "gpt-4o",
-            "gpt-4",
-            "gpt-4o-mini",
-            "gpt-3.5-turbo",
-            "chatgpt-4o-latest",
-            "o1-preview",
-            "o1-mini",
+            ("gpt-4o", 4096),
+            ("gpt-4", 8192),
+            ("gpt-4o-mini", 16384),
+            ("gpt-3.5-turbo", 4096),
+            ("chatgpt-4o-latest", 16384),
+            ("o1-preview", 32768),
+            ("o1-mini", 65536),
         ]
     }
 
@@ -43,9 +43,16 @@ impl ProviderTrait for GPT {
         let client = self.base.lock().unwrap().get_client();
         let api_key = self.base.lock().unwrap().get_api_key();
 
+        let max_tokens = self.models()
+            .iter()
+            .find(|&&(name, _)| name == model)
+            .map(|&(_, tokens)| tokens)
+            .unwrap_or(4096);
+
         let json_body = json!({
             "model": model,
             "messages": messages,
+            "max_tokens": max_tokens,
             "stream": true,
             "temperature": creativity,
             "top_p": top_p,

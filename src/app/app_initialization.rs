@@ -17,7 +17,7 @@ pub fn initialize_app(cc: &eframe::CreationContext<'_>) -> ChatbotApp {
 
     let providers = ChatbotApp::create_providers(&settings.get_api_keys());
     let initial_provider = settings.get_first_provider_with_key(&providers);
-    let initial_model = initial_provider.models()[0].to_string();
+    let initial_model = initial_provider.models()[0].0.to_string();
 
     let chat = Chat::new(Arc::clone(&initial_provider));
     chat.load_most_recent_or_create_new().unwrap_or_else(|e| eprintln!("Failed to load or create chat: {}", e));

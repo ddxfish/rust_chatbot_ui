@@ -25,11 +25,11 @@ impl ProviderTrait for Claude {
         "Claude"
     }
 
-    fn models(&self) -> Vec<&'static str> {
+    fn models(&self) -> Vec<(&'static str, usize)> {
         vec![
-            "claude-3-5-sonnet-20240620",
-            "claude-3-opus-20240229",
-            "claude-3-haiku-20240307",
+            ("claude-3-5-sonnet-20240620", 8192),
+            ("claude-3-opus-20240229", 4096),
+            ("claude-3-haiku-20240307", 4096),
         ]
     }
 
@@ -39,10 +39,16 @@ impl ProviderTrait for Claude {
         let client = self.base.lock().unwrap().get_client();
         let api_key = self.base.lock().unwrap().get_api_key();
 
+        let max_tokens = self.models()
+            .iter()
+            .find(|&&(name, _)| name == model)
+            .map(|&(_, tokens)| tokens)
+            .unwrap_or(8192);
+
         let json_body = json!({
             "model": model,
             "messages": messages,
-            "max_tokens": 8192,
+            "max_tokens": max_tokens,
             "stream": true,
             "temperature": creativity,
             "top_p": top_p,

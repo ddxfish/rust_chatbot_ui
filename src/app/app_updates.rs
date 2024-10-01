@@ -55,7 +55,7 @@ pub fn switch_provider(app: &mut ChatbotApp, model: String) {
     } else if model.starts_with("accounts/fireworks/models/") {
         (app.providers.iter().find(|p| p.name() == "Fireworks"), true)
     } else {
-        (app.providers.iter().find(|p| p.models().contains(&model.as_str())), false)
+        (app.providers.iter().find(|p| p.models().iter().any(|&(model_name, _)| model_name == model.as_str())), false)
     };
 
     if let Some(current_provider) = provider {
@@ -89,7 +89,7 @@ pub fn reload_providers(app: &mut ChatbotApp) {
     app.providers = ChatbotApp::create_providers(&api_keys);
 
     app.ui.selected_provider = app.providers[0].name().to_string();
-    app.ui.selected_model = app.providers[0].models()[0].to_string();
+    app.ui.selected_model = app.providers[0].models()[0].0.to_string();
     app.chat.update_provider(Arc::clone(&app.providers[0]));
 }
 

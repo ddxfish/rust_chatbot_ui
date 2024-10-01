@@ -62,9 +62,10 @@ impl BaseProvider {
     }
 }
 
+
 pub trait ProviderTrait: fmt::Display + Send + Sync {
     fn name(&self) -> &'static str;
-    fn models(&self) -> Vec<&'static str>;
+    fn models(&self) -> Vec<(&'static str, usize)>;
     fn stream_response(&self, messages: Vec<Value>) -> Result<mpsc::Receiver<String>, ProviderError>;
     fn set_current_model(&self, model: String);
     fn update_profile(&self, profile: ProfileType);
