@@ -28,7 +28,6 @@ impl ProviderTrait for Claude {
     fn models(&self) -> Vec<(&'static str, usize)> {
         vec![
             ("claude-3-5-sonnet-20240620", 8192),
-            ("claude-3-opus-20240229", 4096),
             ("claude-3-haiku-20240307", 4096),
         ]
     }
@@ -43,7 +42,7 @@ impl ProviderTrait for Claude {
             .iter()
             .find(|&&(name, _)| name == model)
             .map(|&(_, tokens)| tokens)
-            .unwrap_or(8192);
+            .unwrap_or(4096);
 
         let json_body = json!({
             "model": model,
