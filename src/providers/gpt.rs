@@ -27,10 +27,13 @@ impl ProviderTrait for GPT {
 
     fn models(&self) -> Vec<&'static str> {
         vec![
-            "gpt-4-1106-preview",
+            "gpt-4o",
             "gpt-4",
+            "gpt-4o-mini",
             "gpt-3.5-turbo",
-            "gpt-3.5-turbo-16k",
+            "chatgpt-4o-latest",
+            "o1-preview",
+            "o1-mini",
         ]
     }
 

@@ -45,10 +45,6 @@ impl Chatbot {
         self.provider.stream_response(formatted_message)
     }
 
-    pub fn get_current_model(&self) -> String {
-        self.current_model.clone()
-    }
-
     pub fn switch_model(&mut self, providers: &Vec<Arc<dyn ProviderTrait + Send + Sync>>, model: String) {
         if model == "Other" {
             // For "Other", we keep the current provider but update the model name

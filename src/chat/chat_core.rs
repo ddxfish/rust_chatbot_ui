@@ -149,7 +149,4 @@ impl Chat {
         self.provider.update_profile(profile);
     }
 
-    pub fn get_current_response(&self) -> String {
-        self.current_response.lock().unwrap().clone()
-    }
 }
