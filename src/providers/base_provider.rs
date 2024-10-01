@@ -4,7 +4,6 @@ use reqwest::Client;
 use serde_json::Value;
 use tokio::sync::mpsc;
 use std::fmt;
-use futures_util::StreamExt;
 
 pub struct BaseProvider {
     pub client: Client,

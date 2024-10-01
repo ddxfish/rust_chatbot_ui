@@ -1,4 +1,3 @@
-use crate::message::Message;
 use crate::ui::themes::Theme;
 use egui::{text::LayoutJob, FontId, TextFormat, Color32};
 use regex::Regex;
@@ -115,7 +114,7 @@ impl SyntaxHighlighter {
         HighlightedBlock::Text(job)
     }
 
-    fn create_code_block(&self, code: &str, language: &str, theme: &Theme, use_light_syntax: bool) -> HighlightedBlock {
+    fn create_code_block(&self, code: &str, language: &str, _theme: &Theme, use_light_syntax: bool) -> HighlightedBlock {
         let mut job = LayoutJob::default();
         let syntax = self.ss.find_syntax_by_token(language).unwrap_or_else(|| self.ss.find_syntax_plain_text());
         let syntax_theme = if use_light_syntax {
