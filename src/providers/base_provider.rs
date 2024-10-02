@@ -38,7 +38,7 @@ impl BaseProvider {
                 self.top_p = 0.9;
                 self.top_k = 50;
                 self.repetition_penalty = 0.15;
-                self.creativity = 0.8;
+                self.creativity = 0.7;
             },
             ProfileType::Creative => {
                 self.top_p = 0.95;

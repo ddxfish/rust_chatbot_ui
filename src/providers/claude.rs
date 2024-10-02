@@ -41,7 +41,7 @@ impl ProviderTrait for Claude {
         let json_body = json!({
             "model": model,
             "messages": messages,
-            "max_tokens": 8192,
+            "max_tokens": 4096,
             "stream": true,
             "temperature": creativity,
             "top_p": top_p,
