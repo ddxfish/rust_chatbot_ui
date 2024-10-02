@@ -31,20 +31,20 @@ impl BaseProvider {
             ProfileType::Coder => {
                 self.top_p = 0.85;
                 self.top_k = 40;
-                self.repetition_penalty = 0.08;
+                self.repetition_penalty = 0.04;
                 self.creativity = 0.4;
             },
             ProfileType::Normal => {
                 self.top_p = 0.9;
                 self.top_k = 50;
-                self.repetition_penalty = 0.2;
+                self.repetition_penalty = 0.15;
                 self.creativity = 0.8;
             },
             ProfileType::Creative => {
                 self.top_p = 0.95;
-                self.top_k = 90;
-                self.repetition_penalty = 0.5;
-                self.creativity = 1.0;
+                self.top_k = 80;
+                self.repetition_penalty = 0.4;
+                self.creativity = 1.4;
             },
         }
     }
