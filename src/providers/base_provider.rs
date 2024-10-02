@@ -21,7 +21,7 @@ impl BaseProvider {
             api_key,
             top_p: 0.9,
             top_k: 50,
-            repetition_penalty: 0.3,
+            repetition_penalty: 0.2,
             creativity: 0.8,
         }
     }
@@ -31,7 +31,7 @@ impl BaseProvider {
             ProfileType::Coder => {
                 self.top_p = 0.85;
                 self.top_k = 40;
-                self.repetition_penalty = 0.05;
+                self.repetition_penalty = 0.08;
                 self.creativity = 0.4;
             },
             ProfileType::Normal => {

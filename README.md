@@ -6,7 +6,7 @@
 ![Meta](https://img.shields.io/badge/Meta_AI-0467DF?style=for-the-badge&logo=meta&logoColor=white)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-The Rust Chatbot UI supports multiple AI providers including GPT, Claude, and Fireworks, with the ability to switch between models mid-conversation. It features an easy-to-use interface with customizable themes and comprehensive chat history management. The application allows for real-time model adaptation during chats and includes export functionality for saving conversations. Built in Rust, it offers efficient performance while maintaining context across different AI models and providers.
+This Rust Chatbot UI is a user-friendly interface for using multiple AI providers with your own API keys. Use models like Claude, ChatGPT and Llama through Fireworks.ai. Manage chat histories, and customize your interaction environment. Built with Rust, its supposed to be efficient but who knows. I am still adding to this project.
 
 ![image](https://github.com/user-attachments/assets/c9f79bab-606f-41f1-9650-ff1946a9b4ee)
 
@@ -14,19 +14,21 @@ The Rust Chatbot UI supports multiple AI providers including GPT, Claude, and Fi
 
 - **Multi-Provider Support**: Integrate with various AI providers including GPT, Claude, and Fireworks.
 - **Dynamic Model Switching**: Seamlessly change AI models mid-conversation without losing context.
-- **Intuitive Interface**: Easy-to-use design for smooth interactions.
-- **Customizable Themes**: Personalize your chat environment with different visual themes.
+- **Customizable Themes**: Colors! Some weird colors too.
 - **Chat History Management**: Efficiently organize and access your past conversations.
 - **Export Functionality**: Save and share your chat sessions with ease.
 - **Stop Generation**: Ability to stop the model's response generation at any time.
 - **Secure API Key Storage**: API keys are securely stored in system credential managers, not in plain text files.
 - **AI-Generated Chat Names**: Automatically generate relevant names for your chat sessions using AI.
+- **Syntax Highlighting**: Improved code readability with syntax highlighting for various programming languages.
+- **Profile Switcher**: Choose between Coding, Normal, and Creative profiles to tailor the AI's responses.
+- **Custom Model Selection**: Use the "Other" option in model selection to input and use custom models for each provider.
 
 ## Quick Start
 
-1. Download the latest binary for your system (Windows or Linux) from the [Releases](https://github.com/ddxfish/rust_chatbot_ui/releases) page.
+1. Download the latest binary for your system (Windows or Linux) from the [Releases](https://github.com/ddxfish/rust_chatbot_ui/releases) page. Just run it.
 
-2. If you prefer to build from source:
+2. Or, If you prefer to build from source:
    ```
    git clone https://github.com/ddxfish/rust_chatbot_ui
    cd rust-chatbot-ui
@@ -34,11 +36,9 @@ The Rust Chatbot UI supports multiple AI providers including GPT, Claude, and Fi
    ```
    The executable will be in `target/release/rust_chatbot_ui`.
 
-3. Run the application, enter your API keys in the Settings panel, and start chatting!
-
 ## Configuration
 
-API keys for different providers can be entered in the Settings panel within the application.
+API keys for different providers can be entered in the Settings panel within the application. UI scale can be set using Ctrl + and -. Color scheme.
 
 ## License
 
