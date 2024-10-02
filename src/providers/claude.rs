@@ -38,16 +38,10 @@ impl ProviderTrait for Claude {
         let client = self.base.lock().unwrap().get_client();
         let api_key = self.base.lock().unwrap().get_api_key();
 
-        let max_tokens = self.models()
-            .iter()
-            .find(|&&(name, _)| name == model)
-            .map(|&(_, tokens)| tokens)
-            .unwrap_or(4096);
-
         let json_body = json!({
             "model": model,
             "messages": messages,
-            "max_tokens": max_tokens,
+            "max_tokens": 8192,
             "stream": true,
             "temperature": creativity,
             "top_p": top_p,
@@ -59,60 +53,60 @@ impl ProviderTrait for Claude {
         let (tx, rx) = mpsc::channel(1024);
         
         tokio::task::spawn(async move {
-            let response = client
+            let response = match client
                 .post("https://api.anthropic.com/v1/messages")
                 .header("x-api-key", api_key)
                 .header("anthropic-version", "2023-06-01")
                 .header("content-type", "application/json")
                 .json(&json_body)
                 .send()
-                .await;
+                .await
+            {
+                Ok(resp) => resp,
+                Err(e) => {
+                    let _ = tx.send(format!("Error: {}", ProviderError::RequestError(e.to_string()))).await;
+                    return;
+                }
+            };
 
-            match response {
-                Ok(response) => {
-                    if !response.status().is_success() {
-                        let error_body = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
-                        let _ = tx.send(format!("Error: Claude API returned error - {}", error_body)).await;
-                        return;
-                    }
+            if !response.status().is_success() {
+                let error_body = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+                let _ = tx.send(format!("Error: {}", ProviderError::ResponseError(error_body))).await;
+                return;
+            }
 
-                    let mut stream = response.bytes_stream();
-                    let mut buffer = String::new();
-                    
-                    while let Some(item) = stream.next().await {
-                        match item {
-                            Ok(chunk) => {
-                                buffer.push_str(&String::from_utf8_lossy(&chunk));
+            let mut stream = response.bytes_stream();
+            let mut buffer = String::new();
+            
+            while let Some(item) = stream.next().await {
+                match item {
+                    Ok(chunk) => {
+                        buffer.push_str(&String::from_utf8_lossy(&chunk));
 
-                                while let Some(newline_pos) = buffer.find('\n') {
-                                    let line = buffer[..newline_pos].trim().to_string();
-                                    buffer = buffer[newline_pos + 1..].to_string();
+                        while let Some(newline_pos) = buffer.find('\n') {
+                            let line = buffer[..newline_pos].trim().to_string();
+                            buffer = buffer[newline_pos + 1..].to_string();
 
-                                    if line.starts_with("data: ") {
-                                        let data = &line["data: ".len()..];
-                                        if data == "[DONE]" {
+                            if line.starts_with("data: ") {
+                                let data = &line["data: ".len()..];
+                                if data == "[DONE]" {
+                                    return;
+                                }
+
+                                if let Ok(json) = serde_json::from_str::<Value>(data) {
+                                    if let Some(content) = json["delta"]["text"].as_str() {
+                                        if tx.send(content.to_string()).await.is_err() {
                                             return;
-                                        }
-
-                                        if let Ok(json) = serde_json::from_str::<Value>(data) {
-                                            if let Some(content) = json["delta"]["text"].as_str() {
-                                                if tx.send(content.to_string()).await.is_err() {
-                                                    return;
-                                                }
-                                            }
                                         }
                                     }
                                 }
                             }
-                            Err(e) => {
-                                let _ = tx.send(format!("Error: Failed to receive response from Claude - {}", e)).await;
-                                return;
-                            }
                         }
                     }
-                }
-                Err(e) => {
-                    let _ = tx.send(format!("Error: Failed to send request to Claude API - {}", e)).await;
+                    Err(e) => {
+                        let _ = tx.send(format!("Error: {}", ProviderError::StreamError(e.to_string()))).await;
+                        return;
+                    }
                 }
             }
         });

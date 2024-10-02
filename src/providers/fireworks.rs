@@ -41,15 +41,9 @@ impl ProviderTrait for Fireworks {
         let client = self.base.lock().unwrap().get_client();
         let api_key = self.base.lock().unwrap().get_api_key();
 
-        let max_tokens = self.models()
-            .iter()
-            .find(|&&(name, _)| name == model.strip_prefix("accounts/fireworks/models/").unwrap_or(&model))
-            .map(|&(_, tokens)| tokens)
-            .unwrap_or(8192);
-
         let json_body = json!({
             "model": model,
-            "max_tokens": max_tokens,
+            "max_tokens": 16384,
             "top_p": top_p,
             "top_k": top_k,
             "presence_penalty": 0,
@@ -64,60 +58,59 @@ impl ProviderTrait for Fireworks {
         
         tokio::task::spawn(async move {
             let url = "https://api.fireworks.ai/inference/v1/chat/completions";
-            let error_prefix = "Error sending request to Fireworks API";
 
-            let response = client
+            let response = match client
                 .post(url)
                 .header("Authorization", format!("Bearer {}", api_key))
                 .header("Content-Type", "application/json")
                 .json(&json_body)
                 .send()
-                .await;
+                .await
+            {
+                Ok(resp) => resp,
+                Err(e) => {
+                    let _ = tx.send(format!("Error: {}", ProviderError::RequestError(e.to_string()))).await;
+                    return;
+                }
+            };
 
-            match response {
-                Ok(response) => {
-                    if !response.status().is_success() {
-                        let error_body = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
-                        let _ = tx.send(format!("{}: {}", error_prefix, error_body)).await;
-                        return;
-                    }
+            if !response.status().is_success() {
+                let error_body = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+                let _ = tx.send(format!("Error: {}", ProviderError::ResponseError(error_body))).await;
+                return;
+            }
 
-                    let mut stream = response.bytes_stream();
-                    let mut buffer = String::new();
+            let mut stream = response.bytes_stream();
+            let mut buffer = String::new();
 
-                    while let Some(item) = stream.next().await {
-                        match item {
-                            Ok(chunk) => {
-                                buffer.push_str(&String::from_utf8_lossy(&chunk));
+            while let Some(item) = stream.next().await {
+                match item {
+                    Ok(chunk) => {
+                        buffer.push_str(&String::from_utf8_lossy(&chunk));
 
-                                while let Some(newline_pos) = buffer.find('\n') {
-                                    let line = buffer[..newline_pos].trim().to_string();
-                                    buffer = buffer[newline_pos + 1..].to_string();
+                        while let Some(newline_pos) = buffer.find('\n') {
+                            let line = buffer[..newline_pos].trim().to_string();
+                            buffer = buffer[newline_pos + 1..].to_string();
 
-                                    if line.starts_with("data: ") {
-                                        let data = &line["data: ".len()..];
-                                        if data == "[DONE]" {
+                            if line.starts_with("data: ") {
+                                let data = &line["data: ".len()..];
+                                if data == "[DONE]" {
+                                    return;
+                                }
+                                if let Ok(json) = serde_json::from_str::<Value>(data) {
+                                    if let Some(content) = json["choices"][0]["delta"]["content"].as_str() {
+                                        if tx.send(content.to_string()).await.is_err() {
                                             return;
-                                        }
-                                        if let Ok(json) = serde_json::from_str::<Value>(data) {
-                                            if let Some(content) = json["choices"][0]["delta"]["content"].as_str() {
-                                                if tx.send(content.to_string()).await.is_err() {
-                                                    return;
-                                                }
-                                            }
                                         }
                                     }
                                 }
                             }
-                            Err(e) => {
-                                let _ = tx.send(format!("Error: Failed to receive response - {}", e)).await;
-                                return;
-                            }
                         }
                     }
-                }
-                Err(e) => {
-                    let _ = tx.send(format!("{}: {}", error_prefix, e)).await;
+                    Err(e) => {
+                        let _ = tx.send(format!("Error: {}", ProviderError::StreamError(e.to_string()))).await;
+                        return;
+                    }
                 }
             }
         });

@@ -27,7 +27,6 @@ pub struct Chat {
     pub error_receiver: Arc<Mutex<mpsc::UnboundedReceiver<String>>>,
     pub has_updates: Arc<Mutex<bool>>,
     pub stop_flag: Arc<AtomicBool>,
-    pub current_profile: ProfileType,
     pub current_response: Arc<Mutex<String>>,
     pub message_view: Arc<Mutex<MessageView>>,
 }
@@ -55,7 +54,6 @@ impl Chat {
             error_receiver: Arc::new(Mutex::new(error_receiver)),
             has_updates: Arc::new(Mutex::new(true)),
             stop_flag: Arc::new(AtomicBool::new(false)),
-            current_profile: ProfileType::Normal,
             current_response: Arc::new(Mutex::new(String::new())),
             message_view: Arc::new(Mutex::new(MessageView::new())),
         }
