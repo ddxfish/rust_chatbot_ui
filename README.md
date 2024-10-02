@@ -6,9 +6,9 @@
 ![Meta](https://img.shields.io/badge/Meta_AI-0467DF?style=for-the-badge&logo=meta&logoColor=white)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-This Rust Chatbot UI is a user-friendly interface for using multiple AI providers with your own API keys. Use models like Claude, ChatGPT and Llama through Fireworks.ai. Manage chat histories, and customize your interaction environment. Built with Rust, its supposed to be efficient but who knows. I am still adding to this project.
+This Rust Chatbot UI I made is for using multiple AI providers with your own API keys. Use models like Claude, ChatGPT and Llama through Fireworks.ai. Manage chat histories, and customize your interaction environment. Built with Rust, its supposed to be efficient but who knows. I am still adding to this project.
 
-![image](https://github.com/user-attachments/assets/c9f79bab-606f-41f1-9650-ff1946a9b4ee)
+![rust_chatbot_ui_demo](https://github.com/user-attachments/assets/d3050dcc-c683-4d03-845d-ec3a12ae2088)
 
 ## Features
 
